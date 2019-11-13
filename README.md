@@ -14,4 +14,4 @@ A website analytics.
 ## Running in development
 
 - run `cargo run`.
-- Live at `http://localhost/3000`.
+- Live at `http://localhost/3333`.
