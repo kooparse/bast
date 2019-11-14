@@ -38,7 +38,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
   try {
     let trackerData = JSON.parse(cookieValue);
     // Cool, we have our tracker data as object.
-    // We should set the previous page id, for uniq visit data.
 
     // Now, we're gonna send it to the tracker server.
     // We should generate a new Id.
@@ -48,13 +47,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
     //
     // TODO: Add function to generate an uuid.
     trackerData.id = Math.floor(Math.random() * 1000);
-    trackerData.pid = trackerData.pid || null;
-    console.log(trackerData)
+    trackerData.pid = trackerData.pid || '';
 
     // Also we have to build the query (with encodeUri and all that...)
     const query = generateQueryFromObject(trackerData);
     const url =`${trackerUrl}${query}`; 
-    console.log(trackerData);
 
     // Finally the request.
     // TODO: We should use an img url instead of the fetch api.
@@ -62,7 +59,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Now we have to update our cookie to add some data like
     // the previous page id.
     const { id, ...data } = trackerData;
-    const updatedTrackerData = { ...data, pid: id };
+    const updatedTrackerData = { ...data, pid: id, is_new: false };
     setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
     // The end.
     // clap clap clap.
@@ -85,6 +82,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       origin,
       href,
       pathname,
+      is_new: true,
     };
 
     return JSON.stringify(data);
@@ -125,9 +123,4 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]);
       }).join('&');
   }
-
-
-
 });
-
-

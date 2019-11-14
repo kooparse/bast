@@ -11,7 +11,8 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug)]
 struct Data {
     id: String,
-    pid: Option<String>,
+    pid: String,
+    is_new: bool,
     href: String,
     website_id: String,
     hostname: String,
