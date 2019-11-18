@@ -18,14 +18,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const trackerCookieName = "__tracker__";
   // TODO: Remove the pipe condition.
   const trackerUrl = window.__trackerUrl || "http://127.0.0.1:3333/tracker";
-  const websiteId = window.__websiteId || 1;
+  // Tracker id generated before.
+  // I think this "id" could be the concatenation between 
+  // the owner id and the website id.
+  const tid = window.__tid || '1::234';
   // The value of the cookie, we'll be stored inside this variable.
   // If no cookie found, this function return an empty string.
   let cookieValue = getCookie(trackerCookieName);
 
+  let { location } = window;
+
   if (!cookieValue) {
     // The function return a stringified json.
-    cookieValue = generateTrackerData();
+    cookieValue = generateTrackerData(location);
     // We now set the cookie with those freshly data.
     setCookie(trackerCookieName, cookieValue, 1);
   }
@@ -40,14 +45,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Cool, we have our tracker data as object.
 
     // Now, we're gonna send it to the tracker server.
-    // We should generate a new Id.
+    // We should generate a new uuid.
     // The server address is ours or the user one (if self-hosted).
     // We got the value from the window scope.
-    // Same for the website id.
+    // Same for the website uuid.
     //
-    // TODO: Add function to generate an uuid.
-    trackerData.id = Math.floor(Math.random() * 1000);
-    trackerData.pid = trackerData.pid || '';
+    trackerData.uuid = gen_uuid();
+    trackerData.puuid = trackerData.puuid || '';
+
+    if (!trackerData.pages.includes(location.pathname)) {
+      trackerData.pages.push(location.pathname);
+    }
 
     // Also we have to build the query (with encodeUri and all that...)
     const query = generateQueryFromObject(trackerData);
@@ -57,9 +65,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // TODO: We should use an img url instead of the fetch api.
     fetch(url, { method: 'GET', mode: 'cors' });
     // Now we have to update our cookie to add some data like
-    // the previous page id.
-    const { id, ...data } = trackerData;
-    const updatedTrackerData = { ...data, pid: id, is_new: false };
+    // the previous page uuid.
+    const { uuid, ...data } = trackerData;
+    const updatedTrackerData = { ...data, puuid: uuid, isNewSession: false };
     setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
     // The end.
     // clap clap clap.
@@ -69,20 +77,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }
 
 
-  function generateTrackerData() {
-    let { hostname, origin, href, pathname } = window.location;
+  function generateTrackerData(location) {
+    let { hostname, origin, href, pathname } = location;
+
+    // TODO: Check if user set "not track" etc...
 
     if (origin === "null") {
       origin = "";
     }
 
     let data = {
-      website_id: websiteId,
+      tid,
       hostname,
       origin,
       href,
+      pages: [],
       pathname,
-      is_new: true,
+      isNewSession: true,
     };
 
     return JSON.stringify(data);
@@ -112,6 +123,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
     d.setTime(d.getTime() + (expireNbDay*24*60*60*1000));
     const expires = "expires="+ d.toUTCString();
     document.cookie = name + "=" + value + ";" + expires + ";path=/";
+  }
+
+  function gen_uuid(){
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      var r = (dt + Math.random()*16)%16 | 0;
+      dt = Math.floor(dt/16);
+      return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+
+    return uuid;
   }
 
   // Stolen, in consequence we should highly change this.
