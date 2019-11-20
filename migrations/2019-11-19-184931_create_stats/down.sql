@@ -1,3 +1,3 @@
 -- This file should undo anything in `up.sql`
-
-DROP TABLE ghosts
+DROP TABLE pages;
+DROP TABLE websites;

@@ -10,6 +10,8 @@ pub struct Website {
     pub id: i32,
     #[serde(skip_serializing)]
     pub user_id: i32,
+    pub visitors: i32,
+    pub sessions: i32,
     pub domain: String,
     #[serde(skip_serializing)]
     pub created_at: SystemTime,

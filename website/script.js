@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   // Tracker id generated before.
   // I think this "id" could be the concatenation between 
   // the owner id and the website id.
-  const tid = window.__tid || '1::234';
+  const tid = window.__tid || '1::1';
   // The value of the cookie, we'll be stored inside this variable.
   // If no cookie found, this function return an empty string.
   let cookieValue = getCookie(trackerCookieName);
@@ -53,9 +53,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     trackerData.uuid = gen_uuid();
     trackerData.puuid = trackerData.puuid || '';
 
-    if (!trackerData.pages.includes(location.pathname)) {
-      trackerData.pages.push(location.pathname);
-    }
+    // if (!trackerData.pages.includes(location.pathname)) {
+    //   trackerData.pages.push(location.pathname);
+    // }
 
     // Also we have to build the query (with encodeUri and all that...)
     const query = generateQueryFromObject(trackerData);
@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       hostname,
       origin,
       href,
-      pages: [],
+      // pages: [],
       pathname,
       isNewSession: true,
     };
