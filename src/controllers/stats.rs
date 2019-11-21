@@ -40,6 +40,7 @@ pub fn stats(
 
         let pages: Vec<Page> = pages::table
             .filter(pages::website_id.eq(&website.id))
+            .order_by(pages::visitors.desc())
             .get_results::<_>(&conn)
             .map_err(|_| UserError::BadRequest)?;
 
