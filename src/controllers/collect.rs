@@ -1,4 +1,3 @@
-use crate::diesel::dsl::*;
 use crate::models::{
     schema::{pages, websites},
     SlimPage, Website,
@@ -6,6 +5,7 @@ use crate::models::{
 use crate::utils::UserError;
 use crate::Db;
 use actix_web::{error::ResponseError, web, HttpResponse};
+use diesel::dsl::*;
 use diesel::prelude::*;
 use futures::Future;
 use serde::Deserialize;
