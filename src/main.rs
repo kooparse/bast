@@ -20,16 +20,16 @@ fn script() -> Result<NamedFile> {
 
 /// All routes are here.
 fn main() -> std::io::Result<()> {
-    // Load logger env info
-    env_logger::init();
     // Load all environement's variables.
     dotenv().ok();
+    // Load logger env info
+    env_logger::init();
 
     let bind_address = {
         format!(
             "{}:{}",
-            var("SERVER_URL").unwrap_or("127.0.0.1".into()),
-            var("SERVER_PORT").unwrap_or("3333".into())
+            var("SERVER_URL").unwrap_or("0.0.0.0".into()),
+            var("PORT").unwrap_or("3333".into())
         )
     };
 
