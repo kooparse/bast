@@ -12,7 +12,7 @@ CREATE TABLE websites (
 CREATE TABLE pages (
   id SERIAL PRIMARY KEY,
   website_id SERIAL references websites(id),
-  pathname TEXT NOT NULL,
+  pathname TEXT NOT NULL UNIQUE,
   visitors INTEGER NOT NULL DEFAULT 0,
   sessions INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 

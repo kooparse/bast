@@ -17,11 +17,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   const trackerCookieName = "__tracker__";
   // TODO: Remove the pipe condition.
-  const trackerUrl = window.__trackerUrl || "http://127.0.0.1:3333/tracker";
+  const trackerUrl = window.__trackerUrl || "http://127.0.0.1:3333/api/collect";
   // Tracker id generated before.
   // I think this "id" could be the concatenation between 
   // the owner id and the website id.
-  const tid = window.__tid || '1::1';
+  const user_id = window.__bast__user_id || 1;
+  const website_id = window.__bast__website_id || 1;
   // The value of the cookie, we'll be stored inside this variable.
   // If no cookie found, this function return an empty string.
   let cookieValue = getCookie(trackerCookieName);
@@ -53,10 +54,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     trackerData.uuid = gen_uuid();
     trackerData.puuid = trackerData.puuid || '';
 
-    // if (!trackerData.pages.includes(location.pathname)) {
-    //   trackerData.pages.push(location.pathname);
-    // }
-
     // Also we have to build the query (with encodeUri and all that...)
     const query = generateQueryFromObject(trackerData);
     const url =`${trackerUrl}${query}`; 
@@ -87,11 +84,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
     let data = {
-      tid,
+      user_id,
+      website_id,
       hostname,
       origin,
       href,
-      // pages: [],
       pathname,
       isNewSession: true,
     };

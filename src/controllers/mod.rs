@@ -1,8 +1,8 @@
 mod auth;
+mod collect;
 mod health;
-mod tracker;
 pub mod website;
 
 pub use auth::*;
+pub use collect::*;
 pub use health::*;
-pub use tracker::*;
