@@ -5,6 +5,7 @@ authors = ["Alexandre Chêne <kooparse@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
+actix-files= "0.1"
 actix-web = "1"
 actix-cors = "0.1"
 diesel = { version="1.4.2", features = ["postgres", "r2d2"] }

@@ -7,11 +7,16 @@ mod utils;
 extern crate diesel;
 
 use actix_cors::Cors;
-use actix_web::{middleware::Logger, web, App, HttpServer};
-use controllers::{collect, stats, health, login, register, website};
+use actix_files::NamedFile;
+use actix_web::{middleware::Logger, web, App, HttpServer, Result};
+use controllers::{collect, health, login, register, stats, website};
 use db::Db;
 use dotenv::{dotenv, var};
 use env_logger;
+
+fn script() -> Result<NamedFile> {
+    Ok(NamedFile::open("./website/script.js")?)
+}
 
 /// All routes are here.
 fn main() -> std::io::Result<()> {
@@ -33,6 +38,7 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .data(Db::new())
             .wrap(Cors::default())
+            .service(web::scope("/").route("/script.js", web::get().to(script)))
             .service(
                 web::scope("/api")
                     .route("/register", web::post().to_async(register))
