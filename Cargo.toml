@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 actix-files= "0.1"
-actix-web = "1"
+actix-web = { version="1.0.9", features = ["ssl"] }
 actix-cors = "0.1"
 diesel = { version="1.4.2", features = ["postgres", "r2d2"] }
 dotenv = "0.15"
