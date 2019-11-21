@@ -33,6 +33,8 @@ fn main() -> std::io::Result<()> {
         )
     };
 
+    println!("Starting server on {}", bind_address);
+
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
