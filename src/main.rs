@@ -40,7 +40,6 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .data(Db::new())
             .wrap(Cors::default())
-            .service(web::scope("/").route("/script.js", web::get().to(script)))
             .service(
                 web::scope("/api")
                     .route("/register", web::post().to_async(register))
@@ -50,6 +49,7 @@ fn main() -> std::io::Result<()> {
                     .route("/website", web::post().to_async(website::create))
                     .route("/health", web::get().to(health)),
             )
+            .route("/script.js", web::get().to(script))
     })
     .bind(bind_address)?
     .run()
