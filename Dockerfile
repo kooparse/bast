@@ -9,6 +9,7 @@ WORKDIR /bast
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./migrations ./migrations
+COPY ./static     ./static
 
 
 # This build step will cache your dependencies
