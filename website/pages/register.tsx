@@ -6,18 +6,30 @@ import styled from "styled-components";
 import InputField from "../components/Input";
 import Button from "../components/Button";
 import Content from "../components/Content";
+import api, { setToken } from "../utils/api";
+import { UserContext } from "../utils/context";
 
 const initialValues = {
   email: "",
-  username: "",
   password: ""
 };
 
 class Register extends Component {
+  static contextType = UserContext;
   // Register new user then login with it.
-  onSubmit = form => {
-    // Signup with form data.
-    Router.push("/");
+  onSubmit = async form => {
+    try {
+      // First register new user.
+      await api.post("/register", form);
+      // Then logged new user.
+      const { data } = await api.post("/login", form);
+      // Store all info in localStorage + set axios header.
+      setToken(data.token);
+      this.context.setUser(data.user);
+      Router.push("/");
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   render() {
