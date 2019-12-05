@@ -1,4 +1,4 @@
-use crate::models::{schema::users, SlimUser, User};
+use crate::models::{schema::users, AuthUser, SlimUser, User};
 use crate::utils::{JWTPayload, UserError};
 use crate::Db;
 use actix_web::{error::ResponseError, web, HttpResponse};
@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
 pub struct SignInData {
-    username: String,
+    email: String,
     password: String,
 }
 
@@ -19,6 +19,26 @@ pub struct SignInData {
 struct UserWithToken {
     user: SlimUser,
     token: String,
+}
+
+pub fn user(
+    data: web::Data<Db>,
+    auth_user: AuthUser,
+) -> impl Future<Item = HttpResponse, Error = UserError> {
+    web::block(move || -> Result<SlimUser, UserError> {
+        let user_id = auth_user.get_id()?;
+
+        let user: User = users::table
+            .find(&user_id)
+            .get_result::<_>(&data.conn_pool()?)
+            .map_err(|_| UserError::BadRequest)?;
+
+        Ok(SlimUser::from(user))
+    })
+    .then(move |res| match res {
+        Ok(user) => Ok(HttpResponse::Ok().json(user)),
+        Err(err) => Ok(err.error_response()),
+    })
 }
 
 pub fn login(
@@ -30,7 +50,7 @@ pub fn login(
         let jwt_timeout = 10000000000;
 
         let user: User = users::table
-            .filter(users::username.eq(&form.username))
+            .filter(users::email.eq(&form.email))
             .first::<_>(&data.conn_pool()?)
             .map_err(|_| UserError::BadRequest)?;
 

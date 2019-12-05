@@ -8,7 +8,7 @@ extern crate diesel;
 
 use actix_cors::Cors;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use controllers::{collect, file, health, login, register, stats, website};
+use controllers::{collect, file, health, login, user, register, stats, website};
 use db::Db;
 use dotenv::{dotenv, var};
 use env_logger;
@@ -41,6 +41,7 @@ fn main() -> std::io::Result<()> {
                     .route("/login", web::post().to_async(login))
                     .route("/collect", web::get().to_async(collect))
                     .route("/stats", web::get().to_async(stats))
+                    .route("/user", web::get().to_async(user))
                     .route("/website", web::post().to_async(website::create))
                     .route("/health", web::get().to(health)),
             )
