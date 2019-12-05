@@ -7,6 +7,7 @@ target
 website/node_modules/
 website/.next/
 website/out/
+/static/front/
 
 # dependencies
 /node_modules

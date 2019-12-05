@@ -1,10 +1,14 @@
 use actix_files::NamedFile;
-use actix_web::{HttpRequest, Result};
-use std::path::PathBuf;
+use actix_web::Result;
 
-pub fn serve(req: HttpRequest) -> Result<NamedFile> {
-    let filename = req.match_info().query("filename");
-    let path: PathBuf = format!("static/{}", filename).parse()?;
+pub fn script() -> Result<NamedFile> {
+    Ok(NamedFile::open("static/script")?)
+}
 
-    Ok(NamedFile::open(path)?)
+pub fn front_register() -> Result<NamedFile> {
+    Ok(NamedFile::open("static/front/register.html")?)
+}
+
+pub fn front_login() -> Result<NamedFile> {
+    Ok(NamedFile::open("static/front/login.html")?)
 }

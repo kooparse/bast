@@ -7,8 +7,11 @@ mod utils;
 extern crate diesel;
 
 use actix_cors::Cors;
+use actix_files as fs;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use controllers::{collect, file, health, login, user, register, stats, website};
+use controllers::{
+    collect, file, health, login, register, stats, user, website,
+};
 use db::Db;
 use dotenv::{dotenv, var};
 use env_logger;
@@ -45,8 +48,16 @@ fn main() -> std::io::Result<()> {
                     .route("/website", web::post().to_async(website::create))
                     .route("/health", web::get().to(health)),
             )
-            // Static files
-            .route("/{filename:.*}", web::get().to(file::serve))
+            // Serving the script file.
+            .route("/script.js", web::get().to(file::script))
+            // Serving the front static app.
+            .route("/register", web::get().to(file::front_register))
+            .route("/login", web::get().to(file::front_login))
+            .service(
+                fs::Files::new("/", "./static/front")
+                    .show_files_listing()
+                    .index_file("index.html"),
+            )
     })
     .bind(bind_address)?
     .run()
