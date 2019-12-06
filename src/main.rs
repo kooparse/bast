@@ -45,6 +45,7 @@ fn main() -> std::io::Result<()> {
                     .route("/collect", web::get().to_async(collect))
                     .route("/stats", web::get().to_async(stats))
                     .route("/user", web::get().to_async(user))
+                    .route("/websites", web::get().to_async(website::get_all))
                     .route("/website", web::post().to_async(website::create))
                     .route("/health", web::get().to(health)),
             )
@@ -53,6 +54,7 @@ fn main() -> std::io::Result<()> {
             // Serving the front static app.
             .route("/register", web::get().to(file::front_register))
             .route("/login", web::get().to(file::front_login))
+            .route("/create_website", web::get().to(file::front_create_website))
             .service(
                 fs::Files::new("/", "./static/front")
                     .show_files_listing()

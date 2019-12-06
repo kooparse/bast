@@ -8,9 +8,8 @@ use std::time::SystemTime;
 /// Full user object with all database information.
 pub struct User {
     pub id: i32,
-    pub username: String,
-    pub password: String,
     pub email: String,
+    pub password: String,
     pub created_at: SystemTime,
 }
 
@@ -19,7 +18,6 @@ pub struct User {
 /// the client.
 pub struct SlimUser {
     pub id: i32,
-    pub username: String,
     pub email: String,
 }
 
@@ -27,7 +25,6 @@ impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         Self {
             id: user.id,
-            username: user.username,
             email: user.email,
         }
     }

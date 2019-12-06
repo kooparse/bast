@@ -20,7 +20,7 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./migrations ./migrations
 COPY ./static     ./static
-COPY ./website/out ./static/front
+RUN mkdir -p ./static/front && cp -r ./website/out/. ./static/front
 
 RUN cargo build --release
 

@@ -81,9 +81,8 @@ pub fn login(
 #[derive(Deserialize, Insertable)]
 #[table_name = "users"]
 pub struct RegisterFormData {
-    username: String,
-    password: String,
     email: String,
+    password: String,
 }
 
 pub fn register(

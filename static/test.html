@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Website test</title>
+  </head>
+  <body></body>
+  <script>
+    (function() {
+      window.__bast__website_id = 1;
+      window.__bast__user_id = 4;
+      window.__bast__trackerUrl = "http://localhost:3333/api/collect";
+      var script = document.createElement("script");
+      script.src = "http://localhost:3333/script.js";
+      script.async = false;
+      document.head.appendChild(script);
+    })();
+  </script>
+</html>

@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import Head from "next/head";
+import config from "next/config";
 import api, { isLogged } from "../utils/api";
+import { UserContext } from "../utils/context";
+
+const { SCRIPT_URL, API_URL } = config().publicRuntimeConfig;
 
 const defaultStats = {
   pages: [],
@@ -13,6 +17,8 @@ const defaultStats = {
 };
 
 class Home extends Component {
+  static contextType = UserContext;
+
   state = {
     websites: [],
     selected: "",
@@ -49,6 +55,22 @@ class Home extends Component {
 
   render() {
     const { stats, selected, websites } = this.state;
+    const website = websites.find(w => w.domain === selected) || {};
+
+    let scriptString = `
+      <script>
+        (function() {
+          window.__bast__website_id = ${website.id};
+          window.__bast__user_id = ${this.context.user.id};
+          window.__bast__trackerUrl = "${API_URL}/collect";
+
+          var script = document.createElement('script');
+          script.src = "${SCRIPT_URL}";
+          script.async = false;
+          document.head.appendChild(script);
+        })();
+      </script>
+    `;
 
     return (
       <div>
@@ -65,6 +87,10 @@ class Home extends Component {
                 </option>
               ))}
             </select>
+            <br />
+            <br />
+            Script:
+            <code>{scriptString}</code>
           </div>
         )}
 
