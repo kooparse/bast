@@ -16,7 +16,7 @@
   // generate a new one with fresh data.
   const trackerCookieName = "__tracker__";
   // TODO: Remove the pipe condition.
-  const trackerUrl = window.__trackerUrl || "http://127.0.0.1:3333/api/collect";
+  const trackerUrl = window.__bast__trackerUrl || "http://127.0.0.1:3333/api/collect";
   // Tracker id generated before.
   // I think this "id" could be the concatenation between
   // the owner id and the website id.
