@@ -27,7 +27,7 @@ class NavBar extends Component {
             {!!user.id && (
               <>
                 <Separator />
-                <Link nude href="/new_website" text="Create website" />
+                <Link nude href="/create_website" text="Create website" />
               </>
             )}
           </div>
