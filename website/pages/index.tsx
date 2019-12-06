@@ -48,22 +48,25 @@ class Home extends Component {
   };
 
   render() {
-    const { stats } = this.state;
+    const { stats, selected, websites } = this.state;
 
     return (
       <div>
         <Head>
           <title>Home</title>
         </Head>
-        <div>
-          <select value={this.state.selected} onChange={this.handleChange}>
-            {this.state.websites.map(w => (
-              <option key={w.id} value={w.domain}>
-                {w.domain}
-              </option>
-            ))}
-          </select>
-        </div>
+
+        {!!websites.length && (
+          <div>
+            <select value={selected} onChange={this.handleChange}>
+              {websites.map(w => (
+                <option key={w.id} value={w.domain}>
+                  {w.domain}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {!!stats.website.id && (
           <div>
