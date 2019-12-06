@@ -16,7 +16,8 @@
   // generate a new one with fresh data.
   const trackerCookieName = "__tracker__";
   // TODO: Remove the pipe condition.
-  const trackerUrl = window.__bast__trackerUrl || "http://127.0.0.1:3333/api/collect";
+  const trackerUrl =
+    window.__bast__trackerUrl || "http://127.0.0.1:3333/api/collect";
   // Tracker id generated before.
   // I think this "id" could be the concatenation between
   // the owner id and the website id.
@@ -39,11 +40,17 @@
   // What we need to do?
   // We need to try to parse it, in order to have a
   // beautiful JS object.
-
   try {
     let trackerData = JSON.parse(cookieValue);
+    trackerData = {
+      ...trackerData,
+      hostname: location.hostname,
+      origin: location.origin,
+      href: location.href,
+      pathname: location.pathname
+    };
     // Cool, we have our tracker data as object.
-
+    //
     // Now, we're gonna send it to the tracker server.
     // We should generate a new uuid.
     // The server address is ours or the user one (if self-hosted).
