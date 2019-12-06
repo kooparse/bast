@@ -3,10 +3,9 @@
 # -----------------
 FROM node:12.13.1-alpine as website
 
-COPY ./website /website
+COPY ./website ./website
 WORKDIR /website
-RUN npm install
-RUN npm run export
+RUN npm install && npm run export
 
 # -----------------
 # Cargo build stage
@@ -30,7 +29,7 @@ RUN cargo install --path . --verbose
 # -----------------
 # Final stage
 # -----------------
-COPY --from=website /website/out /static/front/
+COPY --from=website /out /bast/static/front/
 
 CMD ["/usr/local/cargo/bin/bast"]
 
