@@ -1,39 +1,37 @@
+# -----------------
+# Front build stage
+# -----------------
 FROM node:12.13.1-alpine as website
 
-WORKDIR /website
-COPY ./website/package.json /website/package.json
-COPY ./website/package-lock.json /website/package-lock.json
-RUN npm install
 COPY ./website /website
+WORKDIR /website
+RUN npm install
 RUN npm run export
 
-FROM rust:1.39
-
-# Create a new empty shell project
+# -----------------
+# Cargo build stage
+# -----------------
+FROM rust:1.39 as cargo-build
 RUN USER=root cargo new --bin bast
-
 WORKDIR /bast
 
-# Copy over your manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-COPY ./migrations ./migrations
-COPY ./static     ./static
-COPY --from=website /website/out /bast/website/static
+COPY Cargo.lock .
+COPY Cargo.toml .
+COPY migrations ./migrations
+COPY static     ./static
+RUN mkdir -p ./static/front
+RUN mkdir .cargo
+RUN cargo vendor > .cargo/config
 
+COPY ./src src
 RUN cargo build --release
+RUN cargo install --path . --verbose
 
-# This build step will cache your dependencies
-RUN cargo build --release
-RUN rm src/*.rs
+# -----------------
+# Final stage
+# -----------------
+COPY --from=website /website/out /static/front/
 
-COPY ./src ./src
-
-# Build for release
-RUN rm ./target/release/deps/bast*
-RUN cargo build --release
-
-# Set the startup command to run your binary
-CMD ["./target/release/bast"]
+CMD ["/usr/local/cargo/bin/bast"]
 
 EXPOSE 3333
