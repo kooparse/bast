@@ -1,0 +1,8 @@
+*
+!/migrations
+!/src
+!/static
+!/website
+!/Cargo.lock
+!/Cargo.toml
+!/diesel.toml
