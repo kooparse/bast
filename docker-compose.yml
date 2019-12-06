@@ -1,17 +1,28 @@
-version: '3.1'
+version: '3'
 
 services:
-  db:
-    image: postgres:latest
+  database:
+    image: postgres:12-alpine
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
-      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_PASSWORD: postgres
     volumes:
       - database_data:/var/lib/postgresql/data
+  api:
+    build: .
+    restart: always
+    ports:
+      - '3333:3333'
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+      SERVER_URL: 127.0.0.1
+      PORT: 3333
+      JWT_SECRET: secret
+      RUST_LOG: actix_web=info
+      DOMAIN: http://localhost:3000
 
 volumes:
   database_data:
     driver: local
-
