@@ -29,7 +29,7 @@ RUN cargo install --path . --verbose
 # -----------------
 # Final stage
 # -----------------
-COPY --from=website /out /bast/static/front/
+COPY --from=website /website/out /bast/static/front/
 
 CMD ["/usr/local/cargo/bin/bast"]
 
