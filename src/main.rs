@@ -42,7 +42,6 @@ fn main() -> std::io::Result<()> {
                 web::scope("/api")
                     .route("/register", web::post().to_async(register))
                     .route("/login", web::post().to_async(login))
-                    .route("/collect", web::get().to_async(collect))
                     .route("/stats", web::get().to_async(stats))
                     .route("/user", web::get().to_async(user))
                     .route("/websites", web::get().to_async(website::get_all))
@@ -51,6 +50,8 @@ fn main() -> std::io::Result<()> {
             )
             // Serving the script file.
             .route("/script.js", web::get().to(file::script))
+            // Collect data from client websites.
+            .route("/ghost.png", web::get().to_async(collect))
             // Serving the front static app.
             .route("/register", web::get().to(file::front_register))
             .route("/login", web::get().to(file::front_login))

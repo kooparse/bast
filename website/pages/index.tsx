@@ -62,7 +62,7 @@ class Home extends Component {
         (function() {
           window.__bast__website_id = ${website.id};
           window.__bast__user_id = ${this.context.user.id};
-          window.__bast__trackerUrl = "${API_URL}/collect";
+          window.__bast__trackerUrl = "${API_URL}/ghost.png";
 
           var script = document.createElement('script');
           script.src = "${SCRIPT_URL}";

@@ -23,11 +23,17 @@ pub struct Data {
 }
 
 pub fn collect(
-    params: web::Query<Data>,
+    params: Option<web::Query<Data>>,
     data: web::Data<Db>,
 ) -> impl Future<Item = HttpResponse, Error = UserError> {
     web::block(move || -> Result<(), UserError> {
         let conn = &data.conn_pool()?;
+
+        if params.is_none() {
+            return Ok(());
+        }
+
+        let params = params.unwrap();
 
         let website: Website = update(websites::table)
             .filter(
@@ -72,7 +78,7 @@ pub fn collect(
         Ok(())
     })
     .then(move |res| match res {
-        Ok(_) => Ok(HttpResponse::Ok().finish()),
+        Ok(_) => Ok(HttpResponse::NoContent().finish()),
         Err(err) => Ok(err.error_response()),
     })
 }

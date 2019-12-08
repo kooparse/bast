@@ -17,7 +17,7 @@
   const trackerCookieName = "__tracker__";
   // TODO: Remove the pipe condition.
   const trackerUrl =
-    window.__bast__trackerUrl || "http://127.0.0.1:3333/api/collect";
+    window.__bast__trackerUrl || "http://127.0.0.1:3333/ghost.png";
   // Tracker id generated before.
   // I think this "id" could be the concatenation between
   // the owner id and the website id.
@@ -65,15 +65,28 @@
     const url = `${trackerUrl}${query}`;
 
     // Finally the request.
-    // TODO: We should use an img url instead of the fetch api.
-    fetch(url, { method: "GET", mode: "cors" });
-    // Now we have to update our cookie to add some data like
-    // the previous page uuid.
-    const { uuid, ...data } = trackerData;
-    const updatedTrackerData = { ...data, puuid: uuid, isNewSession: false };
-    setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
-    // The end.
-    // clap clap clap.
+    let ghost = document.createElement("img");
+    ghost.setAttribute("alt", "");
+    ghost.src = url;
+    ghost.addEventListener("load", function() {
+      // Now we have to update our cookie to add some data like
+      // the previous page uuid.
+      const { uuid, ...data } = trackerData;
+      const updatedTrackerData = { ...data, puuid: uuid, isNewSession: false };
+      setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
+      document.body.removeChild(ghost);
+      // The end.
+      // clap clap clap.
+    });
+
+    window.setTimeout(() => {
+      if (!ghost.parentNode) {
+        return;
+      }
+
+      ghost.src = "";
+      document.body.removeChild(ghost);
+    }, 1000);
   } catch (e) {
     // Finger crossed.
     console.error(e);
