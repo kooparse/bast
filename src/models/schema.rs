@@ -1,4 +1,16 @@
 table! {
+    ghosts (id) {
+        id -> Int4,
+        user_id -> Int4,
+        website_id -> Int4,
+        is_new_session -> Bool,
+        pathname -> Text,
+        hostname -> Text,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
     pages (id) {
         id -> Int4,
         website_id -> Int4,
@@ -29,10 +41,13 @@ table! {
     }
 }
 
+joinable!(ghosts -> users (user_id));
+joinable!(ghosts -> websites (website_id));
 joinable!(pages -> websites (website_id));
 joinable!(websites -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
+    ghosts,
     pages,
     users,
     websites,

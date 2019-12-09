@@ -1,5 +1,5 @@
 use crate::models::{
-    schema::{pages, websites},
+    schema::{ghosts, pages, websites},
     SlimPage, Website,
 };
 use crate::utils::UserError;
@@ -71,6 +71,18 @@ pub fn collect(
                 } else {
                     pages::sessions + 0
                 }),
+            ))
+            .execute(&data.conn_pool()?)
+            .map_err(|_| UserError::InternalServerError)?;
+
+        // Store ghost.
+        insert_into(ghosts::table)
+            .values((
+                ghosts::user_id.eq(website.user_id),
+                ghosts::website_id.eq(website.id),
+                ghosts::is_new_session.eq(params.is_new_session),
+                ghosts::pathname.eq(params.pathname.clone()),
+                ghosts::hostname.eq(params.hostname.clone()),
             ))
             .execute(&data.conn_pool()?)
             .map_err(|_| UserError::InternalServerError)?;

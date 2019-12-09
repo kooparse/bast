@@ -68,25 +68,19 @@
     let ghost = document.createElement("img");
     ghost.setAttribute("alt", "");
     ghost.src = url;
-    ghost.addEventListener("load", function() {
-      // Now we have to update our cookie to add some data like
-      // the previous page uuid.
-      const { uuid, ...data } = trackerData;
-      const updatedTrackerData = { ...data, puuid: uuid, isNewSession: false };
-      setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
-      document.body.removeChild(ghost);
-      // The end.
-      // clap clap clap.
-    });
+    // Now we have to update our cookie to add some data like
+    // the previous page uuid.
+    const { uuid, ...data } = trackerData;
+    const updatedTrackerData = { ...data, puuid: uuid, isNewSession: false };
+    setCookie(trackerCookieName, JSON.stringify(updatedTrackerData), 1);
 
-    window.setTimeout(() => {
-      if (!ghost.parentNode) {
-        return;
-      }
-
+    if (ghost.parentNode) {
       ghost.src = "";
       document.body.removeChild(ghost);
-    }, 1000);
+    }
+
+    // The end.
+    // clap clap clap.
   } catch (e) {
     // Finger crossed.
     console.error(e);
