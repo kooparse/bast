@@ -9,6 +9,7 @@
     "export": "npm run build && next export"
   },
   "dependencies": {
+    "@zeit/next-css": "^1.0.1",
     "axios": "^0.19.0",
     "formik": "^2.0.6",
     "next": "9.1.4",

@@ -2,12 +2,14 @@ import React, { Component } from "react";
 import Head from "next/head";
 import config from "next/config";
 import api, { isLogged } from "../utils/api";
+import styled from "styled-components";
 import { UserContext } from "../utils/context";
 
 const { SCRIPT_URL, API_URL } = config().publicRuntimeConfig;
 
-const defaultStats = {
+const defaultStats: Stats = {
   pages: [],
+  ghosts: [],
   website: {
     domain: "",
     visitors: 0,
@@ -25,6 +27,21 @@ class Home extends Component {
     stats: defaultStats
   };
 
+  getStats = async (websiteId: number) => {
+    try {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const startOfYear = new Date(currentYear, 0, 0, 0, 0, 0);
+
+      const { data: stats } = await api.get(
+        `/stats?website_id=${websiteId}&start=${+startOfYear}&end=${+today}`
+      );
+      return stats;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   async componentDidMount() {
     if (isLogged) {
       const { data: websites } = await api.get("/websites");
@@ -37,8 +54,7 @@ class Home extends Component {
       };
 
       if (hasWebsite) {
-        const { data } = await api.get(`/stats?website_id=${websites[0].id}`);
-        state.stats = data;
+        state.stats = await this.getStats(websites[0].id);
       }
 
       this.setState(state);
@@ -49,7 +65,7 @@ class Home extends Component {
     const { value: selected } = e.target;
 
     const website = this.state.websites.find(w => w.domain === selected);
-    const { data: stats } = await api.get(`/stats?website_id=${website.id}`);
+    const stats = await this.getStats(website.id);
     this.setState({ selected, stats: stats });
   };
 
@@ -90,7 +106,7 @@ class Home extends Component {
             <br />
             <br />
             Script:
-            <code>{scriptString}</code>
+            <code> {scriptString}</code>
           </div>
         )}
 
