@@ -10,7 +10,7 @@ use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use controllers::{
-    collect, file, health, login, register, stats, user, website,
+    collect, file, from_range, health, login, register, stats, user, website,
 };
 use db::Db;
 use dotenv::{dotenv, var};
@@ -43,6 +43,7 @@ fn main() -> std::io::Result<()> {
                     .route("/register", web::post().to_async(register))
                     .route("/login", web::post().to_async(login))
                     .route("/stats", web::get().to_async(stats))
+                    .route("/ghosts", web::get().to_async(from_range))
                     .route("/user", web::get().to_async(user))
                     .route("/websites", web::get().to_async(website::get_all))
                     .route("/website", web::post().to_async(website::create))
