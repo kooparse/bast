@@ -15,3 +15,7 @@ futures = "0.1"
 bcrypt = "0.6"
 jsonwebtoken = "6.0"
 env_logger = "0.7"
+
+[[bin]]
+name = "bast"
+path = "server/main.rs"
