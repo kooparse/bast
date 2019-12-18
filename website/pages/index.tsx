@@ -1,7 +1,17 @@
 import React, { Component } from "react";
 import Head from "next/head";
 import config from "next/config";
+import groupBy from "lodash/groupBy";
 import api, { isLogged } from "../utils/api";
+import "react-vis/dist/style.css";
+import {
+  XYPlot,
+  XAxis,
+  VerticalBarSeries,
+  AreaSeries,
+  LineSeries,
+  DiscreteColorLegend
+} from "react-vis";
 import styled from "styled-components";
 import { UserContext } from "../utils/context";
 
@@ -88,6 +98,62 @@ class Home extends Component {
       </script>
     `;
 
+    let visitorData = [
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 3, y: 0 },
+      { x: 4, y: 0 },
+      { x: 5, y: 0 },
+      { x: 6, y: 0 },
+      { x: 7, y: 0 },
+      { x: 8, y: 0 },
+      { x: 9, y: 0 },
+      { x: 10, y: 0 },
+      { x: 11, y: 0 },
+      { x: 12, y: 0 }
+    ];
+
+    let sessionData = [
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 3, y: 0 },
+      { x: 4, y: 0 },
+      { x: 5, y: 0 },
+      { x: 6, y: 0 },
+      { x: 7, y: 0 },
+      { x: 8, y: 0 },
+      { x: 9, y: 0 },
+      { x: 10, y: 0 },
+      { x: 11, y: 0 },
+      { x: 12, y: 0 }
+    ];
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sept",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+
+    stats.ghosts.forEach(g => {
+      const date = new Date(g.createdAt);
+      // Between 0-11.
+      const indexMonth = date.getMonth() - 1;
+
+      visitorData[indexMonth].y += 1;
+      if (g.isNewSession) {
+        sessionData[indexMonth].y += 1;
+      }
+    });
+
     return (
       <div>
         <Head>
@@ -115,6 +181,45 @@ class Home extends Component {
             <h3>Stats of {stats.website.domain}:</h3>
             <div>total visitors: {stats.website.visitors}</div>
             <div>total sessions: {stats.website.sessions}</div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                margin: "40px 0px"
+              }}
+            >
+              <div>
+                <DiscreteColorLegend
+                  style={{ color: "red" }}
+                  colors={["#34A0F2", "#FFCD02"]}
+                  items={["Visitors", "Sessions"]}
+                  orientation="horizontal"
+                  strokeWidth={6}
+                />
+                <XYPlot height={400} width={1200} stackedBy="y">
+                  <VerticalBarSeries
+                    cluster="stack 1"
+                    data={visitorData}
+                    color="#34A0F2"
+                  />
+                  <VerticalBarSeries
+                    cluster="stack 1"
+                    data={sessionData}
+                    color="#FFCD02"
+                  />
+                  <XAxis
+                    tickTotal={12}
+                    tickSizeOuter={0}
+                    tickSizeInner={0}
+                    tickFormat={function tickFormat(d) {
+                      console.log(d, months[d - 1]);
+                      return months[d - 1];
+                    }}
+                  />
+                </XYPlot>
+              </div>
+            </div>
+
             {!!stats.pages.length && (
               <>
                 <br />

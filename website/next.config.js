@@ -1,3 +1,5 @@
+const withCSS = require('@zeit/next-css')
+
 const isDev = process.env.NODE_ENV !== "production";
 const API_URL = isDev
   ? "http://localhost:3333/api"
@@ -7,11 +9,11 @@ const SCRIPT_URL = isDev
   ? "http://localhost:3333/script.js"
   : "https://test123342.herokuapp.com/script.js";
 
-module.exports = {
+module.exports = withCSS({
   outDir: "./build",
   env: {},
   publicRuntimeConfig: {
     API_URL,
     SCRIPT_URL,
   }
-};
+});

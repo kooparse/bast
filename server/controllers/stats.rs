@@ -1,6 +1,6 @@
 use crate::models::{
     schema::{ghosts, pages, websites},
-    AuthUser, Ghost, Page, Website,
+    AuthUser, Ghost, Page, SlimGhost, Website,
 };
 use crate::utils::UserError;
 use crate::Db;
@@ -21,7 +21,7 @@ pub struct Query {
 pub struct Stats {
     website: Website,
     pages: Vec<Page>,
-    ghosts: Vec<Ghost>,
+    ghosts: Vec<SlimGhost>,
 }
 
 pub fn stats(
@@ -67,7 +67,7 @@ pub fn stats(
             // TODO: Remove unwrap().
             g_list = list
                 .into_iter()
-                .filter(|ghost| {
+                .filter_map(|ghost| {
                     let created_at = ghost
                         .created_at
                         .duration_since(UNIX_EPOCH)
@@ -75,7 +75,11 @@ pub fn stats(
                         .as_millis()
                         as u64;
 
-                    return created_at >= start && created_at <= end;
+                    if created_at >= start && created_at <= end {
+                        Some(SlimGhost::from(ghost))
+                    } else {
+                        None
+                    }
                 })
                 .collect::<_>();
         }
