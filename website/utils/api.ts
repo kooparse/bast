@@ -14,8 +14,8 @@ export const setToken = (token: string) => {
   window.localStorage.setItem("token", token);
 };
 
-export const isLogged = () => {
-  !!window.localStorage.getItem("token");
+export const isLogged = (): boolean => {
+  return !!window.localStorage.getItem("token");
 };
 
 const instance = axios.create({

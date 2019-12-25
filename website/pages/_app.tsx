@@ -4,16 +4,11 @@ import App from "next/app";
 import styled from "styled-components";
 import NavBar from "../components/NavBar";
 import { createGlobalStyle } from "styled-components";
+import { Grommet, Menu, Header, Button, Box, Anchor, Main } from "grommet";
+import { grommet, dark } from "grommet/themes";
+import { Home } from "grommet-icons";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
-
-const GlobalStyle = createGlobalStyle`
-	body {
-    font-family: 'Lato', sans-serif;
-		color: #ddd;
-		background-color: #1b1b1b;
-	}
-`;
 
 type User = {
   username: string;
@@ -23,6 +18,16 @@ type User = {
 interface IState {
   user: User;
 }
+
+const theme = {
+  global: {
+    font: {
+      family: "Helvetica",
+      size: "14px",
+      height: "20px"
+    }
+  }
+};
 
 class Website extends App<{}, IState> {
   state = { user: {} };
@@ -37,7 +42,7 @@ class Website extends App<{}, IState> {
   };
 
   async componentDidMount() {
-    if (isLogged) {
+    if (isLogged()) {
       const { data: user } = await api.get("/user");
       this.setState({ user });
     }
@@ -50,29 +55,15 @@ class Website extends App<{}, IState> {
       <UserContext.Provider
         value={{ user: this.state.user, setUser: this.setUser }}
       >
-        <Head>
-          <meta
-            name="description"
-            content="The hidden place where knowledge is shared."
-          />
-          <link
-            href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap"
-            rel="stylesheet"
-          />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <GlobalStyle />
-        <NavBar />
-        <ComponentWrapper>
-          <Component {...pageProps} />
-        </ComponentWrapper>
+        <Grommet theme={theme}>
+          <NavBar />
+          <Main pad="small">
+            <Component {...pageProps} />
+          </Main>
+        </Grommet>
       </UserContext.Provider>
     );
   }
 }
-
-const ComponentWrapper = styled.div`
-  padding: 60px 15px;
-`;
 
 export default Website;

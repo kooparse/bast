@@ -2,20 +2,34 @@ import React, { Component } from "react";
 import Head from "next/head";
 import config from "next/config";
 import groupBy from "lodash/groupBy";
-import api, { isLogged } from "../utils/api";
-import "react-vis/dist/style.css";
 import {
-  XYPlot,
-  XAxis,
-  VerticalBarSeries,
-  AreaSeries,
-  LineSeries,
-  DiscreteColorLegend
-} from "react-vis";
-import styled from "styled-components";
+  Box,
+  Heading,
+  Text,
+  DataTable,
+  Meter,
+  Select,
+  Paragraph,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow
+} from "grommet";
+import api, { isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
 
 const { SCRIPT_URL, API_URL } = config().publicRuntimeConfig;
+
+const Axis = ({ values, ...rest }) => (
+  <Box justify="between" {...rest}>
+    {values.map(v => (
+      <Text key={v} size="small" color="text-xweak">
+        {v}
+      </Text>
+    ))}
+  </Box>
+);
 
 const defaultStats: Stats = {
   pages: [],
@@ -53,7 +67,7 @@ class Home extends Component {
   };
 
   async componentDidMount() {
-    if (isLogged) {
+    if (isLogged()) {
       const { data: websites } = await api.get("/websites");
       const hasWebsite = !!websites.length;
 
@@ -72,8 +86,7 @@ class Home extends Component {
   }
 
   handleChange = async e => {
-    const { value: selected } = e.target;
-
+    const { value: selected } = e;
     const website = this.state.websites.find(w => w.domain === selected);
     const stats = await this.getStats(website.id);
     this.setState({ selected, stats: stats });
@@ -98,36 +111,6 @@ class Home extends Component {
       </script>
     `;
 
-    let visitorData = [
-      { x: 1, y: 0 },
-      { x: 2, y: 0 },
-      { x: 3, y: 0 },
-      { x: 4, y: 0 },
-      { x: 5, y: 0 },
-      { x: 6, y: 0 },
-      { x: 7, y: 0 },
-      { x: 8, y: 0 },
-      { x: 9, y: 0 },
-      { x: 10, y: 0 },
-      { x: 11, y: 0 },
-      { x: 12, y: 0 }
-    ];
-
-    let sessionData = [
-      { x: 1, y: 0 },
-      { x: 2, y: 0 },
-      { x: 3, y: 0 },
-      { x: 4, y: 0 },
-      { x: 5, y: 0 },
-      { x: 6, y: 0 },
-      { x: 7, y: 0 },
-      { x: 8, y: 0 },
-      { x: 9, y: 0 },
-      { x: 10, y: 0 },
-      { x: 11, y: 0 },
-      { x: 12, y: 0 }
-    ];
-
     const months = [
       "Jan",
       "Feb",
@@ -143,14 +126,29 @@ class Home extends Component {
       "Dec"
     ];
 
+    let generalData = [
+      { month: months[0], visits: 0, sessions: 0 },
+      { month: months[1], visits: 0, sessions: 0 },
+      { month: months[2], visits: 0, sessions: 0 },
+      { month: months[3], visits: 0, sessions: 0 },
+      { month: months[4], visits: 0, sessions: 0 },
+      { month: months[5], visits: 0, sessions: 0 },
+      { month: months[6], visits: 0, sessions: 0 },
+      { month: months[7], visits: 0, sessions: 0 },
+      { month: months[8], visits: 0, sessions: 0 },
+      { month: months[9], visits: 0, sessions: 0 },
+      { month: months[10], visits: 0, sessions: 0 },
+      { month: months[11], visits: 0, sessions: 0 }
+    ];
+
     stats.ghosts.forEach(g => {
       const date = new Date(g.createdAt);
       // Between 0-11.
       const indexMonth = date.getMonth() - 1;
 
-      visitorData[indexMonth].y += 1;
+      generalData[indexMonth].visits += 1;
       if (g.isNewSession) {
-        sessionData[indexMonth].y += 1;
+        generalData[indexMonth].sessions += 1;
       }
     });
 
@@ -161,86 +159,174 @@ class Home extends Component {
         </Head>
 
         {!!websites.length && (
-          <div>
-            <select value={selected} onChange={this.handleChange}>
-              {websites.map(w => (
-                <option key={w.id} value={w.domain}>
-                  {w.domain}
-                </option>
-              ))}
-            </select>
-            <br />
-            <br />
-            Script:
-            <code> {scriptString}</code>
-          </div>
+          <Box
+            direction="row"
+            gap="medium"
+            justify="center"
+            margin={{
+              top: "medium",
+              bottom: "xlarge"
+            }}
+          >
+            <Select
+              size="large"
+              options={websites.map(w => w.domain)}
+              value={selected}
+              onChange={this.handleChange}
+            />
+          </Box>
         )}
 
         {!!stats.website.id && (
           <div>
-            <h3>Stats of {stats.website.domain}:</h3>
-            <div>total visitors: {stats.website.visitors}</div>
-            <div>total sessions: {stats.website.sessions}</div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                margin: "40px 0px"
-              }}
-            >
-              <div>
-                <DiscreteColorLegend
-                  style={{ color: "red" }}
-                  colors={["#34A0F2", "#FFCD02"]}
-                  items={["Visitors", "Sessions"]}
-                  orientation="horizontal"
-                  strokeWidth={6}
-                />
-                <XYPlot height={400} width={1200} stackedBy="y">
-                  <VerticalBarSeries
-                    cluster="stack 1"
-                    data={visitorData}
-                    color="#34A0F2"
-                  />
-                  <VerticalBarSeries
-                    cluster="stack 1"
-                    data={sessionData}
-                    color="#FFCD02"
-                  />
-                  <XAxis
-                    tickTotal={12}
-                    tickSizeOuter={0}
-                    tickSizeInner={0}
-                    tickFormat={function tickFormat(d) {
-                      console.log(d, months[d - 1]);
-                      return months[d - 1];
-                    }}
-                  />
-                </XYPlot>
-              </div>
-            </div>
+            <Box direction="row" gap="medium" justify="center">
+              <Box
+                width="small"
+                pad="small"
+                background={{ color: "light-3" }}
+                round="xsmall"
+                gap="medium"
+              >
+                <Heading level={1} margin="none">
+                  {stats.website.visitors}
+                </Heading>
+                <Heading level={3} margin="none">
+                  Visitors
+                </Heading>
+              </Box>
+              <Box
+                width="small"
+                pad="small"
+                background={{ color: "light-3" }}
+                round="xsmall"
+                gap="medium"
+              >
+                <Heading level={1} margin="none">
+                  {stats.website.sessions}
+                </Heading>
+                <Heading level={3} margin="none">
+                  Sessions
+                </Heading>
+              </Box>
+              <Box
+                width="small"
+                pad="small"
+                background={{ color: "light-3" }}
+                round="xsmall"
+                gap="medium"
+              >
+                <Heading level={1} margin="none">
+                  00:32
+                </Heading>
+                <Heading level={3} margin="none">
+                  Avg time
+                </Heading>
+              </Box>
+            </Box>
 
-            {!!stats.pages.length && (
-              <>
-                <br />
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>Pathname</th>
-                      <th>Visitors</th>
-                      <th>Sessions</th>
-                    </tr>
-                    {stats.pages.map(p => (
-                      <tr key={p.id}>
-                        <td>{p.pathname}</td>
-                        <td>{p.visitors}</td>
-                        <td>{p.sessions}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
+            <Box
+              fill
+              direction="row"
+              gap="medium"
+              justify="stretch"
+              margin="medium"
+              round="small"
+            >
+              <Box
+                fill
+                pad="small"
+                background={{ color: "light" }}
+                round="xsmall"
+                gap="medium"
+              >
+                <Table caption="Meter Inside Table">
+                  <TableBody>
+                    {generalData
+                      .map(d => ({
+                        ...d,
+                        percentVisits: (d.visits / d.sessions + d.visits) * 100,
+                        percentSessions:
+                          (d.sessions / d.sessions + d.visits) * 100
+                      }))
+                      .map((val, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <Meter
+                              type="bar"
+                              values={[
+                                {
+                                  value: val.percentVisits
+                                },
+                                {
+                                  value: val.percentSessions
+                                }
+                              ]}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Text>{val.month}</Text>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+
+              </Box>
+              <Box
+                fill
+                pad="small"
+                background={{ color: "light" }}
+                round="xsmall"
+                gap="medium"
+              >
+                <DataTable
+                  step={12}
+                  size="medium"
+                  columns={[
+                    {
+                      property: "pathname",
+                      header: <Text>Pathname</Text>,
+                      primary: true,
+                      render: datum => (
+                        <Text weight="bold">{datum.pathname}</Text>
+                      )
+                    },
+                    {
+                      property: "visitors",
+                      header: "Visitors"
+                    },
+                    {
+                      property: "sessions",
+                      header: "Sessions"
+                    },
+                    {
+                      property: "percent",
+                      header: "Ratio",
+                      render: datum => (
+                        <Box pad={{ vertical: "xsmall" }}>
+                          <Meter
+                            values={[
+                              { value: datum.percentVisits },
+                              { value: datum.percentSessions }
+                            ]}
+                            thickness="medium"
+                            size="small"
+                          />
+                        </Box>
+                      )
+                    }
+                  ]}
+                  data={stats.pages.map(p => ({
+                    ...p,
+                    percentVisits: (p.visitors / p.sessions + p.visitors) * 100,
+                    percentSessions:
+                      (p.sessions / p.sessions + p.visitors) * 100
+                  }))}
+                />
+              </Box>
+            </Box>
+
+            <Paragraph margin="none">{scriptString}</Paragraph>
           </div>
         )}
       </div>

@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import Router from "next/router";
 import styled from "styled-components";
-import Link from "../Link";
-import Separator from "../Separator";
-import Unlogged from "./Unlogged";
-import Logged from "./Logged";
 import { UserContext } from "../../utils/context";
+import { Grommet, Menu, Header, Button, Box, Anchor, Heading } from "grommet";
+import { Home } from "grommet-icons";
 
 class NavBar extends Component {
   static contextType = UserContext;
@@ -18,50 +16,31 @@ class NavBar extends Component {
 
   render() {
     const { user } = this.context;
+    const isConnected = !!user.id;
 
     return (
-      <NavBarWrapper>
-        <Inner>
-          <div>
-            <Link nude href="/" text="Home" />
-            {!!user.id && (
-              <>
-                <Separator />
-                <Link nude href="/create_website" text="Create website" />
-              </>
-            )}
-          </div>
-          <div />
-          {!!user.id ? (
-            <Logged logout={this.logout} username={user.email} />
-          ) : (
-            <Unlogged />
-          )}
-        </Inner>
-      </NavBarWrapper>
+      <Header
+        as="header"
+        margin="none"
+        background="brand"
+        pad="medium"
+        height="xxsmall"
+      >
+        <Anchor size="medium" label="Home" href="/" color="white" />
+        {!isConnected ? (
+          <Box direction="row" gap="medium">
+            <Anchor label="Login" href="/login" color="white" />
+            <Anchor label="Register" href="/register" color="white" />
+          </Box>
+        ) : (
+          <Menu
+            label={user.email}
+            items={[{ label: "logout", onClick: this.logout }]}
+          />
+        )}
+      </Header>
     );
   }
 }
-
-const NavBarWrapper = styled.nav`
-  z-index: 99;
-  position: fixed;
-  width: 100%;
-  background-color: #111;
-  color: #ddd;
-  font-size: 16px;
-  border-bottom: 1px solid #333;
-  height: 50px;
-  top: 0;
-  right: 0;
-`;
-
-const Inner = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
-  padding: 0px 20px;
-`;
 
 export default NavBar;
