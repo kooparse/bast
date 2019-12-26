@@ -17,7 +17,8 @@ use dotenv::{dotenv, var};
 use env_logger;
 
 /// All routes are here.
-fn main() -> std::io::Result<()> {
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
     // Load all environement's variables.
     dotenv().ok();
     // Load logger env info
@@ -26,8 +27,8 @@ fn main() -> std::io::Result<()> {
     let bind_address = {
         format!(
             "{}:{}",
-            var("SERVER_URL").unwrap_or("0.0.0.0".into()),
-            var("PORT").unwrap_or("3333".into())
+            var("SERVER_URL").unwrap_or_else(|_| "0.0.0.0".into()),
+            var("PORT").unwrap_or_else(|_| "3333".into())
         )
     };
 
@@ -40,19 +41,19 @@ fn main() -> std::io::Result<()> {
             .wrap(Cors::default())
             .service(
                 web::scope("/api")
-                    .route("/register", web::post().to_async(register))
-                    .route("/login", web::post().to_async(login))
-                    .route("/stats", web::get().to_async(stats))
-                    .route("/ghosts", web::get().to_async(from_range))
-                    .route("/user", web::get().to_async(user))
-                    .route("/websites", web::get().to_async(website::get_all))
-                    .route("/website", web::post().to_async(website::create))
+                    .route("/register", web::post().to(register))
+                    .route("/login", web::post().to(login))
+                    .route("/user", web::get().to(user))
+                    .route("/stats", web::get().to(stats))
+                    .route("/ghosts", web::get().to(from_range))
+                    .route("/websites", web::get().to(website::get_all))
+                    .route("/website", web::post().to(website::create))
                     .route("/health", web::get().to(health)),
             )
             // Serving the script file.
             .route("/script.js", web::get().to(file::script))
             // Collect data from client websites.
-            .route("/ghost.png", web::get().to_async(collect))
+            .route("/ghost.png", web::get().to(collect))
             // Serving the front static app.
             .route("/register", web::get().to(file::front_register))
             .route("/login", web::get().to(file::front_login))
@@ -65,4 +66,5 @@ fn main() -> std::io::Result<()> {
     })
     .bind(bind_address)?
     .run()
+    .await
 }

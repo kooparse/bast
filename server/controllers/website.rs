@@ -2,11 +2,10 @@ use crate::models::{
     schema::{users, websites},
     AuthUser, User, Website,
 };
-use crate::utils::UserError;
+use crate::utils::{to_client, UserError};
 use crate::Db;
-use actix_web::{error::ResponseError, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use diesel::prelude::*;
-use futures::Future;
 use serde::Deserialize;
 
 #[derive(Deserialize, Insertable)]
@@ -17,11 +16,11 @@ pub struct WebsiteFormData {
     domain: String,
 }
 
-pub fn get_all(
+pub async fn get_all(
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<Vec<Website>, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<Vec<Website>, UserError> {
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
 
@@ -38,18 +37,17 @@ pub fn get_all(
 
         Ok(list)
     })
-    .then(move |res| match res {
-        Ok(list) => Ok(HttpResponse::Ok().json(list)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }
 
-pub fn create(
+pub async fn create(
     mut form: web::Json<WebsiteFormData>,
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<Website, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<Website, UserError> {
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
 
@@ -68,8 +66,7 @@ pub fn create(
 
         Ok(website)
     })
-    .then(move |res| match res {
-        Ok(website) => Ok(HttpResponse::Ok().json(website)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }

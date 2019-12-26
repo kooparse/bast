@@ -1,4 +1,4 @@
-use crate::utils::{check_auth, UserError};
+use crate::utils::{check_auth, Ready, UserError};
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use diesel::Queryable;
 use serde::Serialize;
@@ -49,10 +49,12 @@ impl AuthUser {
 impl FromRequest for AuthUser {
     type Error = UserError;
     type Config = ();
-    type Future = Result<AuthUser, UserError>;
+    type Future = Ready<Result<AuthUser, UserError>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let id = check_auth(&req)?;
-        Ok(AuthUser { id })
+        match check_auth(&req) {
+            Ok(id) => Ready(Some(Ok(AuthUser { id }))),
+            Err(err) => Ready(Some(Err(err))),
+        }
     }
 }

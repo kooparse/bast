@@ -2,12 +2,11 @@ use crate::models::{
     schema::{ghosts, pages, websites},
     SlimPage, Website,
 };
-use crate::utils::UserError;
+use crate::utils::{to_client, UserError};
 use crate::Db;
-use actix_web::{error::ResponseError, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use diesel::dsl::*;
 use diesel::prelude::*;
-use futures::Future;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -22,11 +21,11 @@ pub struct Data {
     pathname: String,
 }
 
-pub fn collect(
+pub async fn collect(
     params: Option<web::Query<Data>>,
     data: web::Data<Db>,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<(), UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<(), UserError> {
         let conn = &data.conn_pool()?;
 
         if params.is_none() {
@@ -89,8 +88,7 @@ pub fn collect(
 
         Ok(())
     })
-    .then(move |res| match res {
-        Ok(_) => Ok(HttpResponse::NoContent().finish()),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }

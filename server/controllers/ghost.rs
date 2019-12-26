@@ -1,9 +1,8 @@
 use crate::models::{schema::ghosts, AuthUser, Ghost};
-use crate::utils::UserError;
+use crate::utils::{to_client, UserError};
 use crate::Db;
-use actix_web::{error::ResponseError, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use diesel::prelude::*;
-use futures::Future;
 use serde::Deserialize;
 use std::time::UNIX_EPOCH;
 
@@ -14,12 +13,12 @@ pub struct Params {
     website_id: i32,
 }
 
-pub fn from_range(
+pub async fn from_range(
     params: web::Query<Params>,
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<Vec<Ghost>, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<Vec<Ghost>, UserError> {
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
 
@@ -43,14 +42,13 @@ pub fn from_range(
                     .unwrap()
                     .as_millis() as u64;
 
-                return created_at >= params.start && created_at <= params.end;
+                created_at >= params.start && created_at <= params.end
             })
             .collect::<_>();
 
         Ok(ghosts)
     })
-    .then(move |res| match res {
-        Ok(ghosts) => Ok(HttpResponse::Ok().json(ghosts)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }

@@ -1,13 +1,31 @@
 use crate::models::{schema::users, AuthUser, SlimUser, User};
-use crate::utils::{JWTPayload, UserError};
+use crate::utils::{to_client, JWTPayload, UserError};
 use crate::Db;
-use actix_web::{error::ResponseError, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use dotenv;
-use futures::Future;
 use jsonwebtoken::{encode, Header};
 use serde::{Deserialize, Serialize};
+
+pub async fn user(
+    data: web::Data<Db>,
+    auth_user: AuthUser,
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<SlimUser, UserError> {
+        let user_id = auth_user.get_id()?;
+
+        let user: User = users::table
+            .find(&user_id)
+            .get_result::<_>(&data.conn_pool()?)
+            .map_err(|_| UserError::BadRequest)?;
+
+        Ok(SlimUser::from(user))
+    })
+    .await;
+
+    to_client(result)
+}
 
 #[derive(Deserialize)]
 pub struct SignInData {
@@ -21,41 +39,21 @@ struct UserWithToken {
     token: String,
 }
 
-pub fn user(
-    data: web::Data<Db>,
-    auth_user: AuthUser,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<SlimUser, UserError> {
-        let user_id = auth_user.get_id()?;
-
-        let user: User = users::table
-            .find(&user_id)
-            .get_result::<_>(&data.conn_pool()?)
-            .map_err(|_| UserError::BadRequest)?;
-
-        Ok(SlimUser::from(user))
-    })
-    .then(move |res| match res {
-        Ok(user) => Ok(HttpResponse::Ok().json(user)),
-        Err(err) => Ok(err.error_response()),
-    })
-}
-
-pub fn login(
+pub async fn login(
     form: web::Json<SignInData>,
     data: web::Data<Db>,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<UserWithToken, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<UserWithToken, UserError> {
         let jwt_secret = dotenv::var("JWT_SECRET").unwrap();
-        let jwt_timeout = 10000000000;
+        let jwt_timeout = 10_000_000_000;
 
         let user: User = users::table
             .filter(users::email.eq(&form.email))
             .first::<_>(&data.conn_pool()?)
-            .map_err(|_| UserError::BadRequest)?;
+            .map_err(|_| UserError::Unauthorized)?;
 
         let is_valid = verify(&form.password, &user.password)
-            .map_err(|_| UserError::BadRequest)?;
+            .map_err(|_| UserError::Unauthorized)?;
 
         if !is_valid {
             return Err(UserError::Unauthorized);
@@ -72,10 +70,9 @@ pub fn login(
 
         Ok(result)
     })
-    .then(move |res| match res {
-        Ok(user_with_token) => Ok(HttpResponse::Ok().json(user_with_token)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }
 
 #[derive(Deserialize, Insertable)]
@@ -85,11 +82,12 @@ pub struct RegisterFormData {
     password: String,
 }
 
-pub fn register(
+/// Create a new user from email and password.
+pub async fn register(
     mut form: web::Json<RegisterFormData>,
     data: web::Data<Db>,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<SlimUser, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<SlimUser, UserError> {
         form.password = hash(&form.password, DEFAULT_COST)
             .map_err(|_| UserError::InternalServerError)?;
 
@@ -100,8 +98,7 @@ pub fn register(
 
         Ok(SlimUser::from(user))
     })
-    .then(move |res| match res {
-        Ok(user) => Ok(HttpResponse::Ok().json(user)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }

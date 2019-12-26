@@ -46,9 +46,4 @@ joinable!(ghosts -> websites (website_id));
 joinable!(pages -> websites (website_id));
 joinable!(websites -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(
-    ghosts,
-    pages,
-    users,
-    websites,
-);
+allow_tables_to_appear_in_same_query!(ghosts, pages, users, websites,);

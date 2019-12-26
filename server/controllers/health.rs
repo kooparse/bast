@@ -1,5 +1,5 @@
 use actix_web::Responder;
 
-pub fn health() -> impl Responder {
+pub async fn health() -> impl Responder {
     dbg!("Hello World")
 }

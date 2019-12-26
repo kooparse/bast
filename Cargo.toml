@@ -5,13 +5,13 @@ authors = ["Alexandre Chêne <kooparse@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-actix-files= "0.1"
-actix-web = { version="1.0.9", features = ["ssl"] }
-actix-cors = "0.1"
+actix-rt = "1.0.0"
+actix-files = "0.2.1"
+actix-web = { version="2.0.0", features = ["openssl"] }
+actix-cors = "0.2"
 diesel = { version="1.4.2", features = ["postgres", "r2d2"] }
 dotenv = "0.15"
 serde = { version = "1.0", features = ["derive"] }
-futures = "0.1"
 bcrypt = "0.6"
 jsonwebtoken = "6.0"
 env_logger = "0.7"

@@ -2,11 +2,10 @@ use crate::models::{
     schema::{ghosts, pages, websites},
     AuthUser, Ghost, Page, SlimGhost, Website,
 };
-use crate::utils::UserError;
+use crate::utils::{to_client, UserError};
 use crate::Db;
-use actix_web::{error::ResponseError, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use diesel::prelude::*;
-use futures::Future;
 use serde::{Deserialize, Serialize};
 use std::time::UNIX_EPOCH;
 
@@ -24,12 +23,12 @@ pub struct Stats {
     ghosts: Vec<SlimGhost>,
 }
 
-pub fn stats(
+pub async fn stats(
     params: web::Query<Query>,
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> impl Future<Item = HttpResponse, Error = UserError> {
-    web::block(move || -> Result<Stats, UserError> {
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<Stats, UserError> {
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
 
@@ -48,9 +47,7 @@ pub fn stats(
             .get_results::<_>(&conn)
             .map_err(|_| UserError::BadRequest)?;
 
-        let mut g_list = vec![];
-
-        if params.start.is_some() && params.end.is_some() {
+        let list = if params.start.is_some() && params.end.is_some() {
             let start = params.start.unwrap();
             let end = params.end.unwrap();
 
@@ -65,8 +62,7 @@ pub fn stats(
                 .map_err(|_| UserError::BadRequest)?;
 
             // TODO: Remove unwrap().
-            g_list = list
-                .into_iter()
+            list.into_iter()
                 .filter_map(|ghost| {
                     let created_at = ghost
                         .created_at
@@ -81,17 +77,18 @@ pub fn stats(
                         None
                     }
                 })
-                .collect::<_>();
-        }
+                .collect::<_>()
+        } else {
+            vec![]
+        };
 
         Ok(Stats {
             website,
             pages,
-            ghosts: g_list,
+            ghosts: list,
         })
     })
-    .then(move |res| match res {
-        Ok(result) => Ok(HttpResponse::Ok().json(result)),
-        Err(err) => Ok(err.error_response()),
-    })
+    .await;
+
+    to_client(result)
 }
