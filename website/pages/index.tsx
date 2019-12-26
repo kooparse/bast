@@ -14,20 +14,31 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableRow
+  TableRow,
+  Chart,
+  TextArea
 } from "grommet";
 import api, { isLogged } from "../utils/api";
+import { getGraphData } from "../utils/data";
 import { UserContext } from "../utils/context";
 
 const { SCRIPT_URL, API_URL } = config().publicRuntimeConfig;
 
-const Axis = ({ values, ...rest }) => (
-  <Box justify="between" {...rest}>
-    {values.map(v => (
-      <Text key={v} size="small" color="text-xweak">
-        {v}
-      </Text>
-    ))}
+const LabelledChart = ({ datum: { month, visits, sessions } }) => (
+  <Box basis="xsmall" align="center" gap="small">
+    <Chart
+      aria-label="chart"
+      bounds={[
+        [0, 1],
+        [0, 60]
+      ]}
+      type="bar"
+      values={[{ value: [1, visits] }]}
+      size={{ height: "medium", width: "xxsmall" }}
+    />
+    <Box align="center">
+      <Text weight="bold">{month}</Text>
+    </Box>
   </Box>
 );
 
@@ -111,63 +122,14 @@ class Home extends Component {
       </script>
     `;
 
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sept",
-      "Oct",
-      "Nov",
-      "Dec"
-    ];
-
-    let generalData = [
-      { month: months[0], visits: 0, sessions: 0 },
-      { month: months[1], visits: 0, sessions: 0 },
-      { month: months[2], visits: 0, sessions: 0 },
-      { month: months[3], visits: 0, sessions: 0 },
-      { month: months[4], visits: 0, sessions: 0 },
-      { month: months[5], visits: 0, sessions: 0 },
-      { month: months[6], visits: 0, sessions: 0 },
-      { month: months[7], visits: 0, sessions: 0 },
-      { month: months[8], visits: 0, sessions: 0 },
-      { month: months[9], visits: 0, sessions: 0 },
-      { month: months[10], visits: 0, sessions: 0 },
-      { month: months[11], visits: 0, sessions: 0 }
-    ];
-
-    stats.ghosts.forEach(g => {
-      const date = new Date(g.createdAt);
-      // Between 0-11.
-      const indexMonth = date.getMonth() - 1;
-
-      generalData[indexMonth].visits += 1;
-      if (g.isNewSession) {
-        generalData[indexMonth].sessions += 1;
-      }
-    });
-
     return (
-      <div>
+      <Box margin={{ top: "medium" }}>
         <Head>
           <title>Home</title>
         </Head>
 
         {!!websites.length && (
-          <Box
-            direction="row"
-            gap="medium"
-            justify="center"
-            margin={{
-              top: "medium",
-              bottom: "xlarge"
-            }}
-          >
+          <Box direction="row" gap="medium">
             <Select
               size="large"
               options={websites.map(w => w.domain)}
@@ -179,7 +141,14 @@ class Home extends Component {
 
         {!!stats.website.id && (
           <div>
-            <Box direction="row" gap="medium" justify="center">
+            <Box
+              direction="row"
+              gap="medium"
+              margin={{
+                top: "xlarge",
+                bottom: "large"
+              }}
+            >
               <Box
                 width="small"
                 pad="small"
@@ -224,53 +193,11 @@ class Home extends Component {
               </Box>
             </Box>
 
-            <Box
-              fill
-              direction="row"
-              gap="medium"
-              justify="stretch"
-              margin="medium"
-              round="small"
-            >
-              <Box
-                fill
-                pad="small"
-                background={{ color: "light" }}
-                round="xsmall"
-                gap="medium"
-              >
-                <Table caption="Meter Inside Table">
-                  <TableBody>
-                    {generalData
-                      .map(d => ({
-                        ...d,
-                        percentVisits: (d.visits / d.sessions + d.visits) * 100,
-                        percentSessions:
-                          (d.sessions / d.sessions + d.visits) * 100
-                      }))
-                      .map((val, index) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <Meter
-                              type="bar"
-                              values={[
-                                {
-                                  value: val.percentVisits
-                                },
-                                {
-                                  value: val.percentSessions
-                                }
-                              ]}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Text>{val.month}</Text>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-
+            <Box>
+              <Box pad="large" direction="row" gap="medium">
+                {getGraphData(stats.ghosts).map(d => {
+                  return <LabelledChart datum={d} />;
+                })}
               </Box>
               <Box
                 fill
@@ -326,10 +253,12 @@ class Home extends Component {
               </Box>
             </Box>
 
-            <Paragraph margin="none">{scriptString}</Paragraph>
+            <Box height="medium">
+              <TextArea value={scriptString} resize={false} size="small" fill />
+            </Box>
           </div>
         )}
-      </div>
+      </Box>
     );
   }
 }

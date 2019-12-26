@@ -4,11 +4,12 @@ import App from "next/app";
 import styled from "styled-components";
 import NavBar from "../components/NavBar";
 import { createGlobalStyle } from "styled-components";
-import { Grommet, Menu, Header, Button, Box, Anchor, Main } from "grommet";
+import { Grommet, Menu, Header, Button, Box, Anchor, Main, Grid } from "grommet";
 import { grommet, dark } from "grommet/themes";
 import { Home } from "grommet-icons";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
+import "./global.css";
 
 type User = {
   username: string;
@@ -57,8 +58,10 @@ class Website extends App<{}, IState> {
       >
         <Grommet theme={theme}>
           <NavBar />
-          <Main pad="small">
-            <Component {...pageProps} />
+          <Main as="main" pad="small">
+            <Grid columns={['large']} justifyContent="center">
+              <Component {...pageProps} />
+            </Grid>
           </Main>
         </Grommet>
       </UserContext.Provider>
