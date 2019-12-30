@@ -1,6 +1,6 @@
 *
 !/migrations
-!/src
+!/server
 !/static
 !/website
 !/Cargo.lock
