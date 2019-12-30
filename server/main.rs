@@ -32,9 +32,7 @@ async fn main() -> std::io::Result<()> {
         )
     };
 
-    println!("Starting server on {}", bind_address);
-
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .data(Db::new())
             .wrap(Logger::default())
@@ -64,7 +62,9 @@ async fn main() -> std::io::Result<()> {
                     .index_file("index.html"),
             )
     })
-    .bind(bind_address)?
-    .run()
-    .await
+    .bind(&bind_address)?
+    .run();
+
+    println!("Starting server on {}", bind_address);
+    server.await
 }

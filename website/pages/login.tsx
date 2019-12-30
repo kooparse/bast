@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Router from "next/router";
-import Content from "../components/Content";
 import FormLayout from "../components/FormLayout";
 import { Form, FormField, TextInput, Box, Button } from "grommet";
 import api, { setToken } from "../utils/api";
