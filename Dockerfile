@@ -22,7 +22,9 @@ RUN mkdir -p ./static/front
 RUN mkdir .cargo
 RUN cargo vendor > .cargo/config
 
-COPY ./src src
+RUN mkdir server
+RUN rm -rf src
+COPY ./server server
 RUN cargo build --release
 RUN cargo install --path . --verbose
 

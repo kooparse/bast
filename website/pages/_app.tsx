@@ -1,36 +1,15 @@
 import React from "react";
 import Head from "next/head";
 import App from "next/app";
-import styled from "styled-components";
 import NavBar from "../components/NavBar";
-import { createGlobalStyle } from "styled-components";
-import { Grommet, Menu, Header, Button, Box, Anchor, Main, Grid } from "grommet";
+import { Grommet, Main, Grid } from "grommet";
 import { grommet, dark } from "grommet/themes";
 import { Home } from "grommet-icons";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
-import "./global.css";
+import { GlobalStyles, customTheme } from "../utils/theme";
 
-type User = {
-  username: string;
-  id: number;
-};
-
-interface IState {
-  user: User;
-}
-
-const theme = {
-  global: {
-    font: {
-      family: "Helvetica",
-      size: "14px",
-      height: "20px"
-    }
-  }
-};
-
-class Website extends App<{}, IState> {
+export default class Website extends App<{}, { user: User }> {
   state = { user: {} };
 
   constructor(props) {
@@ -56,10 +35,11 @@ class Website extends App<{}, IState> {
       <UserContext.Provider
         value={{ user: this.state.user, setUser: this.setUser }}
       >
-        <Grommet theme={theme}>
+        <GlobalStyles />
+        <Grommet theme={customTheme}>
           <NavBar />
           <Main as="main" pad="small">
-            <Grid columns={['large']} justifyContent="center">
+            <Grid columns={["xlarge"]} justifyContent="center">
               <Component {...pageProps} />
             </Grid>
           </Main>
@@ -68,5 +48,3 @@ class Website extends App<{}, IState> {
     );
   }
 }
-
-export default Website;
