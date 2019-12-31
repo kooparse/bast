@@ -176,8 +176,7 @@ class Home extends Component {
                 </Heading>
                 <Box direction="row" gap="medium">
                   <DataTable
-                    step={12}
-                    size="medium"
+                    size="large"
                     columns={[
                       {
                         property: "month",
@@ -220,7 +219,7 @@ class Home extends Component {
                   />
                 </Box>
               </Box>
-              <Box margin={{ vertical: "medium" }}>
+              <Box margin={{ vertical: "medium" }} fill>
                 <Heading level={2} margin="small">
                   Page stats
                 </Heading>
@@ -231,8 +230,7 @@ class Home extends Component {
                   gap="medium"
                 >
                   <DataTable
-                    step={12}
-                    size="small"
+                    size="medium"
                     columns={[
                       {
                         property: "pathname",
