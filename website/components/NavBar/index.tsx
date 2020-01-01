@@ -3,7 +3,6 @@ import Router from "next/router";
 import styled from "styled-components";
 import { UserContext } from "../../utils/context";
 import { Grommet, Menu, Header, Button, Box, Anchor, Heading } from "grommet";
-import { Home } from "grommet-icons";
 
 class NavBar extends Component {
   static contextType = UserContext;
