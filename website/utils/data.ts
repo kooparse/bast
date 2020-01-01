@@ -1,53 +1,32 @@
 import config from "next/config";
+import { format, compareAsc } from "date-fns";
 const { API_URL, SCRIPT_URL } = config().publicRuntimeConfig;
 import { UserContext } from "./context";
 
-const months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sept",
-  "Oct",
-  "Nov",
-  "Dec"
-];
-
 export const getGraphData = (ghosts: Ghost[]): GraphDatum[] => {
-  let data: GraphDatum[] = months.map(month => ({
-    month,
-    visits: 0,
-    sessions: 0,
-    avgTime: 3.4,
-    percentVisits: 0,
-    percentSessions: 0
-  }));
+  const groupByDate = {};
 
   ghosts.forEach(g => {
     const date = new Date(g.createdAt);
-    // Between 0-11.
-    const indexMonth = date.getMonth() - 1;
+    const id = format(date, "M::yyyy");
 
-    data[indexMonth].visits += 1;
+    if (typeof groupByDate[id] === "undefined") {
+      groupByDate[id] = { date, visits: 0, uniques: 0 };
+    }
+
+    groupByDate[id].visits += 1;
     if (g.isNewSession) {
-      data[indexMonth].sessions += 1;
+      groupByDate[id].uniques += 1;
     }
   });
 
-  return data.map(d => ({
-    ...d,
-    percentVisits: (d.visits / d.sessions + d.visits) * 100,
-    percentSessions: (d.sessions / d.sessions + d.visits) * 100
-  }));
+  const data: GraphDatum[] = Object.values(groupByDate);
+  return data.sort((a, b) => compareAsc(a.date, b.date));
 };
 
 // Create the script to be copy/past by the user.
 export const getScript = (user: User, website: Website): string => {
-    return `
+  return `
       <script>
         (function() {
           window.__bast__website_id = ${website.id};
@@ -61,5 +40,4 @@ export const getScript = (user: User, website: Website): string => {
         })();
       </script>
     `;
-
-}
+};

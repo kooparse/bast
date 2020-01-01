@@ -35,10 +35,7 @@ type Stats = {
 
 type GraphDatum = {
   visits: number;
-  sessions: number;
-  month: string;
-  avgTime: number;
-  percentVisits: number;
-  percentSessions: number;
+  uniques: number;
+  date: Date;
 };
 

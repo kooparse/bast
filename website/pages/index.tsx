@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Head from "next/head";
 import Router from "next/router";
 import config from "next/config";
-import groupBy from "lodash/groupBy";
 import {
   Box,
   Heading,
@@ -12,6 +11,7 @@ import {
   Select,
   TextArea
 } from "grommet";
+import Graph from "../components/Graph";
 import api, { isLogged } from "../utils/api";
 import { getGraphData, getScript } from "../utils/data";
 import { UserContext } from "../utils/context";
@@ -40,12 +40,11 @@ class Home extends Component {
 
   getStats = async (websiteId: number) => {
     try {
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const startOfYear = new Date(currentYear, 0, 0, 0, 0, 0);
+      const start = new Date();
+      start.setFullYear(start.getFullYear() - 1 );
 
       const { data: stats } = await api.get(
-        `/stats?website_id=${websiteId}&start=${+startOfYear}&end=${+today}`
+        `/stats?website_id=${websiteId}&start=${+start}&end=${+new Date()}`
       );
       return stats;
     } catch (e) {
@@ -170,55 +169,7 @@ class Home extends Component {
             </Box>
 
             <Box>
-              <Box margin={{ vertical: "medium" }}>
-                <Heading level={2} margin="small">
-                  Overall stats
-                </Heading>
-                <Box direction="row" gap="medium">
-                  <DataTable
-                    size="large"
-                    columns={[
-                      {
-                        property: "month",
-                        header: <Text>Month</Text>,
-                        primary: true,
-                        render: datum => (
-                          <Text weight="bold">{datum.month}</Text>
-                        )
-                      },
-                      {
-                        property: "visits",
-                        header: "Page views"
-                      },
-                      {
-                        property: "sessions",
-                        header: "Uniques"
-                      },
-                      {
-                        property: "avgTime",
-                        header: "Average time"
-                      },
-                      {
-                        property: "percent",
-                        header: "Views/Uniques",
-                        render: datum => (
-                          <Box pad={{ vertical: "xsmall" }}>
-                            <Meter
-                              values={[
-                                { value: datum.percentVisits },
-                                { value: datum.percentSessions }
-                              ]}
-                              thickness="small"
-                              size="small"
-                            />
-                          </Box>
-                        )
-                      }
-                    ]}
-                    data={getGraphData(stats.ghosts)}
-                  />
-                </Box>
-              </Box>
+              <Graph data={getGraphData(stats.ghosts)} />
               <Box margin={{ vertical: "medium" }} fill>
                 <Heading level={2} margin="small">
                   Page stats
