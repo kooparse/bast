@@ -19,7 +19,7 @@ pub struct Data {
     hostname: String,
     origin: String,
     pathname: String,
-    referrer: Option<String>,
+    referrer: String,
 }
 
 pub async fn collect(
@@ -83,7 +83,11 @@ pub async fn collect(
                 ghosts::is_new_session.eq(params.is_new_session),
                 ghosts::pathname.eq(params.pathname.clone()),
                 ghosts::hostname.eq(params.hostname.clone()),
-                ghosts::referrer.eq(params.referrer.as_ref()),
+                ghosts::referrer.eq(if params.referrer.is_empty() {
+                    None
+                } else {
+                    Some(params.referrer.clone())
+                }),
             ))
             .execute(&data.conn_pool()?)
             .map_err(|_| UserError::InternalServerError)?;
