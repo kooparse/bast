@@ -22,6 +22,7 @@ type Ghost = {
   createdAt: Date;
   hostname: string;
   pathname: string;
+  referrer: string;
   userId: number;
   websiteId: number;
   isNewSession: boolean;

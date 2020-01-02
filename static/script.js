@@ -47,7 +47,8 @@
       hostname: location.hostname,
       origin: location.origin,
       href: location.href,
-      pathname: location.pathname
+      pathname: location.pathname,
+      referrer: document.referrer,
     };
     // Cool, we have our tracker data as object.
     //
@@ -102,6 +103,7 @@
       origin,
       href,
       pathname,
+      referrer: document.referrer,
       isNewSession: true
     };
 

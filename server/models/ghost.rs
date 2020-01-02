@@ -14,6 +14,7 @@ pub struct Ghost {
     pub is_new_session: bool,
     pub pathname: String,
     pub hostname: String,
+    pub referrer: Option<String>,
     pub created_at: SystemTime,
 }
 
@@ -33,6 +34,7 @@ pub struct SlimGhost {
     pub is_new_session: bool,
     pub pathname: String,
     pub hostname: String,
+    pub referrer: Option<String>,
     #[serde(rename(serialize = "createdAt"))]
     pub created_at: u64,
 }
@@ -46,6 +48,7 @@ impl From<Ghost> for SlimGhost {
             is_new_session: ghost.is_new_session,
             pathname: ghost.pathname,
             hostname: ghost.hostname,
+            referrer: ghost.referrer,
             created_at,
         }
     }

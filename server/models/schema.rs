@@ -6,6 +6,7 @@ table! {
         is_new_session -> Bool,
         pathname -> Text,
         hostname -> Text,
+        referrer -> Nullable<Text>,
         created_at -> Timestamp,
     }
 }
