@@ -24,6 +24,25 @@ export const getGraphData = (ghosts: Ghost[]): GraphDatum[] => {
   return data.sort((a, b) => compareAsc(a.date, b.date));
 };
 
+export const getReferrers = (ghosts: Ghost[]): ReferrerCount[] => {
+  const referrers = {};
+  ghosts
+    .filter(g => !!g.referrer)
+    .forEach(g => {
+      let { referrer: ref } = g;
+
+      if (typeof referrers[ref] === "undefined") {
+        referrers[ref] = { count: 0, max: 0, domain: ref };
+      }
+
+      referrers[ref].count += 1;
+    });
+
+  const data: ReferrerCount[] = Object.values(referrers);
+  let sorted = data.sort((a, b) => b.count - a.count);
+  return sorted.map(d => ({ ...d, max: sorted[0].count }));
+};
+
 // Create the script to be copy/past by the user.
 export const getScript = (user: User, website: Website): string => {
   return `

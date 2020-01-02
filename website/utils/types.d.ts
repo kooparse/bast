@@ -40,3 +40,9 @@ type GraphDatum = {
   date: Date;
 };
 
+type ReferrerCount = {
+  count: number;
+  max: number;
+  domain: string;
+};
+

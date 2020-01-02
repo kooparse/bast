@@ -13,7 +13,7 @@ import {
 } from "grommet";
 import Graph from "../components/Graph";
 import api, { isLogged } from "../utils/api";
-import { getGraphData, getScript } from "../utils/data";
+import { getGraphData, getReferrers, getScript } from "../utils/data";
 import { UserContext } from "../utils/context";
 
 const { API_URL } = config().publicRuntimeConfig;
@@ -41,7 +41,7 @@ class Home extends Component {
   getStats = async (websiteId: number) => {
     try {
       const start = new Date();
-      start.setFullYear(start.getFullYear() - 1 );
+      start.setFullYear(start.getFullYear() - 1);
 
       const { data: stats } = await api.get(
         `/stats?website_id=${websiteId}&start=${+start}&end=${+new Date()}`
@@ -193,7 +193,7 @@ class Home extends Component {
                       },
                       {
                         property: "visitors",
-                        header: "Visitors"
+                        header: "Visits"
                       },
                       {
                         property: "sessions",
@@ -227,8 +227,40 @@ class Home extends Component {
                 </Box>
               </Box>
             </Box>
-
             <Box height="medium">
+              <DataTable
+                size="medium"
+                columns={[
+                  {
+                    property: "domain",
+                    header: <Text>Referrer</Text>,
+                    primary: true,
+                    render: datum => <Text weight="bold">{datum.domain}</Text>
+                  },
+                  {
+                    property: "count",
+                    header: "Count",
+                    render: datum => (
+                      <Box pad={{ vertical: "xsmall" }}>
+                        <Meter
+                          values={[{ value: datum.count }]}
+                          thickness="small"
+                          max={datum.max}
+                          size="small"
+                        />
+                      </Box>
+                    )
+                  },
+                  {
+                    property: "count",
+                    header: "Count"
+                  }
+                ]}
+                data={getReferrers(stats.ghosts)}
+              />
+            </Box>
+
+            <Box height="medium" margin={{ vertical: "large" }}>
               <TextArea value={script} resize={false} size="small" fill />
             </Box>
           </div>
