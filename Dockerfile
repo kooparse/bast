@@ -20,6 +20,7 @@ COPY migrations ./migrations
 COPY static     ./static
 RUN mkdir -p ./static/front
 RUN mkdir .cargo
+RUN cargo install diesel_cli --no-default-features --features "postgres"
 RUN cargo vendor > .cargo/config
 
 COPY ./server server

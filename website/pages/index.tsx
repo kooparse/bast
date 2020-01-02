@@ -197,7 +197,7 @@ class Home extends Component {
                       },
                       {
                         property: "sessions",
-                        header: "Sessions"
+                        header: "Uniques"
                       },
                       {
                         property: "percent",
