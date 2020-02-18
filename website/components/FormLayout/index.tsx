@@ -1,9 +1,11 @@
-import { Box } from "grommet";
+import { Box, Flex } from "@chakra-ui/core";
 
 const FormLayout = ({ children }) => (
-  <Box fill align="center" justify="center">
-    <Box width="medium">{children}</Box>
-  </Box>
+  <Flex justify="center">
+    <Box w="40%" p={4}>
+      {children}
+    </Box>
+  </Flex>
 );
 
 export default FormLayout;

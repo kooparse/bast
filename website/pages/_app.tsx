@@ -5,6 +5,7 @@ import NavBar from "../components/NavBar";
 import { Grommet, Main, Grid } from "grommet";
 import { grommet, dark } from "grommet/themes";
 import { Home } from "grommet-icons";
+import { ThemeProvider, CSSReset, theme } from "@chakra-ui/core";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
 import { GlobalStyles, customTheme } from "../utils/theme";
@@ -36,14 +37,17 @@ export default class Website extends App<{}, { user: User }> {
         value={{ user: this.state.user, setUser: this.setUser }}
       >
         <GlobalStyles />
-        <Grommet theme={customTheme}>
-          <NavBar />
-          <Main as="main" pad="small">
-            <Grid columns={["xlarge"]} justifyContent="center">
-              <Component {...pageProps} />
-            </Grid>
-          </Main>
-        </Grommet>
+        <ThemeProvider theme={theme}>
+          <CSSReset />
+          <Grommet theme={customTheme}>
+            <NavBar />
+            <Main as="main" pad="small">
+              <Grid columns={["xlarge"]} justifyContent="center">
+                <Component {...pageProps} />
+              </Grid>
+            </Main>
+          </Grommet>
+        </ThemeProvider>
       </UserContext.Provider>
     );
   }
