@@ -1,32 +1,37 @@
-import React, { Component, useContext } from "react";
+import React, { useContext, ReactElement } from "react";
 import Router from "next/router";
 import { useFormik } from "formik";
 import {
+  useToast,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
   Input,
   Button
 } from "@chakra-ui/core";
-import api, { setToken } from "../utils/api";
+import api, { setToken, setAuthorization } from "../utils/api";
 import { UserContext } from "../utils/context";
+import { errorLogin } from "../utils/messages";
 import FormLayout from "../components/FormLayout";
 
-export default () => {
+const initialValues = { email: "", password: "" };
+
+const Login: React.FC = (): ReactElement => {
   const ctx = useContext(UserContext);
+  const toast = useToast();
+
   const formik = useFormik({
-    initialValues: { email: "", password: "" },
+    initialValues,
     onSubmit: async (values, actions) => {
       try {
         const { data } = await api.post("/login", values);
-        console.log(data);
 
         setToken(data.token);
+        setAuthorization();
+
         ctx.setUser(data.user);
         Router.push("/");
       } catch (e) {
-        console.error(e);
+        toast(errorLogin);
         actions.setSubmitting(false);
       }
     }
@@ -38,8 +43,10 @@ export default () => {
         <FormControl p={4}>
           <FormLabel htmlFor="email">Email address</FormLabel>
           <Input
+            isRequired
             type="email"
             id="email"
+            placeholder="email@yours.com"
             aria-describedby="email-helper-text"
             value={formik.values.email}
             onChange={formik.handleChange}
@@ -47,10 +54,12 @@ export default () => {
         </FormControl>
 
         <FormControl p={4}>
-          <FormLabel htmlFor="password">Your password</FormLabel>
+          <FormLabel htmlFor="password">Password</FormLabel>
           <Input
+            isRequired
             type="password"
             id="password"
+            placeholder="Secret password..."
             name="password"
             aria-describedby="password-helper-text"
             value={formik.values.password}
@@ -71,3 +80,5 @@ export default () => {
     </FormLayout>
   );
 };
+
+export default Login;

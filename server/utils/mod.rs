@@ -4,10 +4,14 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
+mod db;
 mod error;
+mod seed;
 mod token;
 
+pub use db::*;
 pub use error::*;
+pub use seed::*;
 pub use token::*;
 
 pub fn to_client<T: Serialize>(

@@ -1,53 +1,94 @@
-import React from "react";
-import { format } from "date-fns";
-import {
-  Box,
-  Heading,
-  Text,
-  DataTable,
-  Meter,
-  Select,
-  TextArea,
-  Chart
-} from "grommet";
+import React, { ReactElement } from "react";
+import format from "date-fns/format";
+import { Text, Flex, Box, Tooltip, PseudoBox, Skeleton } from "@chakra-ui/core";
 
-const Bar = ({ max, value }: { max: number; value: GraphDatum }) => (
-  <Box flex={false} basis="xsmall" align="center">
-    <Chart
-      overflow
-      bounds={[
-        [0, 2],
-        [0, max]
-      ]}
-      type="bar"
-      values={[{ value: [1, value.uniques] }]}
-      size={{ height: "small", width: "auto" }}
-      gap="small"
-    />
-    <Box align="center" margin={{ vertical: "small" }}>
-      <Text size="small">{value.uniques}</Text>
-      <Text weight="bold">{format(value.date, "MMM yyyy")}</Text>
-    </Box>
-  </Box>
-);
+const Graph = ({
+  data,
+  loading
+}: {
+  data: MonthStat[];
+  loading: boolean;
+}): ReactElement => {
+  let maxUsers = 0;
+  let maxSessions = 0;
 
-const Graph = ({ data }: { data: GraphDatum[] }) => {
-  console.log(data);
-  const max = Math.max(...data.map(d => d.uniques));
+  data.forEach(({ users, sessions }) => {
+    maxUsers = Math.max(users, maxUsers);
+    maxSessions = Math.max(sessions, maxSessions);
+  });
 
   return (
-    <Box>
-      <Box margin={{ vertical: "medium" }}>
-        <Heading level={2} margin="small">
-          Overall stats
-        </Heading>
-        <Box direction="row" margin={{ vertical: "small" }}>
-          {data.map((d, i) => (
-            <Bar max={max} value={d} key={i} />
+    <Flex
+      justifyContent="flex-end"
+      rounded="md"
+      borderWidth="1px"
+      p="5"
+      h="300px"
+      mt="10"
+      mb="10"
+    >
+      {loading ? (
+        <>
+          {new Array(12).fill(null).map((_, i) => (
+            <Flex mr="5" alignItems="flex-end" key={i}>
+              <Skeleton w={13} h="80%" mx={1} />
+              <Skeleton w={13} h="70%" mx={1} />
+            </Flex>
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </>
+      ) : (
+        <>
+          {data.map((datum, i) => {
+            const userRatio = (datum.users / maxUsers) * 100;
+            const sessionRatio = (datum.sessions / maxSessions) * 100;
+            const label = format(new Date(datum.createdAt), "MMM yy");
+
+            return (
+              <Box mr="5" pb="5" key={i}>
+                <Flex
+                  w="100%"
+                  h="100%"
+                  justifyContent="center"
+                  alignItems="flex-end"
+                >
+                  <Tooltip
+                    hasArrow
+                    label={`${datum.users} users`}
+                    aria-label="user-count"
+                  >
+                    <PseudoBox
+                      bg="teal.500"
+                      _hover={{ bg: "teal.600" }}
+                      minHeight={5}
+                      h={`${userRatio}%`}
+                      w="13px"
+                      mr="1"
+                    />
+                  </Tooltip>
+                  <Tooltip
+                    hasArrow
+                    label={`${datum.sessions} sessions`}
+                    aria-label="session-count"
+                  >
+                    <PseudoBox
+                      bg="teal.300"
+                      _hover={{ bg: "teal.400" }}
+                      minHeight={5}
+                      h={`${sessionRatio}%`}
+                      w="13px"
+                      mr="1"
+                    />
+                  </Tooltip>
+                </Flex>
+                <Text as="span" fontSize="sm">
+                  {label}
+                </Text>
+              </Box>
+            );
+          })}
+        </>
+      )}
+    </Flex>
   );
 };
 

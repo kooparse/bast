@@ -1,273 +1,188 @@
-import React, { Component } from "react";
-import Head from "next/head";
-import Router from "next/router";
-import config from "next/config";
+import React, { useState, useEffect, ReactElement, useContext } from "react";
+import getUnixTime from "date-fns/getUnixTime";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
+  useToast,
+  useColorMode,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Flex,
   Box,
   Heading,
-  Text,
-  DataTable,
-  Meter,
-  Select,
-  TextArea
-} from "grommet";
+  SimpleGrid,
+  Select
+} from "@chakra-ui/core";
 import Graph from "../components/Graph";
+import ReferrerTable from "../components/ReferrerTable";
+import PageTable from "../components/PageTable";
+import GlobalStat from "../components/GlobalStat";
 import api, { isLogged } from "../utils/api";
-import { getGraphData, getReferrers, getScript } from "../utils/data";
+import { errorFetchStats, errorFetchWebsites } from "../utils/messages";
 import { UserContext } from "../utils/context";
-
-const { API_URL } = config().publicRuntimeConfig;
 
 const defaultStats: Stats = {
   pages: [],
-  ghosts: [],
+  referrers: [],
+  stats: [],
   website: {
     domain: "",
-    visitors: 0,
+    pageviews: 0,
+    users: 0,
     sessions: 0,
+    bounceRate: 0,
+    avgTime: 0,
     id: null
   }
 };
 
-class Home extends Component {
-  static contextType = UserContext;
+const Home: React.FC = (): ReactElement => {
+  const { user } = useContext(UserContext);
+  const { colorMode } = useColorMode();
+  const router = useRouter();
+  const toast = useToast();
+  const [loading, setLoading] = useState(false);
+  const [websites, setWebsites] = useState([]);
+  const [selectedWebsiteId, setSelected] = useState("");
+  const [stats, setStats] = useState(defaultStats);
 
-  state = {
-    websites: [],
-    selected: "",
-    stats: defaultStats
-  };
+  const { website } = stats;
 
-  getStats = async (websiteId: number) => {
-    try {
-      const start = new Date();
-      start.setFullYear(start.getFullYear() - 1);
+  // Effect used to fetch stats from a selected domain.
+  // Triggered on mount cycle and when user changes domain from
+  // the <Select /> component.
+  useEffect(() => {
+    const fetchStat = async (): Promise<void> => {
+      try {
+        let start: Date | number = new Date();
+        const end = getUnixTime(new Date());
 
-      const { data: stats } = await api.get(
-        `/stats?website_id=${websiteId}&start=${+start}&end=${+new Date()}`
-      );
-      return stats;
-    } catch (e) {
-      console.error(e);
-    }
-  };
+        start.setFullYear(start.getFullYear() - 1);
+        start = getUnixTime(start);
 
-  async componentDidMount() {
-    if (isLogged()) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const queryId = urlParams.get("id");
-
-      const { data: websites } = await api.get("/websites");
-      const hasWebsite = !!websites.length;
-
-      let state = {
-        websites,
-        selected: "",
-        stats: defaultStats
-      };
-
-      if (!!queryId) {
-        const website = websites.find(w => `${w.id}` === queryId);
-        state.stats = await this.getStats(website.id);
-        state.selected = website.domain;
-      } else if (hasWebsite) {
-        state.stats = await this.getStats(websites[0].id);
-        state.selected = websites[0].domain;
+        const { data } = await api.get(
+          `/stats?website_id=${selectedWebsiteId}&start=${start}&end=${end}&by=month`
+        );
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+        toast(errorFetchStats);
       }
 
-      this.setState(state);
+      setLoading(false);
+    };
+
+    if (selectedWebsiteId) {
+      setLoading(true);
+      fetchStat();
     }
+  }, [selectedWebsiteId]);
+
+  // Effect used as ComponentDidMount, retrieve websites from the current user.
+  useEffect(() => {
+    const call = async (): Promise<void> => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get("id") || null;
+
+      try {
+        const { data = [] } = await api.get("/websites");
+        if (!data.length) {
+          return;
+        }
+        // Set the list of websites (used in the <Select /> component.
+        setWebsites(data);
+        // If we don't get domain id from the query, we select
+        // and get the first one.
+        if (!queryId) {
+          setSelected(data[0].id);
+          return;
+        }
+        // If not, we find the corresponding domain and select it.
+        const selected = data.find(({ id }) => id.toString() === queryId);
+        setSelected(selected.id);
+      } catch (err) {
+        console.error(err);
+        toast(errorFetchWebsites);
+      }
+
+      setLoading(false);
+    };
+
+    if (isLogged()) {
+      setLoading(true);
+      call();
+    }
+  }, []);
+
+  if (!user) {
+    return null;
   }
 
-  handleChange = async e => {
-    const { value: selected } = e;
-    const website = this.state.websites.find(w => w.domain === selected);
-    const stats = await this.getStats(website.id);
-
-    // Replace url state with new id for user refresh.
-    const params = new URLSearchParams(location.search);
-    params.set("id", website.id);
-    window.history.replaceState({}, "", `${location.pathname}?${params}`);
-
-    this.setState({ selected, stats: stats });
-  };
-
-  render() {
-    const { stats, selected, websites } = this.state;
-    const website = websites.find(w => w.domain === selected) || {};
-    const script = getScript(this.context.user, website);
+  if (!websites.length && !loading) {
+    const bg = { light: "gray.50", dark: "gray.900" };
+    const color = { light: "grey.900", dark: "gray.50" };
 
     return (
-      <Box margin={{ top: "medium" }}>
-        <Head>
-          <title>Dashboard</title>
-        </Head>
-
-        {!!websites.length && (
-          <Box direction="row" gap="medium">
-            <Select
-              size="large"
-              options={websites.map(w => w.domain)}
-              value={selected}
-              onChange={this.handleChange}
-            />
-          </Box>
-        )}
-
-        {!!stats.website.id && (
-          <div>
-            <Box
-              direction="row"
-              gap="medium"
-              margin={{
-                top: "xlarge",
-                bottom: "large"
-              }}
-            >
-              <Box
-                width="small"
-                pad="small"
-                background={{ color: "light-3" }}
-                round="xsmall"
-                gap="medium"
-              >
-                <Heading level={1} margin="none">
-                  {stats.website.visitors}
-                </Heading>
-                <Heading level={3} margin="none">
-                  Visits
-                </Heading>
-              </Box>
-              <Box
-                width="small"
-                pad="small"
-                background={{ color: "light-3" }}
-                round="xsmall"
-                gap="medium"
-              >
-                <Heading level={1} margin="none">
-                  {stats.website.sessions}
-                </Heading>
-                <Heading level={3} margin="none">
-                  uniques
-                </Heading>
-              </Box>
-              <Box
-                width="small"
-                pad="small"
-                background={{ color: "light-3" }}
-                round="xsmall"
-                gap="medium"
-              >
-                <Heading level={1} margin="none">
-                  00:32
-                </Heading>
-                <Heading level={3} margin="none">
-                  Avg time
-                </Heading>
-              </Box>
-            </Box>
-
-            <Box>
-              <Graph data={getGraphData(stats.ghosts)} />
-              <Box margin={{ vertical: "medium" }} fill>
-                <Heading level={2} margin="small">
-                  Page stats
-                </Heading>
-                <Box
-                  fill
-                  background={{ color: "light" }}
-                  round="xsmall"
-                  gap="medium"
-                >
-                  <DataTable
-                    size="medium"
-                    columns={[
-                      {
-                        property: "pathname",
-                        header: <Text>Pathname</Text>,
-                        primary: true,
-                        render: datum => (
-                          <Text weight="bold">{datum.pathname}</Text>
-                        )
-                      },
-                      {
-                        property: "visitors",
-                        header: "Visits"
-                      },
-                      {
-                        property: "sessions",
-                        header: "Uniques"
-                      },
-                      {
-                        property: "percent",
-                        header: "Ratio",
-                        render: datum => (
-                          <Box pad={{ vertical: "xsmall" }}>
-                            <Meter
-                              values={[
-                                { value: datum.percentVisits },
-                                { value: datum.percentSessions }
-                              ]}
-                              thickness="small"
-                              size="small"
-                            />
-                          </Box>
-                        )
-                      }
-                    ]}
-                    data={stats.pages.map(p => ({
-                      ...p,
-                      percentVisits:
-                        (p.visitors / p.sessions + p.visitors) * 100,
-                      percentSessions:
-                        (p.sessions / p.sessions + p.visitors) * 100
-                    }))}
-                  />
-                </Box>
-              </Box>
-            </Box>
-            <Box height="medium">
-              <DataTable
-                size="medium"
-                columns={[
-                  {
-                    property: "domain",
-                    header: <Text>Referrer</Text>,
-                    primary: true,
-                    render: datum => <Text weight="bold">{datum.domain}</Text>
-                  },
-                  {
-                    property: "count",
-                    header: "Count",
-                    render: datum => (
-                      <Box pad={{ vertical: "xsmall" }}>
-                        <Meter
-                          values={[{ value: datum.count }]}
-                          thickness="small"
-                          max={datum.max}
-                          size="small"
-                        />
-                      </Box>
-                    )
-                  },
-                  {
-                    property: "count",
-                    header: "Count"
-                  }
-                ]}
-                data={getReferrers(stats.ghosts)}
-              />
-            </Box>
-
-            <Box height="medium" margin={{ vertical: "large" }}>
-              <TextArea value={script} resize={false} size="small" fill />
-            </Box>
-          </div>
-        )}
-      </Box>
+      <Alert
+        variant="subtle"
+        flexDirection="column"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+        borderRadius="md"
+        bg={bg[colorMode]}
+        color={color[colorMode]}
+      >
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          You don&apos;t have any website yet!
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
+          Go to your&nbsp;
+          <Link href="/settings">
+            <a>
+              <u>settings</u>
+            </a>
+          </Link>{" "}
+          in order to have new domains associated with your account! :)
+        </AlertDescription>
+      </Alert>
     );
   }
-}
+
+  return (
+    <Box>
+      <Flex justifyContent="space-between" alignContent="center">
+        <Heading as="h1">Dashboard</Heading>
+
+        {!!websites.length && (
+          <Select
+            width="300px"
+            value={websites.find(w => w.id === selectedWebsiteId)?.id}
+            onChange={(event): void => {
+              const { value: id } = event.target;
+              router.replace({ pathname: "/", query: { id } });
+              setSelected(id);
+            }}
+          >
+            {websites.map((w, i) => (
+              <option key={i} style={{ color: "initial" }} value={w.id}>
+                {w.domain}
+              </option>
+            ))}
+          </Select>
+        )}
+      </Flex>
+
+      <GlobalStat website={website} loading={loading} />
+      <Graph data={stats.stats} loading={loading} />
+
+      <SimpleGrid columns={2} spacing={20}>
+        <PageTable loading={loading} pages={stats.pages} />
+        <ReferrerTable loading={loading} referrers={stats.referrers} />
+      </SimpleGrid>
+    </Box>
+  );
+};
 
 export default Home;

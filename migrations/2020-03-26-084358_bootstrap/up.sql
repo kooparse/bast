@@ -1,0 +1,57 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  password  TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE websites (
+  id SERIAL PRIMARY KEY,
+  user_id SERIAL references users(id) NOT NULL,
+  domain TEXT NOT NULL UNIQUE,
+  pageviews INTEGER NOT NULL DEFAULT 0,
+  users INTEGER NOT NULL DEFAULT 0,
+  sessions  INTEGER NOT NULL DEFAULT 0,
+  avg_time REAL NOT NULL DEFAULT 0.0,
+  bounce_rate REAL NOT NULL DEFAULT 0.0,
+  known_time_counter INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
+
+CREATE TABLE pageviews (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  website_id SERIAL references websites(id) NOT NULL,
+  u_id TEXT NOT NULL,
+  pathname TEXT NOT NULL,
+  href TEXT NOT NULL,
+  hostname TEXT NOT NULL,
+  referrer TEXT,
+  is_new_session BOOLEAN NOT NULL DEFAULT FALSE,
+  is_new_user BOOLEAN NOT NULL DEFAULT FALSE,
+  duration REAL NOT NULL DEFAULT 0.0,
+  is_bounce BOOLEAN NOT NULL DEFAULT TRUE,
+  is_done BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
+
+CREATE TABLE month_stats (
+  id SERIAL PRIMARY KEY,
+  website_id SERIAL references websites(id) NOT NULL,
+  users INTEGER NOT NULL DEFAULT 0,
+  sessions  INTEGER NOT NULL DEFAULT 0,
+  avg_time REAL NOT NULL DEFAULT 0.0,
+  bounce_rate REAL NOT NULL DEFAULT 0.0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
+
+CREATE TABLE day_stats (
+  id SERIAL PRIMARY KEY,
+  website_id SERIAL references websites(id) NOT NULL,
+  users INTEGER NOT NULL DEFAULT 0,
+  sessions  INTEGER NOT NULL DEFAULT 0,
+  avg_time REAL NOT NULL DEFAULT 0.0,
+  bounce_rate REAL NOT NULL DEFAULT 0.0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);

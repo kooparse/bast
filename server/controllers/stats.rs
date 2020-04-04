@@ -1,29 +1,44 @@
 use crate::models::{
-    schema::{ghosts, pages, websites},
-    AuthUser, Ghost, Page, SlimGhost, Website,
+    schema::{month_stats, pageviews, websites},
+    AuthUser, MonthStat, Pageview, Website,
 };
 use crate::utils::{to_client, UserError};
 use crate::Db;
 use actix_web::{web, HttpResponse};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::time::UNIX_EPOCH;
 
 #[derive(Deserialize)]
 pub struct Query {
     website_id: i32,
-    start: Option<u64>,
-    end: Option<u64>,
+    start: i64,
+    end: i64,
+    by: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct Referrer {
+    name: String,
+    count: i32,
+}
+
+#[derive(Debug, Serialize)]
+pub struct Page {
+    name: String,
+    sessions: i32,
+    users: i32,
 }
 
 #[derive(Serialize)]
 pub struct Stats {
     website: Website,
+    stats: Vec<MonthStat>,
     pages: Vec<Page>,
-    ghosts: Vec<SlimGhost>,
+    referrers: Vec<Referrer>,
 }
 
-pub async fn stats(
+pub async fn get_stat(
     params: web::Query<Query>,
     data: web::Data<Db>,
     auth_user: AuthUser,
@@ -31,6 +46,10 @@ pub async fn stats(
     let result = web::block(move || -> Result<Stats, UserError> {
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
+
+        if !["month", "day"].contains(&params.by.as_str()) {
+            return Err(UserError::BadRequest);
+        }
 
         let website: Website = websites::table
             .filter(
@@ -41,51 +60,68 @@ pub async fn stats(
             .first::<_>(&conn)
             .map_err(|_| UserError::BadRequest)?;
 
-        let pages: Vec<Page> = pages::table
-            .filter(pages::website_id.eq(&website.id))
-            .order_by(pages::visitors.desc())
-            .get_results::<_>(&conn)
-            .map_err(|_| UserError::BadRequest)?;
+        let start = NaiveDateTime::from_timestamp(params.start, 0);
+        let end = NaiveDateTime::from_timestamp(params.end, 0);
 
-        let list = if params.start.is_some() && params.end.is_some() {
-            let start = params.start.unwrap();
-            let end = params.end.unwrap();
+        let months: Vec<MonthStat> = month_stats::table
+            .filter(
+                month_stats::website_id
+                    .eq(website.id)
+                    .and(month_stats::created_at.gt(start))
+                    .and(month_stats::created_at.lt(end)),
+            )
+            .get_results(&conn)
+            .map_err(|_| UserError::InternalServerError)?;
 
-            // TODO: We should use gt/lt here...
-            let list: Vec<Ghost> = ghosts::table
-                .filter(
-                    ghosts::website_id
-                        .eq(website.id)
-                        .and(ghosts::user_id.eq(user_id)),
-                )
-                .get_results::<_>(&conn)
-                .map_err(|_| UserError::BadRequest)?;
+        let pageview_list: Vec<Pageview> = pageviews::table
+            .filter(
+                pageviews::website_id
+                    .eq(website.id)
+                    .and(pageviews::created_at.gt(start))
+                    .and(pageviews::created_at.lt(end)),
+            )
+            .get_results(&conn)
+            .map_err(|_| UserError::InternalServerError)?;
 
-            // TODO: Remove unwrap().
-            list.into_iter()
-                .filter_map(|ghost| {
-                    let created_at = ghost
-                        .created_at
-                        .duration_since(UNIX_EPOCH)
-                        .unwrap()
-                        .as_millis()
-                        as u64;
+        let mut referrers: Vec<Referrer> = vec![];
+        let mut pages: Vec<Page> = vec![];
 
-                    if created_at >= start && created_at <= end {
-                        Some(SlimGhost::from(ghost))
-                    } else {
-                        None
-                    }
+        pageview_list.iter().for_each(|pv| {
+            let sessions = if pv.is_new_session { 1 } else { 0 };
+            let users = if pv.is_new_user { 1 } else { 0 };
+
+            if let Some(referrer) = &pv.referrer {
+                if let Some(mut r) =
+                    referrers.iter_mut().find(|r| r.name == *referrer)
+                {
+                    r.count += 1;
+                } else {
+                    referrers.push(Referrer {
+                        name: referrer.clone(),
+                        count: 1,
+                    })
+                }
+            }
+
+            if let Some(mut p) =
+                pages.iter_mut().find(|p| p.name == pv.pathname)
+            {
+                p.sessions += sessions;
+                p.users += users;
+            } else {
+                pages.push(Page {
+                    name: pv.pathname.clone(),
+                    sessions,
+                    users,
                 })
-                .collect::<_>()
-        } else {
-            vec![]
-        };
+            }
+        });
 
         Ok(Stats {
             website,
+            stats: months,
             pages,
-            ghosts: list,
+            referrers,
         })
     })
     .await;

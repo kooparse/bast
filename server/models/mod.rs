@@ -1,10 +1,10 @@
-mod ghost;
-mod page;
+mod pageview;
 pub mod schema;
+mod stat;
 mod user;
 mod website;
 
-pub use ghost::*;
-pub use page::*;
+pub use pageview::*;
+pub use stat::*;
 pub use user::*;
 pub use website::*;

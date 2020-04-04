@@ -4,8 +4,8 @@ use diesel::Queryable;
 use serde::Serialize;
 use std::time::SystemTime;
 
-#[derive(Serialize, Queryable, PartialEq, Debug)]
 /// Full user object with all database information.
+#[derive(Serialize, Queryable, PartialEq, Debug)]
 pub struct User {
     pub id: i32,
     pub email: String,
@@ -13,9 +13,9 @@ pub struct User {
     pub created_at: SystemTime,
 }
 
-#[derive(Default, Serialize)]
 /// Serialiazed user struct before sending to
 /// the client.
+#[derive(Default, Serialize)]
 pub struct SlimUser {
     pub id: i32,
     pub email: String,

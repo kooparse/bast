@@ -3,46 +3,57 @@ type User = {
   email: string;
 };
 
-type Page = {
-  id: number;
-  pathname: string;
-  sessions: number;
-  visitors: number;
-};
-
 type Website = {
   id: number;
   domain: string;
+  pageviews: number;
+  users: number;
   sessions: number;
-  visitors: number;
+  avgTime: number;
+  bounceRate: number;
 };
 
-type Ghost = {
-  id: number;
+type Pageview = {
+  id: string;
   createdAt: Date;
   hostname: string;
+  href: string;
   pathname: string;
   referrer: string;
-  userId: number;
   websiteId: number;
-  isNewSession: boolean;
+  isNew: boolean;
+};
+
+type Referrer = {
+  name: string;
+  count: number;
+};
+
+type Page = {
+  name: string;
+  users: number;
+  sessions: number;
+};
+
+type MonthStat = {
+  users: number;
+  sessions: number;
+  createdAt: Date;
 };
 
 type Stats = {
   website: Website;
+  stats: MonthStat[];
+  referrers: Referrer[];
   pages: Page[];
-  ghosts: Ghost[];
 };
 
-type GraphDatum = {
-  visits: number;
-  uniques: number;
-  date: Date;
+type Stat = {
+  id: number;
+  websiteId: number;
+  users: number;
+  sessions: number;
+  avgTime: number;
+  bounceRate: number;
+  createdAt: Date;
 };
-
-type ReferrerCount = {
-  count: number;
-  max: number;
-  domain: string;
-};
-

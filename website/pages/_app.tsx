@@ -1,52 +1,58 @@
-import React from "react";
-import Head from "next/head";
+import React, { ReactElement } from "react";
 import App from "next/app";
 import NavBar from "../components/NavBar";
-import { Grommet, Main, Grid } from "grommet";
-import { grommet, dark } from "grommet/themes";
-import { Home } from "grommet-icons";
-import { ThemeProvider, CSSReset, theme } from "@chakra-ui/core";
+import {
+  ThemeProvider,
+  CSSReset,
+  ColorModeProvider,
+  Box,
+  Flex,
+  theme
+} from "@chakra-ui/core";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
-import { GlobalStyles, customTheme } from "../utils/theme";
 
 export default class Website extends App<{}, { user: User }> {
-  state = { user: {} };
+  state = { user: null };
 
   constructor(props) {
     super(props);
     setAuthorization();
   }
 
-  setUser = (user: User) => {
+  setUser = (user: User): void => {
     this.setState({ user });
   };
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     if (isLogged()) {
-      const { data: user } = await api.get("/user");
-      this.setState({ user });
+      try {
+        const { data: user } = await api.get("/user");
+        this.setState({ user });
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
-  render() {
+  render(): ReactElement {
     const { Component, pageProps } = this.props;
 
     return (
       <UserContext.Provider
         value={{ user: this.state.user, setUser: this.setUser }}
       >
-        <GlobalStyles />
         <ThemeProvider theme={theme}>
-          <CSSReset />
-          <Grommet theme={customTheme}>
+          <ColorModeProvider>
+            <CSSReset />
             <NavBar />
-            <Main as="main" pad="small">
-              <Grid columns={["xlarge"]} justifyContent="center">
+            <Flex width={800} mt="40px" mb="40px" mr="auto" ml="auto">
+              <Box width="100%">
                 <Component {...pageProps} />
-              </Grid>
-            </Main>
-          </Grommet>
+              </Box>
+            </Flex>
+            <Box margin="25px"></Box>
+          </ColorModeProvider>
         </ThemeProvider>
       </UserContext.Provider>
     );

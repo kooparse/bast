@@ -8,6 +8,7 @@ use dotenv;
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 pub type Conn = PooledConnection<ConnectionManager<PgConnection>>;
 
+#[derive(Clone)]
 pub struct Db {
     pub pool: DbPool,
 }

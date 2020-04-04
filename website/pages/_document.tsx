@@ -1,15 +1,23 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
+import React, { ReactElement } from "react";
+import Document, {
+  Html,
+  Head,
+  Main,
+  NextScript,
+  DocumentInitialProps
+} from "next/document";
 import { ServerStyleSheet } from "styled-components";
 
 class Bast extends Document {
-  static async getInitialProps(ctx) {
+  static async getInitialProps(ctx): Promise<DocumentInitialProps> {
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 
     try {
-      ctx.renderPage = () =>
+      ctx.renderPage = (): ReactElement =>
         originalRenderPage({
-          enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
+          enhanceApp: App => (props): void =>
+            sheet.collectStyles(<App {...props} />)
         });
 
       const initialProps = await Document.getInitialProps(ctx);
@@ -27,7 +35,7 @@ class Bast extends Document {
     }
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <Html>
         <Head>

@@ -1,3 +1,5 @@
+
+
 use crate::models::{
     schema::{users, websites},
     AuthUser, User, Website,
@@ -7,14 +9,6 @@ use crate::Db;
 use actix_web::{web, HttpResponse};
 use diesel::prelude::*;
 use serde::Deserialize;
-
-#[derive(Deserialize, Insertable)]
-#[table_name = "websites"]
-pub struct WebsiteFormData {
-    #[serde(skip_deserializing)]
-    user_id: i32,
-    domain: String,
-}
 
 pub async fn get_all(
     data: web::Data<Db>,
@@ -32,6 +26,7 @@ pub async fn get_all(
 
         let list: Vec<Website> = websites::table
             .filter(websites::user_id.eq(user.id))
+            .order(websites::created_at.desc())
             .get_results::<_>(&conn)
             .map_err(|_| UserError::BadRequest)?;
 
@@ -40,6 +35,14 @@ pub async fn get_all(
     .await;
 
     to_client(result)
+}
+
+#[derive(Deserialize, Insertable)]
+#[table_name = "websites"]
+pub struct WebsiteFormData {
+    #[serde(skip_deserializing)]
+    user_id: i32,
+    domain: String,
 }
 
 pub async fn create(
@@ -51,10 +54,12 @@ pub async fn create(
         let user_id = auth_user.get_id()?;
         let conn = data.conn_pool()?;
 
+        dbg!(&form.domain);
+
         // Check if user is found.
         let user: User = users::table
             .find(user_id)
-            .first::<_>(&conn)
+            .first(&conn)
             .map_err(|_| UserError::BadRequest)?;
 
         form.user_id = user.id;
@@ -62,7 +67,10 @@ pub async fn create(
         let website: Website = diesel::insert_into(websites::table)
             .values(form.into_inner())
             .get_result(&conn)
-            .map_err(|_| UserError::InternalServerError)?;
+            .map_err(|e| {
+                dbg!(e);
+                return UserError::InternalServerError;
+            })?;
 
         Ok(website)
     })

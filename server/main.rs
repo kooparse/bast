@@ -1,20 +1,23 @@
 mod controllers;
-mod db;
 mod models;
 mod utils;
 
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use controllers::{
-    collect, file, from_range, health, login, register, stats, user, website,
+    get_stat, collect, file, health, login, register, user, website,
 };
-use db::Db;
 use dotenv::{dotenv, var};
 use env_logger;
+use utils::Db;
+
+embed_migrations!();
 
 /// All routes are here.
 #[actix_rt::main]
@@ -23,6 +26,15 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     // Load logger env info
     env_logger::init();
+
+    let db = Db::new();
+    let conn = db
+        .conn_pool()
+        .expect("Failed to connect throught the dabatabse pool.");
+
+    utils::seed_database(&conn);
+
+    embedded_migrations::run(&conn).expect("Failed to run migrations.");
 
     let bind_address = {
         format!(
@@ -34,18 +46,18 @@ async fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(move || {
         App::new()
-            .data(Db::new())
+            .data(db.clone())
             .wrap(Logger::default())
             .wrap(Cors::default())
             .service(
                 web::scope("/api")
                     .route("/register", web::post().to(register))
                     .route("/login", web::post().to(login))
+                    .route("/collect", web::get().to(collect))
                     .route("/user", web::get().to(user))
-                    .route("/stats", web::get().to(stats))
-                    .route("/ghosts", web::get().to(from_range))
+                    .route("/stats", web::get().to(get_stat))
                     .route("/websites", web::get().to(website::get_all))
-                    .route("/website", web::post().to(website::create))
+                    .route("/websites", web::post().to(website::create))
                     .route("/health", web::get().to(health)),
             )
             // Serving the script file.
