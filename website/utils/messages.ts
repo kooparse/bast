@@ -15,6 +15,12 @@ const baseErrorMessage = {
   status: "error"
 };
 
+const baseSuccessMessage = {
+  ...baseOptions,
+  title: "Success",
+  status: "success"
+};
+
 export const errorFetchStats: ToastOption = {
   ...baseErrorMessage,
   description: "Error while fetching stats fot this domain."
@@ -43,4 +49,9 @@ export const errorRegister: ToastOption = {
 export const errorNewWebsite: ToastOption = {
   ...baseErrorMessage,
   description: "Unable to create website."
+};
+
+export const successCreateWebsite : ToastOption = {
+  ...baseSuccessMessage,
+  description: "You just created a new website!"
 };

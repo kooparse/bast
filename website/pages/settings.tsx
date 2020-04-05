@@ -19,7 +19,11 @@ import {
 } from "@chakra-ui/core";
 import CodeSnippet from "../components/CodeSnippet";
 import { UserContext } from "../utils/context";
-import { errorCreateWebsite } from "../utils/messages";
+import {
+  errorCreateWebsite,
+  errorFetchWebsites,
+  successCreateWebsite
+} from "../utils/messages";
 import api, { isLogged } from "../utils/api";
 
 const Settings: React.FC = (): ReactElement => {
@@ -39,6 +43,7 @@ const Settings: React.FC = (): ReactElement => {
         setWebsites(data);
         setSelected(data[0].id);
       } catch (err) {
+        toast(errorFetchWebsites);
         console.error(err);
       }
       setLoading(false);
@@ -59,6 +64,7 @@ const Settings: React.FC = (): ReactElement => {
         const { data } = await api.post("/websites", values);
         setWebsites([data, ...websites]);
         setSelected(data.id);
+        toast(successCreateWebsite);
       } catch (e) {
         toast(errorCreateWebsite);
         actions.setSubmitting(false);
