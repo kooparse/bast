@@ -59,7 +59,10 @@ const NavBar: React.FC = (): ReactElement => {
             variant="ghost"
             aria-label="dark-mode"
             icon={colorMode === "light" ? "moon" : "sun"}
-            onClick={toggleColorMode}
+            onClick={(): void => {
+              toggleColorMode();
+              document.cookie = `isDarkMode=${colorMode === "light"}`;
+            }}
           />
 
           <Divider orientation="vertical" />

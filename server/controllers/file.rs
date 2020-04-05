@@ -13,6 +13,6 @@ pub async fn front_login() -> Result<NamedFile> {
     Ok(NamedFile::open("static/front/login.html")?)
 }
 
-pub async fn front_create_website() -> Result<NamedFile> {
-    Ok(NamedFile::open("static/front/create_website.html")?)
+pub async fn front_settings() -> Result<NamedFile> {
+    Ok(NamedFile::open("static/front/settings.html")?)
 }

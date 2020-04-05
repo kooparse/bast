@@ -39,10 +39,13 @@ const defaultStats: Stats = {
 
 const Home: React.FC = (): ReactElement => {
   const { user } = useContext(UserContext);
-  const { colorMode } = useColorMode();
   const router = useRouter();
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
+  const { colorMode } = useColorMode();
+  const bg = { light: "gray.50", dark: "gray.900" };
+  const color = { light: "grey.900", dark: "gray.50" };
+
+  const [loading, setLoading] = useState(true);
   const [websites, setWebsites] = useState([]);
   const [selectedWebsiteId, setSelected] = useState("");
   const [stats, setStats] = useState(defaultStats);
@@ -79,7 +82,7 @@ const Home: React.FC = (): ReactElement => {
     }
   }, [selectedWebsiteId]);
 
-  // Effect used as ComponentDidMount, retrieve websites from the current user.
+  // Effect used as ComponentDidMount, retrieves websites from the current user.
   useEffect(() => {
     const call = async (): Promise<void> => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -116,13 +119,41 @@ const Home: React.FC = (): ReactElement => {
   }, []);
 
   if (!user) {
-    return null;
+    return (
+      <Alert
+        variant="subtle"
+        flexDirection="column"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+        borderRadius="md"
+        bg={bg[colorMode]}
+        color={color[colorMode]}
+      >
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+          There is no landing page yet :)
+          <br />
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
+          Go to&nbsp;
+          <Link href="/login">
+            <a>
+              <u>login</u>
+            </a>
+          </Link>{" "}
+          page or create a&nbsp;
+          <Link href="/register">
+            <a>
+              <u>new account</u>
+            </a>
+          </Link>
+          .
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   if (!websites.length && !loading) {
-    const bg = { light: "gray.50", dark: "gray.900" };
-    const color = { light: "grey.900", dark: "gray.50" };
-
     return (
       <Alert
         variant="subtle"

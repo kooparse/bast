@@ -11,7 +11,6 @@ const SCRIPT_URL = isDev
   : "https://test123342.herokuapp.com/script.js";
 
 module.exports = {
-  outDir: "build",
   env: {},
   publicRuntimeConfig: {
     API_URL,
