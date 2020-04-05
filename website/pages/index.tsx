@@ -46,6 +46,7 @@ const Home: React.FC = (): ReactElement => {
   const color = { light: "grey.900", dark: "gray.50" };
 
   const [loading, setLoading] = useState(true);
+  const [from] = useState(new Date());
   const [websites, setWebsites] = useState([]);
   const [selectedWebsiteId, setSelected] = useState("");
   const [stats, setStats] = useState(defaultStats);
@@ -59,7 +60,7 @@ const Home: React.FC = (): ReactElement => {
     const fetchStat = async (): Promise<void> => {
       try {
         let start: Date | number = new Date();
-        const end = getUnixTime(new Date());
+        const end = getUnixTime(from);
 
         start.setFullYear(start.getFullYear() - 1);
         start = getUnixTime(start);
@@ -80,7 +81,7 @@ const Home: React.FC = (): ReactElement => {
       setLoading(true);
       fetchStat();
     }
-  }, [selectedWebsiteId]);
+  }, [selectedWebsiteId, from]);
 
   // Effect used as ComponentDidMount, retrieves websites from the current user.
   useEffect(() => {
@@ -206,7 +207,7 @@ const Home: React.FC = (): ReactElement => {
       </Flex>
 
       <GlobalStat website={website} loading={loading} />
-      <Graph data={stats.stats} loading={loading} />
+      <Graph data={stats.stats} from={from} loading={loading} />
 
       <SimpleGrid columns={2} spacing={20}>
         <PageTable loading={loading} pages={stats.pages} />

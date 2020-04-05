@@ -1,12 +1,15 @@
 import React, { ReactElement } from "react";
 import format from "date-fns/format";
+import subMonths from "date-fns/subMonths";
 import { Text, Flex, Box, Tooltip, PseudoBox, Skeleton } from "@chakra-ui/core";
 
 const Graph = ({
   data,
+  from,
   loading
 }: {
   data: MonthStat[];
+  from: Date;
   loading: boolean;
 }): ReactElement => {
   let maxUsers = 0;
@@ -17,9 +20,26 @@ const Graph = ({
     maxSessions = Math.max(sessions, maxSessions);
   });
 
+  const indexes = data.reduce((result, datum) => {
+    const date = new Date(datum.createdAt);
+    const userRatio = (datum.users / maxUsers) * 100;
+    const sessionRatio = (datum.sessions / maxSessions) * 100;
+    const label = format(new Date(datum.createdAt), "MMM yy");
+
+    return {
+      ...result,
+      [`${date.getFullYear()}-${date.getMonth() + 1}`]: {
+        ...datum,
+        userRatio,
+        sessionRatio,
+        label
+      }
+    };
+  }, {});
+
   return (
     <Flex
-      justifyContent="flex-end"
+      justifyContent="center"
       rounded="md"
       borderWidth="1px"
       p="5"
@@ -38,54 +58,66 @@ const Graph = ({
         </>
       ) : (
         <>
-          {data.map((datum, i) => {
-            const userRatio = (datum.users / maxUsers) * 100;
-            const sessionRatio = (datum.sessions / maxSessions) * 100;
-            const label = format(new Date(datum.createdAt), "MMM yy");
+          {new Array(11)
+            .fill("")
+            .map((_, i) => {
+              const date = subMonths(from, i);
+              const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
 
-            return (
-              <Box mr="5" pb="5" key={i}>
-                <Flex
-                  w="100%"
-                  h="100%"
-                  justifyContent="center"
-                  alignItems="flex-end"
-                >
-                  <Tooltip
-                    hasArrow
-                    label={`${datum.users} users`}
-                    aria-label="user-count"
+              const datum = indexes[key]
+                ? indexes[key]
+                : {
+                    users: 0,
+                    sessions: 0,
+                    userRatio: 0,
+                    sessionRatio: 0,
+                    label: format(date, "MMM, yy")
+                  };
+
+              return (
+                <Box mr="5" pb="5" key={i}>
+                  <Flex
+                    w="100%"
+                    h="100%"
+                    justifyContent="center"
+                    alignItems="flex-end"
                   >
-                    <PseudoBox
-                      bg="teal.500"
-                      _hover={{ bg: "teal.600" }}
-                      minHeight={5}
-                      h={`${userRatio}%`}
-                      w="13px"
-                      mr="1"
-                    />
-                  </Tooltip>
-                  <Tooltip
-                    hasArrow
-                    label={`${datum.sessions} sessions`}
-                    aria-label="session-count"
-                  >
-                    <PseudoBox
-                      bg="teal.300"
-                      _hover={{ bg: "teal.400" }}
-                      minHeight={5}
-                      h={`${sessionRatio}%`}
-                      w="13px"
-                      mr="1"
-                    />
-                  </Tooltip>
-                </Flex>
-                <Text as="span" fontSize="sm">
-                  {label}
-                </Text>
-              </Box>
-            );
-          })}
+                    <Tooltip
+                      hasArrow
+                      label={`${datum.users} users`}
+                      aria-label="user-count"
+                    >
+                      <PseudoBox
+                        bg="teal.500"
+                        _hover={{ bg: "teal.600" }}
+                        minHeight={1}
+                        h={`${datum.userRatio}%`}
+                        w="13px"
+                        mr="1"
+                      />
+                    </Tooltip>
+                    <Tooltip
+                      hasArrow
+                      label={`${datum.sessions} sessions`}
+                      aria-label="session-count"
+                    >
+                      <PseudoBox
+                        bg="teal.300"
+                        _hover={{ bg: "teal.400" }}
+                        minHeight={1}
+                        h={`${datum.sessionRatio}%`}
+                        w="13px"
+                        mr="1"
+                      />
+                    </Tooltip>
+                  </Flex>
+                  <Text as="span" fontSize="sm">
+                    {datum.label}
+                  </Text>
+                </Box>
+              );
+            })
+            .reverse()}
         </>
       )}
     </Flex>
