@@ -47,9 +47,9 @@ pub fn seed_database(conn: &Conn) {
                 websites::id.eq(1),
                 websites::user_id.eq(users[0].id),
                 websites::domain.eq("google.com"),
-                websites::pageviews.eq(230),
-                websites::users.eq(24),
-                websites::sessions.eq(16),
+                websites::pageviews.eq(0),
+                websites::users.eq(0),
+                websites::sessions.eq(0),
             ),
             (
                 websites::id.eq(2),

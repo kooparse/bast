@@ -11,7 +11,7 @@ use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use controllers::{
-    get_stat, collect, file, health, login, register, user, website,
+    collect, file, get_stat, health, login, register, user, website,
 };
 use dotenv::{dotenv, var};
 use env_logger;

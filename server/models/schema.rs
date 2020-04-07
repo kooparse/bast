@@ -2,10 +2,13 @@ table! {
     day_stats (id) {
         id -> Int4,
         website_id -> Int4,
+        pageviews -> Int4,
         users -> Int4,
         sessions -> Int4,
         avg_time -> Float4,
         bounce_rate -> Float4,
+        known_time_counter -> Int4,
+        bounce_counter -> Int4,
         created_at -> Timestamp,
     }
 }
@@ -14,10 +17,13 @@ table! {
     month_stats (id) {
         id -> Int4,
         website_id -> Int4,
+        pageviews -> Int4,
         users -> Int4,
         sessions -> Int4,
         avg_time -> Float4,
         bounce_rate -> Float4,
+        known_time_counter -> Int4,
+        bounce_counter -> Int4,
         created_at -> Timestamp,
     }
 }
@@ -60,18 +66,7 @@ table! {
         avg_time -> Float4,
         bounce_rate -> Float4,
         known_time_counter -> Int4,
-        created_at -> Timestamp,
-    }
-}
-
-table! {
-    week_stats (id) {
-        id -> Int4,
-        website_id -> Int4,
-        users -> Int4,
-        sessions -> Int4,
-        avg_time -> Float4,
-        bounce_rate -> Float4,
+        bounce_counter -> Int4,
         created_at -> Timestamp,
     }
 }
@@ -80,7 +75,6 @@ joinable!(day_stats -> websites (website_id));
 joinable!(month_stats -> websites (website_id));
 joinable!(pageviews -> websites (website_id));
 joinable!(websites -> users (user_id));
-joinable!(week_stats -> websites (website_id));
 
 allow_tables_to_appear_in_same_query!(
     day_stats,
@@ -88,5 +82,4 @@ allow_tables_to_appear_in_same_query!(
     pageviews,
     users,
     websites,
-    week_stats,
 );

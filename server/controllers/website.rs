@@ -1,5 +1,3 @@
-
-
 use crate::models::{
     schema::{users, websites},
     AuthUser, User, Website,
