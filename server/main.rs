@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         .conn_pool()
         .expect("Failed to connect throught the dabatabse pool.");
 
-    // TODO: Only on test env.
+    #[cfg(test)]
     utils::seed_database(&conn);
 
     embedded_migrations::run(&conn).expect("Failed to run migrations.");
