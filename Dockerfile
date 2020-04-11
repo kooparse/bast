@@ -1,7 +1,7 @@
 # -----------------
 # Front build stage
 # -----------------
-FROM node:12 as website
+FROM node:13 as website
 
 COPY ./website ./website
 WORKDIR /website
