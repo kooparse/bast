@@ -2,20 +2,21 @@ import React, { ReactElement } from "react";
 import config from "next/config";
 import { useClipboard, Code, Button } from "@chakra-ui/core";
 
-const { API_URL, SCRIPT_URL } = config().publicRuntimeConfig;
+const { API_ENDPOINT, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
 
 const getSnippet = (
   userId: string | number,
   websiteId: string | number
 ): string => {
+  const { origin } = window.location;
   return `<script>
   (function() {
     window.__bast__website_id = ${websiteId};
     window.__bast__user_id = ${userId};
-    window.__bast__trackerUrl = "${API_URL}/ghost.png";
+    window.__bast__trackerUrl = "${origin}${API_ENDPOINT}/ghost.png";
 
     var script = document.createElement('script');
-    script.src = "${SCRIPT_URL}";
+    script.src = "${origin}${SCRIPT_ENDPOINT}";
     script.async = false;
     document.head.appendChild(script);
   })();

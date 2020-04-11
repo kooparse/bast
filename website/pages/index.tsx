@@ -184,8 +184,6 @@ const Home: React.FC = (): ReactElement => {
     );
   }
 
-  console.log({loading});
-
   return (
     <Box>
       <Flex justifyContent="space-between" alignContent="center">

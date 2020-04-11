@@ -8,5 +8,5 @@ type UserContext = {
 
 export const UserContext = React.createContext<UserContext>({
   user: null,
-  setUser: console.log
+  setUser: console.info
 });

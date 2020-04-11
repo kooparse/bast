@@ -1,6 +1,6 @@
 import config from "next/config";
 import axios from "axios";
-const { API_URL } = config().publicRuntimeConfig;
+const { API_ENDPOINT } = config().publicRuntimeConfig;
 
 export const setAuthorization = (): void => {
   if (typeof window === "undefined") return;
@@ -21,7 +21,7 @@ export const isLogged = (): boolean => {
 };
 
 const instance = axios.create({
-  baseURL: API_URL,
+  baseURL: API_ENDPOINT,
   headers: {
     "Content-Type": "application/json"
   },
