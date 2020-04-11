@@ -1,7 +1,7 @@
 # -----------------
 # Front build stage
 # -----------------
-FROM node:12.13.1-alpine as website
+FROM node:12 as website
 
 COPY ./website ./website
 WORKDIR /website
