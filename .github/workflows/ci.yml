@@ -27,7 +27,7 @@ jobs:
 
     # Deploy container Heroku
     - name: Deploy 
-    - uses: akhileshns/heroku-deploy@v3.0.2
+      uses: akhileshns/heroku-deploy@v3.0.2
       with:
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
         heroku_app_name: "bast-prod"
