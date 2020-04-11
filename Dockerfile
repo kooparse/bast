@@ -5,7 +5,7 @@ FROM node:12 as website
 
 COPY ./website ./website
 WORKDIR /website
-RUN npm ci --only=production && npm run export
+RUN npm ci && npm run export
 
 # -----------------
 # Cargo build stage
