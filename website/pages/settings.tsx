@@ -40,8 +40,10 @@ const Settings: React.FC = (): ReactElement => {
     const fetch = async (): Promise<void> => {
       try {
         const { data } = await api.get("/websites");
-        setWebsites(data);
-        setSelected(data[0].id);
+        if (data.length) {
+          setWebsites(data);
+          setSelected(data[0].id);
+        }
       } catch (err) {
         toast(errorFetchWebsites);
         console.error(err);

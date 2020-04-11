@@ -92,6 +92,7 @@ const Home: React.FC = (): ReactElement => {
       try {
         const { data = [] } = await api.get("/websites");
         if (!data.length) {
+          setLoading(false);
           return;
         }
         // Set the list of websites (used in the <Select /> component.
@@ -100,6 +101,7 @@ const Home: React.FC = (): ReactElement => {
         // and get the first one.
         if (!queryId) {
           setSelected(data[0].id);
+          setLoading(false);
           return;
         }
         // If not, we find the corresponding domain and select it.
@@ -181,6 +183,8 @@ const Home: React.FC = (): ReactElement => {
       </Alert>
     );
   }
+
+  console.log({loading});
 
   return (
     <Box>
