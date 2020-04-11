@@ -89,12 +89,18 @@ pub async fn register(
 ) -> Result<HttpResponse, UserError> {
     let result = web::block(move || -> Result<SlimUser, UserError> {
         form.password = hash(&form.password, DEFAULT_COST)
-            .map_err(|_| UserError::InternalServerError)?;
+            .map_err(|e| {
+                println!("{}", e);
+                UserError::InternalServerError
+            })?;
 
         let user: User = diesel::insert_into(users::table)
             .values(form.into_inner())
             .get_result(&data.conn_pool()?)
-            .map_err(|_| UserError::InternalServerError)?;
+            .map_err(|e| {
+                println!("{}", e);
+                UserError::InternalServerError
+            })?;
 
         Ok(SlimUser::from(user))
     })
