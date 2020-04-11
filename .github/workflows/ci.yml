@@ -32,5 +32,4 @@ jobs:
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
         heroku_app_name: "bast-prod"
         heroku_email: "kooparse@protonmail.com"
-        branch: "master"
         usedocker: true
