@@ -5,12 +5,12 @@ FROM node:12.13.1-alpine as website
 
 COPY ./website ./website
 WORKDIR /website
-RUN npm install && npm run export
+RUN npm i --production && npm run export
 
 # -----------------
 # Cargo build stage
 # -----------------
-FROM rust:1.39 as cargo-build
+FROM rust:1.42 as cargo-build
 RUN USER=root cargo new --bin bast
 WORKDIR /bast
 
@@ -20,7 +20,6 @@ COPY migrations ./migrations
 COPY static     ./static
 RUN mkdir -p ./static/front
 RUN mkdir .cargo
-RUN cargo install diesel_cli --no-default-features --features "postgres"
 RUN cargo vendor > .cargo/config
 
 COPY ./server server

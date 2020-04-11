@@ -1,6 +1,6 @@
 use crate::models::{
     schema::{day_stats, month_stats, pageviews, websites},
-    DayStat, MonthStat, Pageview, CmpStat, Website,
+    CmpStat, DayStat, MonthStat, Pageview, Website,
 };
 use crate::utils::Db;
 use crate::utils::{to_client, UserError};
@@ -132,8 +132,8 @@ pub async fn collect(
 
         // Now we want to compute analytics over time.
         //
-        // All global analytics are stored directly on the website table, 
-        // so we firstly computes and updates it. 
+        // All global analytics are stored directly on the website table,
+        // so we firstly computes and updates it.
         // We're gonna do the same for monthly analytics and for the daily ones.
         //
         // Website, MonthStat and DayStat implements all the CmpStat trait.
@@ -149,7 +149,7 @@ pub async fn collect(
             .map_err(|_| UserError::InternalServerError)?;
 
         // We want to fetch the latest month stored in the database
-        // Then checked if the current pageview is in the same month. If so, 
+        // Then checked if the current pageview is in the same month. If so,
         // we update it with new data, otherwise we create a new one.
         let last_month: Option<MonthStat> = month_stats::table
             .filter(month_stats::website_id.eq(website.id))
@@ -192,7 +192,7 @@ pub async fn collect(
 
         //
         // Exact same logic for compute, update and insert days.
-        // In a near future, we could only rely on days. 
+        // In a near future, we could only rely on days.
         let last_day: Option<DayStat> = day_stats::table
             .filter(day_stats::website_id.eq(website.id))
             .order(day_stats::created_at.desc())
@@ -231,4 +231,160 @@ pub async fn collect(
     .await;
 
     to_client(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::utils;
+    use actix_web::{http::StatusCode, test, web, App};
+
+    fn make_collect_uri(
+        website_id: i32,
+        href: &str,
+        pathname: &str,
+        hostname: &str,
+        referrer: &str,
+    ) -> String {
+        format!(
+            "/collect?website_id={}&href={}&pathname={}&hostname={}&referrer={}", 
+            website_id,
+            href,
+            pathname,
+            hostname,
+            referrer
+        )
+    }
+
+    fn config(cfg: &mut web::ServiceConfig) {
+        let db = Db::new();
+        let conn = db.conn_pool().expect("Failed to connect to database.");
+        utils::seed_database(&conn);
+
+        cfg.data(Db::new());
+        cfg.route("/collect", web::get().to(collect));
+    }
+
+    #[actix_rt::test]
+    async fn checks() {
+        let db = Db::new();
+        let conn = db.conn_pool().expect("Failed to connect to database.");
+
+        let user_agent = "supertest";
+        let uri = make_collect_uri(
+            1,
+            "https://google.com",
+            "/about",
+            "google.com",
+            "https://duckduckgo.com",
+        );
+
+        let mut app = test::init_service(App::new().configure(config)).await;
+
+        //
+        // Check when totally new user.
+        //
+        let req = test::TestRequest::get()
+            .header("User-Agent", user_agent)
+            .uri(&uri)
+            .to_request();
+
+        let resp = test::call_service(&mut app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let pageview: Result<Pageview, _> = pageviews::table
+            .filter(pageviews::website_id.eq(1))
+            .get_result(&conn);
+
+        assert_eq!(pageview.is_ok(), true);
+
+        let website: Website =
+            websites::table.find(1).get_result(&conn).unwrap();
+
+        assert_eq!(website.users, 1);
+        assert_eq!(website.sessions, 1);
+        assert_eq!(website.pageviews, 1);
+
+        //
+        // Check when same_user but <= 30min.
+        //
+        let req = test::TestRequest::get()
+            .header("User-Agent", user_agent)
+            .uri(&uri)
+            .to_request();
+
+        let resp = test::call_service(&mut app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let website: Website =
+            websites::table.find(1).get_result(&conn).unwrap();
+
+        assert_eq!(website.users, 1);
+        assert_eq!(website.sessions, 1);
+        assert_eq!(website.pageviews, 2);
+        assert_eq!(website.known_time_counter, 1);
+        assert_ne!(website.avg_time, 0.);
+
+        //
+        // Check when same_user but >= 30min.
+        //
+        // To trick this, we're gonna change the created_at from the
+        // latest pageview, and subtract 30min.
+        let pageview: Pageview = pageviews::table
+            // Currently, there is just two pageview, and the latest is not
+            // done yet.
+            .filter(
+                pageviews::website_id
+                    .eq(1)
+                    .and(pageviews::is_done.eq(false)),
+            )
+            .get_result(&conn)
+            .unwrap();
+
+        update(pageviews::table)
+            .filter(pageviews::id.eq(pageview.id))
+            .set(
+                pageviews::created_at
+                    .eq(pageview.created_at - chrono::Duration::minutes(30)),
+            )
+            .execute(&conn)
+            .expect("Failed to trick time.");
+
+        let req = test::TestRequest::get()
+            .header("User-Agent", user_agent)
+            .uri(&uri)
+            .to_request();
+
+        let resp = test::call_service(&mut app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let website: Website =
+            websites::table.find(1).get_result(&conn).unwrap();
+
+        assert_eq!(website.users, 1);
+        assert_eq!(website.sessions, 2);
+        assert_eq!(website.pageviews, 3);
+        assert_eq!(website.known_time_counter, 1);
+        assert_ne!(website.avg_time, 0.);
+
+        //
+        // Check when different user.
+        //
+        let req = test::TestRequest::get()
+            .header("User-Agent", format!("{}_2", user_agent))
+            .uri(&uri)
+            .to_request();
+
+        let resp = test::call_service(&mut app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let website: Website =
+            websites::table.find(1).get_result(&conn).unwrap();
+
+        assert_eq!(website.users, 2);
+        assert_eq!(website.sessions, 3);
+        assert_eq!(website.pageviews, 4);
+        assert_eq!(website.known_time_counter, 1);
+        assert_ne!(website.avg_time, 0.);
+    }
 }
