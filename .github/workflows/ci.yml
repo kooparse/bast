@@ -1,0 +1,36 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+
+    # Run all unit tests for server.
+    # - name: Testing server
+    #   run: cargo test --verbose
+
+    # Deploy container Heroku
+    - name: Deploy 
+    - uses: akhileshns/heroku-deploy@v3.0.2
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "bast-prod"
+        heroku_email: "kooparse@protonmail.com"
+        branch: "master"
+        usedocker: true
