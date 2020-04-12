@@ -1,4 +1,4 @@
-(function() {
+(function () {
   // Let's begin.
   //
   // First, we want to execute our script only
@@ -8,12 +8,17 @@
   const website_id = window.__bast__website_id;
   // We're going to send only the location object and the referrer to
   // the server.
-  const { location } = window;
-  const { referrer } = document;
+  const {href = "", origin = "", pathname = ""} = window.location;
+  const {referrer = ""} = document;
 
   try {
     // We build the query.
-    const query = generateQueryFromObject({ ...location, referrer });
+    const query = generateQueryFromObject({
+      href,
+      origin,
+      pathname,
+      referrer
+    });
 
     // Create img tag with built query.
     let ghost = document.createElement("img");
@@ -41,7 +46,7 @@
     return (
       "?" +
       keys
-        .map(function(k) {
+        .map(function (k) {
           return encodeURIComponent(k) + "=" + encodeURIComponent(obj[k]);
         })
         .join("&")

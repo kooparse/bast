@@ -26,6 +26,7 @@ pub struct Data {
     pathname: String,
     #[serde(default)]
     referrer: String,
+
     #[serde(skip)]
     is_new_session: bool,
     #[serde(skip)]
