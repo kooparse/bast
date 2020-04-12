@@ -29,7 +29,7 @@ import api, { isLogged } from "../utils/api";
 const Settings: React.FC = (): ReactElement => {
   const toast = useToast();
   const { colorMode } = useColorMode();
-  const { user } = useContext(UserContext);
+  const { user, loading: userIsLoading } = useContext(UserContext);
 
   const [loading, setLoading] = useState(true);
   const [websites, setWebsites] = useState([]);
@@ -90,7 +90,7 @@ const Settings: React.FC = (): ReactElement => {
           </option>
         ))}
       </Select>
-      {current && (
+      {current && !!user?.id && (
         <Box my="2">
           <CodeSnippet user={user} website={current} />
         </Box>
@@ -126,7 +126,7 @@ const Settings: React.FC = (): ReactElement => {
           asynchronously downloading the analytic file.
         </Text>
         <Box my="8">
-          {!loading ? (
+          {!loading && !userIsLoading ? (
             SelectContent
           ) : (
             <>

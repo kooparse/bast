@@ -16,17 +16,6 @@ import { UserContext } from "../utils/context";
 type InitialProps = AppInitialProps & { initialColorMode: "light" | "dark" };
 
 export default class Website extends App<InitialProps, { user: User }> {
-  state = { user: null };
-
-  constructor(props) {
-    super(props);
-    setAuthorization();
-  }
-
-  setUser = (user: User): void => {
-    this.setState({ user });
-  };
-
   static async getInitialProps({
     Component,
     ctx
@@ -46,6 +35,17 @@ export default class Website extends App<InitialProps, { user: User }> {
     };
   }
 
+  state = { user: null, loading: true };
+
+  constructor(props) {
+    super(props);
+    setAuthorization();
+  }
+
+  setUser = (user: User): void => {
+    this.setState({ user });
+  };
+
   async componentDidMount(): Promise<void> {
     if (isLogged()) {
       try {
@@ -55,15 +55,15 @@ export default class Website extends App<InitialProps, { user: User }> {
         console.error(err);
       }
     }
+    this.setState({ loading: false });
   }
 
   render(): ReactElement {
+    const { user, loading } = this.state;
     const { Component, pageProps, initialColorMode } = this.props;
 
     return (
-      <UserContext.Provider
-        value={{ user: this.state.user, setUser: this.setUser }}
-      >
+      <UserContext.Provider value={{ user, setUser: this.setUser, loading }}>
         <ThemeProvider theme={theme}>
           <ColorModeProvider value={initialColorMode}>
             <CSSReset />

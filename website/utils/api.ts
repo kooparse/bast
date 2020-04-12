@@ -14,6 +14,7 @@ export const setAuthorization = (): void => {
 
 export const setToken = (token: string): void => {
   window.localStorage.setItem("token", token);
+  setAuthorization();
 };
 
 export const isLogged = (): boolean => {

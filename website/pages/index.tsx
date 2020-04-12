@@ -38,14 +38,14 @@ const defaultStats: Stats = {
 };
 
 const Home: React.FC = (): ReactElement => {
-  const { user } = useContext(UserContext);
+  const { user, loading: userIsLoading } = useContext(UserContext);
   const router = useRouter();
   const toast = useToast();
   const { colorMode } = useColorMode();
   const bg = { light: "gray.50", dark: "gray.900" };
   const color = { light: "grey.900", dark: "gray.50" };
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(userIsLoading);
   const [from] = useState(new Date());
   const [websites, setWebsites] = useState([]);
   const [selectedWebsiteId, setSelected] = useState("");
@@ -121,7 +121,7 @@ const Home: React.FC = (): ReactElement => {
     }
   }, []);
 
-  if (!user) {
+  if (!user && !userIsLoading) {
     return (
       <Alert
         variant="subtle"

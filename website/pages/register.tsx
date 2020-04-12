@@ -10,7 +10,7 @@ import {
   Button
 } from "@chakra-ui/core";
 import FormLayout from "../components/FormLayout";
-import api, { setToken } from "../utils/api";
+import api, { setToken, setAuthorization } from "../utils/api";
 import { UserContext } from "../utils/context";
 import { errorRegister } from "../utils/messages";
 
@@ -31,6 +31,8 @@ const Register: React.FC = (): ReactElement => {
 
         // Store all info in localStorage + set axios header.
         setToken(data.token);
+        setAuthorization();
+
         ctx.setUser(data.user);
         Router.push("/");
       } catch (e) {
