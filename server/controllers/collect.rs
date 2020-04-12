@@ -20,8 +20,11 @@ use serde::Deserialize;
 pub struct Data {
     website_id: i32,
     href: String,
+    #[serde(default)]
     hostname: String,
+    #[serde(default)]
     pathname: String,
+    #[serde(default)]
     referrer: String,
     #[serde(skip)]
     is_new_session: bool,
@@ -38,6 +41,8 @@ pub async fn collect(
     params: web::Query<Data>,
     data: web::Data<Db>,
 ) -> Result<HttpResponse, UserError> {
+    dbg!("ASDJHGASJHDG");
+    dbg!(&params);
     let mut params = params.into_inner();
 
     let c_info = req.connection_info();
@@ -304,6 +309,8 @@ mod tests {
         assert_eq!(website.users, 1);
         assert_eq!(website.sessions, 1);
         assert_eq!(website.pageviews, 1);
+        assert_eq!(website.known_time_counter, 0);
+        assert_eq!(website.bounce_counter, 1);
 
         //
         // Check when same_user but <= 30min.

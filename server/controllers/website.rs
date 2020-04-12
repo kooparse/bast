@@ -8,7 +8,7 @@ use actix_web::{web, HttpResponse};
 use diesel::prelude::*;
 use serde::Deserialize;
 
-pub async fn get_all(
+pub async fn list(
     data: web::Data<Db>,
     auth_user: AuthUser,
 ) -> Result<HttpResponse, UserError> {

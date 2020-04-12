@@ -8,25 +8,6 @@ use dotenv;
 use jsonwebtoken::{encode, Header};
 use serde::{Deserialize, Serialize};
 
-pub async fn user(
-    data: web::Data<Db>,
-    auth_user: AuthUser,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<SlimUser, UserError> {
-        let user_id = auth_user.get_id()?;
-
-        let user: User = users::table
-            .find(&user_id)
-            .get_result::<_>(&data.conn_pool()?)
-            .map_err(|_| UserError::BadRequest)?;
-
-        Ok(SlimUser::from(user))
-    })
-    .await;
-
-    to_client(result)
-}
-
 #[derive(Deserialize)]
 pub struct SignInData {
     email: String,
@@ -88,11 +69,10 @@ pub async fn register(
     data: web::Data<Db>,
 ) -> Result<HttpResponse, UserError> {
     let result = web::block(move || -> Result<SlimUser, UserError> {
-        form.password = hash(&form.password, DEFAULT_COST)
-            .map_err(|e| {
-                println!("{}", e);
-                UserError::InternalServerError
-            })?;
+        form.password = hash(&form.password, DEFAULT_COST).map_err(|e| {
+            println!("{}", e);
+            UserError::InternalServerError
+        })?;
 
         let user: User = diesel::insert_into(users::table)
             .values(form.into_inner())
@@ -101,6 +81,25 @@ pub async fn register(
                 println!("{}", e);
                 UserError::InternalServerError
             })?;
+
+        Ok(SlimUser::from(user))
+    })
+    .await;
+
+    to_client(result)
+}
+
+pub async fn user(
+    data: web::Data<Db>,
+    auth_user: AuthUser,
+) -> Result<HttpResponse, UserError> {
+    let result = web::block(move || -> Result<SlimUser, UserError> {
+        let user_id = auth_user.get_id()?;
+
+        let user: User = users::table
+            .find(&user_id)
+            .get_result::<_>(&data.conn_pool()?)
+            .map_err(|_| UserError::BadRequest)?;
 
         Ok(SlimUser::from(user))
     })

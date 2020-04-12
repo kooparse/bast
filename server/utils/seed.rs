@@ -8,7 +8,8 @@ use chrono::NaiveDateTime;
 use diesel::dsl::*;
 use diesel::prelude::*;
 
-pub fn seed_database(conn: &Conn) {
+#[allow(dead_code)]
+pub fn reset_databse(conn: &Conn) {
     delete(pageviews::table)
         .execute(conn)
         .expect("Error while clearing pageviews table.");
@@ -24,7 +25,11 @@ pub fn seed_database(conn: &Conn) {
     delete(users::table)
         .execute(conn)
         .expect("Error while clearing users table.");
+}
 
+#[allow(dead_code)]
+pub fn seed_database(conn: &Conn) {
+    reset_databse(conn);
     let user_password =
         hash("password", DEFAULT_COST).expect("Failed to hash user password.");
 
@@ -104,120 +109,120 @@ pub fn seed_database(conn: &Conn) {
         )
     };
 
-    // insert_into(month_stats::table)
-    //     .values(&vec![
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[0]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(24),
-    //             month_stats::sessions.eq(43),
-    //             month_stats::created_at.eq(&months[1]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(36),
-    //             month_stats::sessions.eq(1),
-    //             month_stats::created_at.eq(&months[2]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[3]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(220),
-    //             month_stats::sessions.eq(53),
-    //             month_stats::created_at.eq(&months[4]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(26),
-    //             month_stats::sessions.eq(73),
-    //             month_stats::created_at.eq(&months[5]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(2),
-    //             month_stats::sessions.eq(45),
-    //             month_stats::created_at.eq(&months[6]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[7]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[8]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[9]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[10]),
-    //         ),
-    //         (
-    //             month_stats::website_id.eq(sites[1].id),
-    //             month_stats::users.eq(20),
-    //             month_stats::sessions.eq(23),
-    //             month_stats::created_at.eq(&months[11]),
-    //         ),
-    //     ])
-    //     .execute(conn)
-    //     .expect("Error while seeding month stats.");
+    insert_into(month_stats::table)
+        .values(&vec![
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[0]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(24),
+                month_stats::sessions.eq(43),
+                month_stats::created_at.eq(&months[1]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(36),
+                month_stats::sessions.eq(1),
+                month_stats::created_at.eq(&months[2]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[3]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(220),
+                month_stats::sessions.eq(53),
+                month_stats::created_at.eq(&months[4]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(26),
+                month_stats::sessions.eq(73),
+                month_stats::created_at.eq(&months[5]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(2),
+                month_stats::sessions.eq(45),
+                month_stats::created_at.eq(&months[6]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[7]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[8]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[9]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[10]),
+            ),
+            (
+                month_stats::website_id.eq(sites[1].id),
+                month_stats::users.eq(20),
+                month_stats::sessions.eq(23),
+                month_stats::created_at.eq(&months[11]),
+            ),
+        ])
+        .execute(conn)
+        .expect("Error while seeding month stats.");
 
-    // insert_into(pageviews::table)
-    //     .values(&vec![
-    //         (
-    //             pageviews::website_id.eq(sites[1].id),
-    //             pageviews::u_id.eq("localhost:3000_Mozilla"),
-    //             pageviews::pathname.eq("/search"),
-    //             pageviews::href.eq("https://google.com/"),
-    //             pageviews::hostname.eq("www.google.com"),
-    //             pageviews::referrer.eq("https://duckduckgo.com/"),
-    //             pageviews::is_new_session.eq(true),
-    //             pageviews::is_new_user.eq(true),
-    //             pageviews::created_at.eq(&old_dt),
-    //         ),
-    //         (
-    //             pageviews::website_id.eq(sites[1].id),
-    //             pageviews::u_id.eq("localhost:3000_Mozilla"),
-    //             pageviews::pathname.eq("/search"),
-    //             pageviews::href.eq("https://google.com/"),
-    //             pageviews::hostname.eq("www.google.com"),
-    //             pageviews::referrer.eq("https://duckduckgo.com/"),
-    //             pageviews::is_new_session.eq(true),
-    //             pageviews::is_new_user.eq(false),
-    //             pageviews::created_at.eq(&old_dt),
-    //         ),
-    //         (
-    //             pageviews::website_id.eq(sites[1].id),
-    //             pageviews::u_id.eq("localhost:3000_Mozilla"),
-    //             pageviews::pathname.eq("/found"),
-    //             pageviews::href.eq("https://google.com/found"),
-    //             pageviews::hostname.eq("www.google.com"),
-    //             pageviews::referrer.eq("https://kooparse.com/"),
-    //             pageviews::is_new_session.eq(false),
-    //             pageviews::is_new_user.eq(false),
-    //             pageviews::created_at.eq(&recent_dt),
-    //         ),
-    //     ])
-    //     .execute(conn)
-    //     .expect("Error while seeding websites.");
+    insert_into(pageviews::table)
+        .values(&vec![
+            (
+                pageviews::website_id.eq(sites[1].id),
+                pageviews::u_id.eq("localhost:3000_Mozilla"),
+                pageviews::pathname.eq("/search"),
+                pageviews::href.eq("https://google.com/"),
+                pageviews::hostname.eq("www.google.com"),
+                pageviews::referrer.eq("https://duckduckgo.com/"),
+                pageviews::is_new_session.eq(true),
+                pageviews::is_new_user.eq(true),
+                pageviews::created_at.eq(&old_dt),
+            ),
+            (
+                pageviews::website_id.eq(sites[1].id),
+                pageviews::u_id.eq("localhost:3000_Mozilla"),
+                pageviews::pathname.eq("/search"),
+                pageviews::href.eq("https://google.com/"),
+                pageviews::hostname.eq("www.google.com"),
+                pageviews::referrer.eq("https://duckduckgo.com/"),
+                pageviews::is_new_session.eq(true),
+                pageviews::is_new_user.eq(false),
+                pageviews::created_at.eq(&old_dt),
+            ),
+            (
+                pageviews::website_id.eq(sites[1].id),
+                pageviews::u_id.eq("localhost:3000_Mozilla"),
+                pageviews::pathname.eq("/found"),
+                pageviews::href.eq("https://google.com/found"),
+                pageviews::hostname.eq("www.google.com"),
+                pageviews::referrer.eq("https://kooparse.com/"),
+                pageviews::is_new_session.eq(false),
+                pageviews::is_new_user.eq(false),
+                pageviews::created_at.eq(&recent_dt),
+            ),
+        ])
+        .execute(conn)
+        .expect("Error while seeding websites.");
 }

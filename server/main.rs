@@ -57,7 +57,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/collect", web::get().to(collect))
                     .route("/user", web::get().to(user))
                     .route("/stats", web::get().to(get_stat))
-                    .route("/websites", web::get().to(website::get_all))
+                    .route("/websites", web::get().to(website::list))
                     .route("/websites", web::post().to(website::create))
                     .route("/health", web::get().to(health)),
             )
