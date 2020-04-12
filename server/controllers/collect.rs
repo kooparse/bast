@@ -42,8 +42,6 @@ pub async fn collect(
     params: web::Query<Data>,
     data: web::Data<Db>,
 ) -> Result<HttpResponse, UserError> {
-    dbg!("ASDJHGASJHDG");
-    dbg!(&params);
     let mut params = params.into_inner();
 
     let c_info = req.connection_info();

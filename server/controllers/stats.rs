@@ -90,14 +90,14 @@ pub async fn get_stat(
             let sessions = if pv.is_new_session { 1 } else { 0 };
             let users = if pv.is_new_user { 1 } else { 0 };
 
-            if let Some(referrer) = &pv.referrer {
+            if !pv.referrer.is_empty() {
                 if let Some(mut r) =
-                    referrers.iter_mut().find(|r| r.name == *referrer)
+                    referrers.iter_mut().find(|r| r.name == *pv.referrer)
                 {
                     r.count += 1;
                 } else {
                     referrers.push(Referrer {
-                        name: referrer.clone(),
+                        name: pv.referrer.clone(),
                         count: 1,
                     })
                 }

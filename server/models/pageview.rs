@@ -14,7 +14,7 @@ pub struct Pageview {
     pub pathname: String,
     pub href: String,
     pub hostname: String,
-    pub referrer: Option<String>,
+    pub referrer: String,
     pub is_new_session: bool,
     pub is_new_user: bool,
     pub duration: f32,

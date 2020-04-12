@@ -36,7 +36,7 @@ table! {
         pathname -> Text,
         href -> Text,
         hostname -> Text,
-        referrer -> Nullable<Text>,
+        referrer -> Text,
         is_new_session -> Bool,
         is_new_user -> Bool,
         duration -> Float4,
