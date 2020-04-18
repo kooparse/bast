@@ -7,13 +7,13 @@ import {
   useColorMode,
   Tooltip,
   Skeleton,
-  PseudoBox
+  PseudoBox,
 } from "@chakra-ui/core";
 
 const Table = ({
   title,
   loading,
-  rows
+  rows,
 }: {
   title: string;
   loading: boolean;
@@ -51,20 +51,27 @@ const Table = ({
                   aria-label="tooltip"
                 >
                   <Flex
+                    position="relative"
                     h="8"
                     bg={colorMode === "light" ? "gray.100" : "gray.900"}
                   >
                     <PseudoBox
                       display="flex"
                       alignItems="center"
-                      p={2}
                       bg="teal.500"
                       minWidth={2}
                       _hover={{ bg: "teal.600" }}
                       width={`${percent}%`}
+                    ></PseudoBox>
+                    <Text
+                      p={2}
+                      position="absolute"
+                      width={300}
+                      alignSelf="center"
+                      isTruncated
                     >
-                      <Text>{label || `${percent}%`}</Text>
-                    </PseudoBox>
+                      {label || `${percent}%`}
+                    </Text>
                   </Flex>
                 </Tooltip>
               </td>
