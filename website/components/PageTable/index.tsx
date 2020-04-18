@@ -4,7 +4,7 @@ import Table from "../Table";
 
 const PageTable = ({
   pages,
-  loading
+  loading,
 }: {
   pages: Page[];
   loading: boolean;
@@ -17,10 +17,10 @@ const PageTable = ({
       <Table
         loading={loading}
         title="Pages"
-        rows={pages.map(({ name, users, sessions }) => ({
+        rows={pages.map(({ name, pageviews, users, sessions }) => ({
           label: name,
-          tooltipLabel: `${users} users / ${sessions} sessions`,
-          percent: (users / maxUsers) * 100
+          tooltipLabel: `${pageviews} pageviews / ${users} users / ${sessions} sessions`,
+          percent: (users / maxUsers) * 100,
         }))}
       />
     </Box>

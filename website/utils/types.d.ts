@@ -33,6 +33,7 @@ type Page = {
   name: string;
   users: number;
   sessions: number;
+  pageviews: number;
 };
 
 type MonthStat = {
