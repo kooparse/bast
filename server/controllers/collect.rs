@@ -3,12 +3,14 @@ use crate::models::{
     CmpStat, DayStat, MonthStat, Pageview, Website,
 };
 use crate::utils::Db;
-use crate::utils::{to_client, UserError};
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{
+    error::BlockingError, error::Error as ActixError, web, HttpRequest,
+    HttpResponse,
+};
 use chrono::{Datelike, Utc};
 use diesel::dsl::*;
 use diesel::prelude::*;
-use diesel::result::Error;
+use diesel::result::Error as DbError;
 use serde::Deserialize;
 
 // User means number of unique visitors.
@@ -37,11 +39,25 @@ pub struct Data {
     u_id: String,
 }
 
+#[derive(Debug)]
+struct SendError {
+    pub inner: HttpResponse,
+}
+
+impl From<HttpResponse> for SendError {
+    fn from(response: HttpResponse) -> Self {
+        Self { inner: response }
+    }
+}
+
+unsafe impl Send for SendError {}
+
 pub async fn collect(
     req: HttpRequest,
     params: web::Query<Data>,
     data: web::Data<Db>,
-) -> Result<HttpResponse, UserError> {
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
     let mut params = params.into_inner();
 
     let c_info = req.connection_info();
@@ -56,17 +72,16 @@ pub async fn collect(
     let mut is_bounce = true;
     let mut duration = 0.;
 
-    let res = web::block(move || -> Result<(), UserError> {
-        let conn = &data.conn_pool()?;
-
-        // Find the coresponding website.
+    web::block(move || -> Result<_, SendError> {
         let mut website: Website = websites::table
             .find(params.website_id)
-            .get_result(conn)
-            .map_err(|_| UserError::NotFound)?;
+            .get_result(&conn)
+            .map_err(|e| {
+                eprintln!("{}", e);
+                HttpResponse::NotFound().body("Website does not exists.")
+            })?;
 
-        // Get the last unfinished pageview for this "user".
-        let result = pageviews::table
+        let last_pageview = pageviews::table
             .filter(
                 pageviews::u_id
                     .eq(&params.u_id)
@@ -74,9 +89,9 @@ pub async fn collect(
                     .and(not(pageviews::is_done)),
             )
             .order(pageviews::created_at.desc())
-            .get_result::<Pageview>(conn);
+            .get_result::<Pageview>(&conn);
 
-        let new_date = match result {
+        let new_date = match last_pageview {
             // If we found an pageview, we have to compute
             Ok(mut pageview) => {
                 let elapsed = Utc::now()
@@ -99,22 +114,28 @@ pub async fn collect(
                 update(pageviews::table)
                     .filter(pageviews::id.eq(pageview.id))
                     .set(&pageview)
-                    .execute(conn)
-                    .map_err(|_| UserError::InternalServerError)?;
+                    .execute(&conn)
+                    .map_err(|e| {
+                        eprintln!("{}", e);
+                        HttpResponse::InternalServerError().finish()
+                    })?;
 
                 params.is_new_session = is_new_session;
                 params.is_bounce = is_new_session;
                 params.is_new_user = is_new_user;
-                let r: Pageview = insert_into(pageviews::table)
-                    .values(&params)
-                    .get_result(conn)
-                    .map_err(|_| UserError::InternalServerError)?;
 
-                Ok(r.created_at)
+                insert_into(pageviews::table)
+                    .values(&params)
+                    .get_result(&conn)
+                    .and_then(|pv: Pageview| Ok(pv.created_at))
+                    .map_err(|e| {
+                        eprintln!("{}", e);
+                        HttpResponse::InternalServerError().finish()
+                    })
             }
             // Not found means that it's a new user, so we just add it with
             // default values.
-            Err(Error::NotFound) => {
+            Err(DbError::NotFound) => {
                 is_new_session = true;
                 is_bounce = true;
                 is_new_user = true;
@@ -123,16 +144,19 @@ pub async fn collect(
                 params.is_new_session = is_new_session;
                 params.is_bounce = is_bounce;
 
-                let r: Pageview = insert_into(pageviews::table)
+                insert_into(pageviews::table)
                     .values(&params)
-                    .get_result(conn)
-                    .map_err(|_| UserError::InternalServerError)?;
-
-                Ok(r.created_at)
+                    .get_result(&conn)
+                    .and_then(|pv: Pageview| Ok(pv.created_at))
+                    .map_err(|e| {
+                        eprintln!("{}", e);
+                        HttpResponse::InternalServerError().finish()
+                    })
             }
 
-            _ => Err(UserError::InternalServerError),
-        }?;
+            _ => Err(HttpResponse::InternalServerError().finish()),
+        }
+        .map_err(|e| SendError::from(e))?;
 
         // Now we want to compute analytics over time.
         //
@@ -144,14 +168,17 @@ pub async fn collect(
         //
         // TODO: We should reconstruct the monthly data from the daily analytics.
         // TODO: Even so, we should parallelize those database call.
-        //
         website.cmp(is_new_user, is_new_session, is_bounce, duration);
         update(websites::table)
             .filter(websites::id.eq(website.id))
             .set(&website)
-            .execute(conn)
-            .map_err(|_| UserError::InternalServerError)?;
-
+            .execute(&conn)
+            .map_err(|e| {
+                eprintln!("{}", e);
+                HttpResponse::InternalServerError().finish()
+            })?;
+        //
+        //
         // We want to fetch the latest month stored in the database
         // Then checked if the current pageview is in the same month. If so,
         // we update it with new data, otherwise we create a new one.
@@ -160,7 +187,7 @@ pub async fn collect(
             // Get the latest one.
             .order(month_stats::created_at.desc())
             // Get only one result.
-            .first(conn)
+            .first(&conn)
             // Transform Result into Option type (Err = None).
             .ok()
             // If Option isn't None and don't pass this condition, we set it to None.
@@ -179,8 +206,11 @@ pub async fn collect(
             update(month_stats::table)
                 .filter(month_stats::id.eq(month.id))
                 .set(month)
-                .execute(conn)
-                .map_err(|_| UserError::InternalServerError)?;
+                .execute(&conn)
+                .map_err(|e| {
+                    eprintln!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                })?;
         } else {
             // If not, we insert a new one, we default values.
             insert_into(month_stats::table)
@@ -190,17 +220,19 @@ pub async fn collect(
                     month_stats::users.eq(1),
                     month_stats::sessions.eq(1),
                 ))
-                .execute(conn)
-                .map_err(|_| UserError::InternalServerError)?;
+                .execute(&conn)
+                .map_err(|e| {
+                    eprintln!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                })?;
         }
-
         //
         // Exact same logic for compute, update and insert days.
         // In a near future, we could only rely on days.
         let last_day: Option<DayStat> = day_stats::table
             .filter(day_stats::website_id.eq(website.id))
             .order(day_stats::created_at.desc())
-            .first(conn)
+            .first(&conn)
             .ok()
             .filter(|day: &DayStat| {
                 day.created_at.year() == new_date.year()
@@ -216,8 +248,11 @@ pub async fn collect(
             update(day_stats::table)
                 .filter(day_stats::id.eq(day.id))
                 .set(day)
-                .execute(conn)
-                .map_err(|_| UserError::InternalServerError)?;
+                .execute(&conn)
+                .map_err(|e| {
+                    eprintln!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                })?;
         } else {
             insert_into(day_stats::table)
                 .values((
@@ -226,15 +261,22 @@ pub async fn collect(
                     day_stats::users.eq(1),
                     day_stats::sessions.eq(1),
                 ))
-                .execute(conn)
-                .map_err(|_| UserError::InternalServerError)?;
+                .execute(&conn)
+                .map_err(|e| {
+                    eprintln!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                })?;
         }
 
         Ok(())
     })
-    .await;
+    .await
+    .map_err(|err| match err {
+        BlockingError::Error(e) => e.inner,
+        BlockingError::Canceled => HttpResponse::InternalServerError().finish(),
+    })?;
 
-    to_client(res)
+    Ok(HttpResponse::Ok().finish())
 }
 
 #[cfg(test)]
@@ -270,7 +312,7 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn checks() {
+    async fn check_collect() {
         let db = Db::new();
         let conn = db.conn_pool().expect("Failed to connect to database.");
 

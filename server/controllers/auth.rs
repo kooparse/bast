@@ -1,59 +1,70 @@
-use crate::models::{schema::users, AuthUser, SlimUser, User};
-use crate::utils::{to_client, JWTPayload, UserError};
+use crate::models::{schema::users, AuthUser, SlimUser, User, UserWithToken};
+use crate::utils::JWTPayload;
 use crate::Db;
-use actix_web::{web, HttpResponse};
+use actix_web::{error::Error as ActixError, web, HttpResponse};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use dotenv;
 use jsonwebtoken::{encode, Header};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct SignInData {
     email: String,
     password: String,
 }
 
-#[derive(Serialize)]
-struct UserWithToken {
-    user: SlimUser,
-    token: String,
-}
-
+/// Handle login from given email and password.
+/// Return light information about the user and token.
 pub async fn login(
     form: web::Json<SignInData>,
     data: web::Data<Db>,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<UserWithToken, UserError> {
-        let jwt_secret = dotenv::var("JWT_SECRET").unwrap();
-        let jwt_timeout = 10_000_000_000;
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
+    // TODO: Change timeout.
+    let jwt_timeout = 10_000_000_000;
+    let jwt_secret = dotenv::var("JWT_SECRET").map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError()
+    })?;
 
-        let user: User = users::table
+    let form = form.into_inner();
+    // Value moved after...
+    let password = form.password.clone();
+
+    let user: User = web::block(move || {
+        users::table
             .filter(users::email.eq(&form.email))
-            .first::<_>(&data.conn_pool()?)
-            .map_err(|_| UserError::Unauthorized)?;
-
-        let is_valid = verify(&form.password, &user.password)
-            .map_err(|_| UserError::Unauthorized)?;
-
-        if !is_valid {
-            return Err(UserError::Unauthorized);
-        }
-
-        let payload = JWTPayload::new(user.id, jwt_timeout);
-        let token = encode(&Header::default(), &payload, jwt_secret.as_ref())
-            .map_err(|_| UserError::BadRequest)?;
-
-        let result = UserWithToken {
-            user: SlimUser::from(user),
-            token,
-        };
-
-        Ok(result)
+            .first(&conn)
     })
-    .await;
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError()
+    })?;
 
-    to_client(result)
+    let is_valid = verify(password, &user.password).map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError()
+    })?;
+
+    if !is_valid {
+        return Ok(HttpResponse::Unauthorized().body("Password is not valid."));
+    }
+
+    let payload = JWTPayload::new(user.id, jwt_timeout);
+    let token = encode(&Header::default(), &payload, jwt_secret.as_ref())
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError()
+        })?;
+
+    let user_with_token = UserWithToken {
+        user: SlimUser::from(user),
+        token,
+    };
+
+    Ok(HttpResponse::Ok().json(user_with_token))
 }
 
 #[derive(Deserialize, Insertable)]
@@ -63,47 +74,44 @@ pub struct RegisterFormData {
     password: String,
 }
 
-/// Create a new user from email and password.
+/// Create new user from given email and password.
 pub async fn register(
     mut form: web::Json<RegisterFormData>,
     data: web::Data<Db>,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<SlimUser, UserError> {
-        form.password = hash(&form.password, DEFAULT_COST).map_err(|e| {
-            println!("{}", e);
-            UserError::InternalServerError
-        })?;
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
+    form.password = hash(&form.password, DEFAULT_COST)
+        .map_err(|_| HttpResponse::InternalServerError())?;
 
-        let user: User = diesel::insert_into(users::table)
+    let user: User = web::block(move || {
+        diesel::insert_into(users::table)
             .values(form.into_inner())
-            .get_result(&data.conn_pool()?)
-            .map_err(|e| {
-                println!("{}", e);
-                UserError::InternalServerError
-            })?;
-
-        Ok(SlimUser::from(user))
+            .get_result(&conn)
     })
-    .await;
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().body("Email already exists.")
+    })?;
 
-    to_client(result)
+    Ok(HttpResponse::Ok().json(SlimUser::from(user)))
 }
 
+/// Find information from authenticated user (token).
 pub async fn user(
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<SlimUser, UserError> {
-        let user_id = auth_user.get_id()?;
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
+    let user_id = auth_user.get_id()?;
 
-        let user: User = users::table
-            .find(&user_id)
-            .get_result::<_>(&data.conn_pool()?)
-            .map_err(|_| UserError::BadRequest)?;
+    let user: User =
+        web::block(move || users::table.find(&user_id).get_result(&conn))
+            .await
+            .map_err(|e| {
+                eprintln!("{}", e);
+                HttpResponse::InternalServerError()
+            })?;
 
-        Ok(SlimUser::from(user))
-    })
-    .await;
-
-    to_client(result)
+    Ok(HttpResponse::Ok().json(SlimUser::from(user)))
 }

@@ -1,4 +1,5 @@
 use super::schema::{day_stats, month_stats};
+use super::Website;
 use chrono::NaiveDateTime;
 use diesel::Queryable;
 use serde::Serialize;
@@ -25,6 +26,14 @@ pub struct Stat {
     pub known_time_counter: i32,
     pub bounce_counter: i32,
     pub created_at: NaiveDateTime,
+}
+
+#[derive(Serialize)]
+pub struct Stats {
+    pub website: Website,
+    pub stats: Vec<MonthStat>,
+    pub pages: Vec<Page>,
+    pub referrers: Vec<Referrer>,
 }
 
 #[derive(
@@ -129,6 +138,40 @@ impl CmpStat for DayStat {
         if is_bounce {
             self.bounce_counter += 1;
             self.bounce_rate = (self.bounce_counter / self.pageviews) as f32;
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct Referrer {
+    pub name: String,
+    pub count: i32,
+}
+
+impl Referrer {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_owned(),
+            count: 1,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct Page {
+    pub name: String,
+    pub sessions: i32,
+    pub users: i32,
+    pub pageviews: i32,
+}
+
+impl Page {
+    pub fn new(name: &str, users: i32, sessions: i32) -> Self {
+        Self {
+            name: name.to_owned(),
+            pageviews: 1,
+            sessions,
+            users,
         }
     }
 }

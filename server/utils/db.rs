@@ -1,4 +1,4 @@
-use crate::utils::UserError;
+use actix_web::error::{self, Error as ActixError};
 use diesel::{
     pg::PgConnection,
     r2d2::{ConnectionManager, Pool, PooledConnection},
@@ -30,7 +30,10 @@ impl Db {
 
     /// This return the database connection
     /// through a pool (wrapped into a Result).
-    pub fn conn_pool(&self) -> Result<Conn, UserError> {
-        self.pool.get().map_err(|_| UserError::InternalServerError)
+    pub fn conn_pool(&self) -> Result<Conn, ActixError> {
+        self.pool.get().map_err(|e| {
+            eprintln!("{}", e);
+            error::ErrorInternalServerError(e)
+        })
     }
 }

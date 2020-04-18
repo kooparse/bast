@@ -1,5 +1,8 @@
-use crate::utils::{check_auth, Ready, UserError};
-use actix_web::{dev::Payload, FromRequest, HttpRequest};
+use crate::utils::{check_auth, Ready};
+use actix_web::{
+    dev::Payload, error::Error as ActixError, FromRequest, HttpRequest,
+    HttpResponse,
+};
 use diesel::Queryable;
 use serde::Serialize;
 use std::time::SystemTime;
@@ -30,6 +33,13 @@ impl From<User> for SlimUser {
     }
 }
 
+/// Send from login endpoint.
+#[derive(Serialize)]
+pub struct UserWithToken {
+    pub user: SlimUser,
+    pub token: String,
+}
+
 /// Used only to restrict some calls to authenticated users.
 /// We do not fetch the logged user here.
 pub struct AuthUser {
@@ -37,19 +47,19 @@ pub struct AuthUser {
 }
 
 impl AuthUser {
-    pub fn get_id(&self) -> Result<i32, UserError> {
+    pub fn get_id(&self) -> Result<i32, ActixError> {
         if let Some(id) = self.id {
             return Ok(id);
         }
 
-        Err(UserError::Unauthorized)
+        Err(ActixError::from(HttpResponse::Unauthorized()))
     }
 }
 
 impl FromRequest for AuthUser {
-    type Error = UserError;
+    type Error = ActixError;
     type Config = ();
-    type Future = Ready<Result<AuthUser, UserError>>;
+    type Future = Ready<Result<AuthUser, ActixError>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         match check_auth(&req) {

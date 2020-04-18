@@ -2,37 +2,38 @@ use crate::models::{
     schema::{users, websites},
     AuthUser, User, Website,
 };
-use crate::utils::{to_client, UserError};
 use crate::Db;
-use actix_web::{web, HttpResponse};
+use actix_web::{error::Error as ActixError, web, HttpResponse};
 use diesel::prelude::*;
+use diesel::result::Error as DbError;
 use serde::Deserialize;
 
+/// Get user's websites.
 pub async fn list(
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<Vec<Website>, UserError> {
-        let user_id = auth_user.get_id()?;
-        let conn = data.conn_pool()?;
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
+    let user_id = auth_user.get_id()?;
 
-        // Check if user is found.
-        let user: User = users::table
-            .find(user_id)
-            .first::<_>(&conn)
-            .map_err(|_| UserError::BadRequest)?;
+    let list: Vec<Website> = web::block(move || -> Result<_, DbError> {
+        // Find is user exists.
+        let user: User = users::table.find(user_id).get_result(&conn)?;
 
-        let list: Vec<Website> = websites::table
+        let list = websites::table
             .filter(websites::user_id.eq(user.id))
             .order(websites::created_at.desc())
-            .get_results::<_>(&conn)
-            .map_err(|_| UserError::BadRequest)?;
+            .get_results(&conn)?;
 
         Ok(list)
     })
-    .await;
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::Unauthorized()
+    })?;
 
-    to_client(result)
+    Ok(HttpResponse::Ok().json(list))
 }
 
 #[derive(Deserialize, Insertable)]
@@ -43,36 +44,30 @@ pub struct WebsiteFormData {
     domain: String,
 }
 
+/// Create new website for authenticated user.
 pub async fn create(
     mut form: web::Json<WebsiteFormData>,
     data: web::Data<Db>,
     auth_user: AuthUser,
-) -> Result<HttpResponse, UserError> {
-    let result = web::block(move || -> Result<Website, UserError> {
-        let user_id = auth_user.get_id()?;
-        let conn = data.conn_pool()?;
+) -> Result<HttpResponse, ActixError> {
+    let conn = data.conn_pool()?;
+    let user_id = auth_user.get_id()?;
 
-        dbg!(&form.domain);
-
-        // Check if user is found.
-        let user: User = users::table
-            .find(user_id)
-            .first(&conn)
-            .map_err(|_| UserError::BadRequest)?;
-
+    let website: Website = web::block(move || -> Result<_, DbError> {
+        let user: User = users::table.find(&user_id).get_result(&conn)?;
         form.user_id = user.id;
 
-        let website: Website = diesel::insert_into(websites::table)
+        let website = diesel::insert_into(websites::table)
             .values(form.into_inner())
-            .get_result(&conn)
-            .map_err(|e| {
-                dbg!(e);
-                return UserError::InternalServerError;
-            })?;
+            .get_result(&conn)?;
 
         Ok(website)
     })
-    .await;
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError()
+    })?;
 
-    to_client(result)
+    Ok(HttpResponse::Ok().json(website))
 }
