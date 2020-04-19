@@ -1,8 +1,9 @@
 ## Bast
+
 ![CI](https://github.com/kooparse/bast/workflows/CI/badge.svg)
 <br/>
 <br/>
-Bast is an open sourced web analytics, giving simple informations about your site traffics. This project has MIT license, won’t make any money, and try to be privacy focused.
+Bast is an open sourced web analytics, giving simple informations about your site traffics.
 
 I did this project for myself. It is tested and currently used by a couple of friends so it might be useful for others (if you’re a small business, an indie, a blogger…).
 
