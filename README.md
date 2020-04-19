@@ -1,6 +1,11 @@
 ## Bast
 
-A website analytics.
+An open sourced website analytics.
+
+### Previews
+In light and dark:<br/>
+<img src="https://i.imgur.com/7vDfHJfr.png" width=600 alt="dark mode" />
+<img src="https://i.imgur.com/K4Z5d5G.png" width=600 alt="light mode" />
 
 ## Install
 
