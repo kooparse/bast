@@ -11,7 +11,9 @@ use chrono::{Datelike, Utc};
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
+use hex;
 use serde::Deserialize;
+use sha2::{Digest, Sha256};
 
 // Error wrapper to send actix errors on other threads.
 #[derive(Debug)]
@@ -81,8 +83,17 @@ pub async fn collect(
                 HttpResponse::InternalServerError().finish()
             })?
             .to_owned();
-        let ip_address = req_info.host();
-        params.u_id = format!("{}_{}", &ip_address, &params.user_agent);
+
+        // Hash made from concatenation of host with user agent.
+        let hash = Sha256::new()
+            // Hash host/ip.
+            .chain(req_info.host().as_bytes())
+            // Hash user agent.
+            .chain(&params.user_agent)
+            .result();
+
+        // Encode 16 first characters.
+        params.u_id = hex::encode(&hash)[..16].to_owned();
     } else {
         eprintln!("No User-Agent found.");
         return Ok(HttpResponse::InternalServerError().finish());
