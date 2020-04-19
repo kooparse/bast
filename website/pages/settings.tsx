@@ -15,14 +15,14 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Button
+  Button,
 } from "@chakra-ui/core";
 import CodeSnippet from "../components/CodeSnippet";
 import { UserContext } from "../utils/context";
 import {
   errorCreateWebsite,
   errorFetchWebsites,
-  successCreateWebsite
+  successCreateWebsite,
 } from "../utils/messages";
 import api, { isLogged } from "../utils/api";
 
@@ -34,7 +34,7 @@ const Settings: React.FC = (): ReactElement => {
   const [loading, setLoading] = useState(true);
   const [websites, setWebsites] = useState([]);
   const [selectedWebsite, setSelected] = useState(null);
-  const current = websites.find(w => `${w.id}` === `${selectedWebsite}`);
+  const current = websites.find((w) => `${w.id}` === `${selectedWebsite}`);
 
   useEffect(() => {
     const fetch = async (): Promise<void> => {
@@ -66,12 +66,13 @@ const Settings: React.FC = (): ReactElement => {
         const { data } = await api.post("/websites", values);
         setWebsites([data, ...websites]);
         setSelected(data.id);
+        actions.resetForm();
         toast(successCreateWebsite);
       } catch (e) {
         toast(errorCreateWebsite);
         actions.setSubmitting(false);
       }
-    }
+    },
   });
 
   const bg = { light: "gray.50", dark: "gray.900" };
