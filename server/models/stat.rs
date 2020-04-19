@@ -27,7 +27,7 @@ pub struct Stat {
     pub sessions: i32,
     pub avg_time: f32,
     pub bounce_rate: f32,
-    pub known_time_counter: i32,
+    pub time_counter: i32,
     pub bounce_counter: i32,
     pub created_at: NaiveDateTime,
 }
@@ -51,9 +51,9 @@ impl CmpStat for Stat {
         }
 
         if duration > 0. && duration < 30. {
-            self.known_time_counter += 1;
+            self.time_counter += 1;
             self.avg_time =
-                (self.avg_time + duration) / self.known_time_counter as f32;
+                (self.avg_time + duration) / self.time_counter as f32;
         }
 
         if is_bounce {
@@ -71,7 +71,7 @@ pub struct SlimStat {
     pub sessions: i32,
     pub avg_time: f32,
     pub bounce_rate: f32,
-    pub known_time_counter: i32,
+    pub time_counter: i32,
     pub bounce_counter: i32,
 }
 

@@ -27,7 +27,7 @@ table! {
         sessions -> Int4,
         avg_time -> Float4,
         bounce_rate -> Float4,
-        known_time_counter -> Int4,
+        time_counter -> Int4,
         bounce_counter -> Int4,
         created_at -> Timestamp,
     }
@@ -52,7 +52,7 @@ table! {
         sessions -> Int4,
         avg_time -> Float4,
         bounce_rate -> Float4,
-        known_time_counter -> Int4,
+        time_counter -> Int4,
         bounce_counter -> Int4,
         created_at -> Timestamp,
     }

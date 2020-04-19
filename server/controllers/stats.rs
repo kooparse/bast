@@ -110,7 +110,7 @@ pub async fn get_stat(
             m.users += d.users;
             m.sessions += d.sessions;
             m.pageviews += d.pageviews;
-            m.known_time_counter += d.known_time_counter;
+            m.time_counter += d.time_counter;
             m.bounce_counter += d.bounce_counter;
             m.avg_time += d.avg_time;
             m.bounce_rate += d.bounce_rate;

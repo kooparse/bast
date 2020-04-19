@@ -19,7 +19,7 @@ pub struct Website {
     #[serde(rename(serialize = "bounceRate"))]
     pub bounce_rate: f32,
     #[serde(skip)]
-    pub known_time_counter: i32,
+    pub time_counter: i32,
     #[serde(skip)]
     pub bounce_counter: i32,
     #[serde(skip_serializing)]
@@ -45,9 +45,9 @@ impl CmpStat for Website {
         }
 
         if duration > 0. && duration < 30. {
-            self.known_time_counter += 1;
+            self.time_counter += 1;
             self.avg_time =
-                (self.avg_time + duration) / self.known_time_counter as f32;
+                (self.avg_time + duration) / self.time_counter as f32;
         }
 
         if is_bounce {
