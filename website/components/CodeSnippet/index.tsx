@@ -4,15 +4,11 @@ import { useClipboard, Code, Button } from "@chakra-ui/core";
 
 const { API_ENDPOINT, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
 
-const getSnippet = (
-  userId: string | number,
-  websiteId: string | number
-): string => {
+const getSnippet = (websiteId: string | number): string => {
   const { origin } = window.location;
   return `<script>
   (function() {
     window.__bast__website_id = ${websiteId};
-    window.__bast__user_id = ${userId};
     window.__bast__trackerUrl = "${origin}${API_ENDPOINT}/ghost.png";
 
     var script = document.createElement('script');
@@ -24,14 +20,8 @@ const getSnippet = (
 `;
 };
 
-const CodeSnippet = ({
-  user,
-  website
-}: {
-  user: User;
-  website: Website;
-}): ReactElement => {
-  const snippet = getSnippet(user.id, website.id);
+const CodeSnippet = ({ website }: { website: Website }): ReactElement => {
+  const snippet = getSnippet(website.id);
   const { onCopy, hasCopied } = useClipboard(snippet);
 
   return (

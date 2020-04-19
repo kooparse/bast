@@ -92,7 +92,7 @@ const Settings: React.FC = (): ReactElement => {
       </Select>
       {current && !!user?.id && (
         <Box my="2">
-          <CodeSnippet user={user} website={current} />
+          <CodeSnippet website={current} />
         </Box>
       )}
     </>
