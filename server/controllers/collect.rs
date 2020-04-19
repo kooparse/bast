@@ -67,22 +67,25 @@ pub async fn collect(
     let mut params = params.into_inner();
     let req_info = req.connection_info();
 
+    // Do not track if DNT is here.
+    if req.headers().contains_key("DNT") {
+        return Ok(HttpResponse::Ok().finish());
+    }
+
     // Construct user id from ip address and user agent.
     if let Some(ua) = req.headers().get("User-Agent") {
-        params.user_agent = ua.to_str().map_err(|e| {
-            eprintln!("{}", e);
-            HttpResponse::InternalServerError().finish()
-        })?.to_owned();
+        params.user_agent = ua
+            .to_str()
+            .map_err(|e| {
+                eprintln!("{}", e);
+                HttpResponse::InternalServerError().finish()
+            })?
+            .to_owned();
         let ip_address = req_info.host();
         params.u_id = format!("{}_{}", &ip_address, &params.user_agent);
     } else {
         eprintln!("No User-Agent found.");
         return Ok(HttpResponse::InternalServerError().finish());
-    }
-
-    // Do not track if DNT is here.
-    if req.headers().contains_key("DNT") {
-        return Ok(HttpResponse::Ok().finish());
     }
 
     let mut is_new_user = false;
