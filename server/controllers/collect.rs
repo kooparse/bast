@@ -13,6 +13,20 @@ use diesel::prelude::*;
 use diesel::result::Error as DbError;
 use serde::Deserialize;
 
+// Error wrapper to send actix errors on other threads.
+#[derive(Debug)]
+struct SendError {
+    pub inner: HttpResponse,
+}
+
+impl From<HttpResponse> for SendError {
+    fn from(response: HttpResponse) -> Self {
+        Self { inner: response }
+    }
+}
+
+unsafe impl Send for SendError {}
+
 // User means number of unique visitors.
 // If someone refresh 10 times the page, it will still be one user.
 //
@@ -39,19 +53,6 @@ pub struct Data {
     u_id: String,
 }
 
-#[derive(Debug)]
-struct SendError {
-    pub inner: HttpResponse,
-}
-
-impl From<HttpResponse> for SendError {
-    fn from(response: HttpResponse) -> Self {
-        Self { inner: response }
-    }
-}
-
-unsafe impl Send for SendError {}
-
 pub async fn collect(
     req: HttpRequest,
     params: web::Query<Data>,
@@ -59,13 +60,20 @@ pub async fn collect(
 ) -> Result<HttpResponse, ActixError> {
     let conn = data.conn_pool()?;
     let mut params = params.into_inner();
+    let req_info = req.connection_info();
 
-    let c_info = req.connection_info();
-    let host = c_info.host();
-    // TODO: Remove unwrap.
-    let agent = req.headers().get("User-Agent").unwrap().to_str().unwrap();
-    // TODO: Salt u_id.
-    params.u_id = format!("{}_{}", &host, agent);
+    // Construct user id from ip address and user agent.
+    if let Some(user_agent) = req.headers().get("User-Agent") {
+        let agent = user_agent.to_str().map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+        let ip_address = req_info.host();
+        params.u_id = format!("{}_{}", &ip_address, agent);
+    } else {
+        eprintln!("No User-Agent found.");
+        return Ok(HttpResponse::InternalServerError().finish());
+    }
 
     let mut is_new_user = false;
     let mut is_new_session = false;

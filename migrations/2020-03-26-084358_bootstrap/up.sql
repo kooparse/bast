@@ -29,6 +29,8 @@ CREATE TABLE pageviews (
   href TEXT NOT NULL,
   hostname TEXT NOT NULL,
   referrer TEXT NOT NULL,
+  user_agent TEXT NOT NULL,
+  location TEXT,
   is_new_session BOOLEAN NOT NULL DEFAULT FALSE,
   is_new_user BOOLEAN NOT NULL DEFAULT FALSE,
   duration REAL NOT NULL DEFAULT 0.0,

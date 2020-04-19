@@ -15,6 +15,13 @@ pub struct Pageview {
     pub href: String,
     pub hostname: String,
     pub referrer: String,
+    // user agent in order to find browser version and 
+    // operating system.
+    pub user_agent: String,
+    // I don't know yet for this field, 
+    // but we're gonna use it to find the geo.
+    // It's a string containing (probably) an ip address.
+    pub location: Option<String>,
     pub is_new_session: bool,
     pub is_new_user: bool,
     pub duration: f32,

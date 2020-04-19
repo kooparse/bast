@@ -7,6 +7,8 @@ table! {
         href -> Text,
         hostname -> Text,
         referrer -> Text,
+        user_agent -> Text,
+        location -> Nullable<Text>,
         is_new_session -> Bool,
         is_new_user -> Bool,
         duration -> Float4,
