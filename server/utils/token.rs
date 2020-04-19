@@ -6,11 +6,14 @@ use serde::{Deserialize, Serialize};
 pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
     req.headers()
         .get("Authorization")
-        .ok_or_else(|| HttpResponse::InternalServerError())
+        .ok_or_else(|| HttpResponse::Unauthorized())
         .and_then(|bearer| {
             let token = bearer
                 .to_str()
-                .expect("Failed to cast bearer header to &str")
+                .map_err(|_| {
+                    eprintln!("Failed to cast bearer header to &str");
+                    HttpResponse::InternalServerError()
+                })?
                 .replace("Bearer ", "");
 
             let jwt_secret = dotenv::var("JWT_SECRET").map_err(|e| {
