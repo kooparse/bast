@@ -1,6 +1,6 @@
 use super::db::Conn;
 use crate::models::{
-    schema::{stats, pageviews, users, websites},
+    schema::{pageviews, stats, users, websites},
     User, Website,
 };
 use bcrypt::{hash, DEFAULT_COST};
@@ -120,6 +120,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::website_id.eq(sites[1].id),
                 pageviews::u_id.eq("localhost:3000_Mozilla"),
                 pageviews::pathname.eq("/search"),
+                pageviews::user_agent.eq("TEST_AGENT"),
                 pageviews::href.eq("https://google.com/"),
                 pageviews::hostname.eq("www.google.com"),
                 pageviews::referrer.eq("https://duckduckgo.com/"),
@@ -131,6 +132,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::website_id.eq(sites[1].id),
                 pageviews::u_id.eq("localhost:3000_Mozilla"),
                 pageviews::pathname.eq("/search"),
+                pageviews::user_agent.eq("TEST_AGENT"),
                 pageviews::href.eq("https://google.com/"),
                 pageviews::hostname.eq("www.google.com"),
                 pageviews::referrer.eq("https://duckduckgo.com/"),
@@ -142,6 +144,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::website_id.eq(sites[1].id),
                 pageviews::u_id.eq("localhost:3000_Mozilla"),
                 pageviews::pathname.eq("/found"),
+                pageviews::user_agent.eq("TEST_AGENT"),
                 pageviews::href.eq("https://google.com/found"),
                 pageviews::hostname.eq("www.google.com"),
                 pageviews::referrer.eq("https://kooparse.com/"),
