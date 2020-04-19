@@ -8,11 +8,9 @@ I did this project for myself. It is tested and currently used by a couple of fr
 
 The backend is made in Rust using [actix-web](https://github.com/actix/actix-web) web framework and [diesel](https://github.com/diesel-rs/diesel) as PostgreSQL ORM. The frontend is (mostly) static and made in React with [Next](https://github.com/zeit/next.js).
 
-### UI previews
+### UI
 
-On the bright and dark side of the force:<br/>
-<img src="https://i.imgur.com/7vDfHJfr.png" width=600 alt="dark mode" />
-<img src="https://i.imgur.com/K4Z5d5G.png" width=600 alt="light mode" />
+<img src="https://i.imgur.com/uA3b099.png" alt="preview" />
 
 ## Install
 
