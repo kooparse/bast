@@ -44,7 +44,7 @@ impl CmpStat for Website {
             self.sessions += 1;
         }
 
-        if duration > 0. && duration < 30. {
+        if duration > 5. && duration < 1800. {
             self.time_counter += 1;
             self.avg_time =
                 (self.avg_time + duration) / self.time_counter as f32;
