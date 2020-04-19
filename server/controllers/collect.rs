@@ -75,6 +75,11 @@ pub async fn collect(
         return Ok(HttpResponse::InternalServerError().finish());
     }
 
+    // Do not track if DNT is here.
+    if req.headers().contains_key("DNT") {
+        return Ok(HttpResponse::Ok().finish());
+    }
+
     let mut is_new_user = false;
     let mut is_new_session = false;
     let mut is_bounce = true;
