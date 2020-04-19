@@ -1,6 +1,6 @@
 use crate::models::{
-    schema::{day_stats, month_stats, pageviews, websites},
-    CmpStat, DayStat, MonthStat, Pageview, Website,
+    schema::{pageviews, stats, websites},
+    CmpStat, Pageview, Stat, Website,
 };
 use crate::utils::Db;
 use actix_web::{
@@ -162,12 +162,11 @@ pub async fn collect(
         //
         // All global analytics are stored directly on the website table,
         // so we firstly computes and updates it.
-        // We're gonna do the same for monthly analytics and for the daily ones.
+        // We're gonna do the same for the daily ones.
         //
-        // Website, MonthStat and DayStat implements all the CmpStat trait.
+        // Website and Stat implements all the CmpStat trait.
         //
-        // TODO: We should reconstruct the monthly data from the daily analytics.
-        // TODO: Even so, we should parallelize those database call.
+        // TODO: We should parallelize database calls.
         website.cmp(is_new_user, is_new_session, is_bounce, duration);
         update(websites::table)
             .filter(websites::id.eq(website.id))
@@ -177,64 +176,16 @@ pub async fn collect(
                 eprintln!("{}", e);
                 HttpResponse::InternalServerError().finish()
             })?;
-        //
-        //
-        // We want to fetch the latest month stored in the database
-        // Then checked if the current pageview is in the same month. If so,
-        // we update it with new data, otherwise we create a new one.
-        let last_month: Option<MonthStat> = month_stats::table
-            .filter(month_stats::website_id.eq(website.id))
-            // Get the latest one.
-            .order(month_stats::created_at.desc())
-            // Get only one result.
-            .first(&conn)
-            // Transform Result into Option type (Err = None).
-            .ok()
-            // If Option isn't None and don't pass this condition, we set it to None.
-            .filter(|month: &MonthStat| {
-                month.created_at.year() == new_date.year()
-                    && month.created_at.month() == new_date.month()
-            })
-            // If even after previous filter, it's still Some, we mutate it to reflects our compute.
-            .map(|mut month| {
-                month.cmp(is_new_user, is_new_session, is_bounce, duration);
-                month
-            });
 
-        // If we get something (correctly computed), we updates it.
-        if let Some(month) = last_month {
-            update(month_stats::table)
-                .filter(month_stats::id.eq(month.id))
-                .set(month)
-                .execute(&conn)
-                .map_err(|e| {
-                    eprintln!("{}", e);
-                    HttpResponse::InternalServerError().finish()
-                })?;
-        } else {
-            // If not, we insert a new one, we default values.
-            insert_into(month_stats::table)
-                .values((
-                    month_stats::website_id.eq(website.id),
-                    month_stats::pageviews.eq(1),
-                    month_stats::users.eq(1),
-                    month_stats::sessions.eq(1),
-                ))
-                .execute(&conn)
-                .map_err(|e| {
-                    eprintln!("{}", e);
-                    HttpResponse::InternalServerError().finish()
-                })?;
-        }
-        //
-        // Exact same logic for compute, update and insert days.
-        // In a near future, we could only rely on days.
-        let last_day: Option<DayStat> = day_stats::table
-            .filter(day_stats::website_id.eq(website.id))
-            .order(day_stats::created_at.desc())
+        // We want to fetch the latest day stored in the database
+        // Then checked if the current pageview is in the same day. If so,
+        // we update it with new data, otherwise we create a new one.
+        let last_day: Option<Stat> = stats::table
+            .filter(stats::website_id.eq(website.id))
+            .order(stats::created_at.desc())
             .first(&conn)
             .ok()
-            .filter(|day: &DayStat| {
+            .filter(|day: &Stat| {
                 day.created_at.year() == new_date.year()
                     && day.created_at.month() == new_date.month()
                     && day.created_at.day() == new_date.day()
@@ -245,8 +196,8 @@ pub async fn collect(
             });
 
         if let Some(day) = last_day {
-            update(day_stats::table)
-                .filter(day_stats::id.eq(day.id))
+            update(stats::table)
+                .filter(stats::id.eq(day.id))
                 .set(day)
                 .execute(&conn)
                 .map_err(|e| {
@@ -254,12 +205,12 @@ pub async fn collect(
                     HttpResponse::InternalServerError().finish()
                 })?;
         } else {
-            insert_into(day_stats::table)
+            insert_into(stats::table)
                 .values((
-                    day_stats::website_id.eq(website.id),
-                    day_stats::pageviews.eq(1),
-                    day_stats::users.eq(1),
-                    day_stats::sessions.eq(1),
+                    stats::website_id.eq(website.id),
+                    stats::pageviews.eq(1),
+                    stats::users.eq(1),
+                    stats::sessions.eq(1),
                 ))
                 .execute(&conn)
                 .map_err(|e| {

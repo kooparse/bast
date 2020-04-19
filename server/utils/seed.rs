@@ -1,6 +1,6 @@
 use super::db::Conn;
 use crate::models::{
-    schema::{day_stats, month_stats, pageviews, users, websites},
+    schema::{stats, pageviews, users, websites},
     User, Website,
 };
 use bcrypt::{hash, DEFAULT_COST};
@@ -13,12 +13,9 @@ pub fn reset_databse(conn: &Conn) {
     delete(pageviews::table)
         .execute(conn)
         .expect("Error while clearing pageviews table.");
-    delete(month_stats::table)
+    delete(stats::table)
         .execute(conn)
-        .expect("Error while clearing month stats table.");
-    delete(day_stats::table)
-        .execute(conn)
-        .expect("Error while clearing day stats table.");
+        .expect("Error while clearing stats table.");
     delete(websites::table)
         .execute(conn)
         .expect("Error while clearing website table.");
@@ -79,21 +76,6 @@ pub fn seed_database(conn: &Conn) {
         .get_results(conn)
         .expect("Error while seeding websites.");
 
-    let months: Vec<NaiveDateTime> = {
-        let months: [u8; 12] = [0; 12];
-        months
-            .iter()
-            .enumerate()
-            .map(|(i, _)| {
-                NaiveDateTime::parse_from_str(
-                    &format!("2019-{}-15 22:00:00", i + 1),
-                    "%Y-%m-%d %H:%M:%S",
-                )
-                .expect("Error when parsing date.")
-            })
-            .collect()
-    };
-
     let (old_dt, recent_dt) = {
         (
             NaiveDateTime::parse_from_str(
@@ -108,80 +90,25 @@ pub fn seed_database(conn: &Conn) {
             .expect("Error when parsing date."),
         )
     };
-
-    insert_into(month_stats::table)
+    insert_into(stats::table)
         .values(&vec![
             (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[0]),
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(20),
+                stats::sessions.eq(23),
+                stats::created_at.eq(&old_dt),
             ),
             (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(24),
-                month_stats::sessions.eq(43),
-                month_stats::created_at.eq(&months[1]),
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(2),
+                stats::sessions.eq(3),
+                stats::created_at.eq(&recent_dt),
             ),
             (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(36),
-                month_stats::sessions.eq(1),
-                month_stats::created_at.eq(&months[2]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[3]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(220),
-                month_stats::sessions.eq(53),
-                month_stats::created_at.eq(&months[4]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(26),
-                month_stats::sessions.eq(73),
-                month_stats::created_at.eq(&months[5]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(2),
-                month_stats::sessions.eq(45),
-                month_stats::created_at.eq(&months[6]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[7]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[8]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[9]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[10]),
-            ),
-            (
-                month_stats::website_id.eq(sites[1].id),
-                month_stats::users.eq(20),
-                month_stats::sessions.eq(23),
-                month_stats::created_at.eq(&months[11]),
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(10),
+                stats::sessions.eq(13),
+                stats::created_at.eq(&recent_dt),
             ),
         ])
         .execute(conn)

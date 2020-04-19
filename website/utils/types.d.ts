@@ -39,12 +39,16 @@ type Page = {
 type MonthStat = {
   users: number;
   sessions: number;
-  createdAt: Date;
+  pageviews: number;
+};
+
+type GraphData = {
+  string?: MonthStat;
 };
 
 type Stats = {
   website: Website;
-  stats: MonthStat[];
+  stats: GraphData;
   referrers: Referrer[];
   pages: Page[];
 };

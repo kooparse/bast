@@ -37,20 +37,7 @@ CREATE TABLE pageviews (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
 );
 
-CREATE TABLE month_stats (
-  id SERIAL PRIMARY KEY,
-  website_id SERIAL references websites(id) NOT NULL,
-  pageviews INTEGER NOT NULL DEFAULT 0,
-  users INTEGER NOT NULL DEFAULT 0,
-  sessions  INTEGER NOT NULL DEFAULT 0,
-  avg_time REAL NOT NULL DEFAULT 0.0,
-  bounce_rate REAL NOT NULL DEFAULT 0.0,
-  known_time_counter INTEGER NOT NULL DEFAULT 0,
-  bounce_counter INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
-);
-
-CREATE TABLE day_stats (
+CREATE TABLE stats (
   id SERIAL PRIMARY KEY,
   website_id SERIAL references websites(id) NOT NULL,
   pageviews INTEGER NOT NULL DEFAULT 0,

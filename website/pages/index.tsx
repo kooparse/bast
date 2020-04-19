@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ReactElement, useContext } from "react";
 import getUnixTime from "date-fns/getUnixTime";
+import endOfMonth from "date-fns/endOfMonth";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -12,7 +13,7 @@ import {
   Box,
   Heading,
   SimpleGrid,
-  Select
+  Select,
 } from "@chakra-ui/core";
 import Graph from "../components/Graph";
 import ReferrerTable from "../components/ReferrerTable";
@@ -25,7 +26,7 @@ import { UserContext } from "../utils/context";
 const defaultStats: Stats = {
   pages: [],
   referrers: [],
-  stats: [],
+  stats: {},
   website: {
     domain: "",
     pageviews: 0,
@@ -33,8 +34,8 @@ const defaultStats: Stats = {
     sessions: 0,
     bounceRate: 0,
     avgTime: 0,
-    id: null
-  }
+    id: null,
+  },
 };
 
 const Home: React.FC = (): ReactElement => {
@@ -46,7 +47,7 @@ const Home: React.FC = (): ReactElement => {
   const color = { light: "grey.900", dark: "gray.50" };
 
   const [loading, setLoading] = useState(userIsLoading);
-  const [from] = useState(new Date());
+  const [from] = useState(endOfMonth(new Date()));
   const [websites, setWebsites] = useState([]);
   const [selectedWebsiteId, setSelected] = useState("");
   const [stats, setStats] = useState(defaultStats);
@@ -192,7 +193,7 @@ const Home: React.FC = (): ReactElement => {
         {!!websites.length && (
           <Select
             width="300px"
-            value={websites.find(w => w.id === selectedWebsiteId)?.id}
+            value={websites.find((w) => w.id === selectedWebsiteId)?.id}
             onChange={(event): void => {
               const { value: id } = event.target;
               router.replace({ pathname: "/", query: { id } });
@@ -209,7 +210,7 @@ const Home: React.FC = (): ReactElement => {
       </Flex>
 
       <GlobalStat website={website} loading={loading} />
-      <Graph data={stats.stats} from={from} loading={loading} />
+      <Graph data={stats.stats} loading={loading} />
 
       <SimpleGrid columns={2} spacing={20}>
         <PageTable loading={loading} pages={stats.pages} />
