@@ -10,7 +10,7 @@ CREATE TABLE users (
 CREATE TABLE websites (
   id SERIAL PRIMARY KEY,
   user_id SERIAL references users(id) NOT NULL,
-  domain TEXT NOT NULL UNIQUE,
+  domain TEXT NOT NULL,
   pageviews INTEGER NOT NULL DEFAULT 0,
   users INTEGER NOT NULL DEFAULT 0,
   sessions  INTEGER NOT NULL DEFAULT 0,
