@@ -43,6 +43,11 @@ pub struct Data {
     #[serde(default)]
     referrer: String,
 
+    // Get by headers.
+    #[serde(skip)]
+    user_agent: String,
+    #[serde(skip)]
+    location: Option<String>,
     #[serde(skip)]
     is_new_session: bool,
     #[serde(skip)]
@@ -63,13 +68,13 @@ pub async fn collect(
     let req_info = req.connection_info();
 
     // Construct user id from ip address and user agent.
-    if let Some(user_agent) = req.headers().get("User-Agent") {
-        let agent = user_agent.to_str().map_err(|e| {
+    if let Some(ua) = req.headers().get("User-Agent") {
+        params.user_agent = ua.to_str().map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
-        })?;
+        })?.to_owned();
         let ip_address = req_info.host();
-        params.u_id = format!("{}_{}", &ip_address, agent);
+        params.u_id = format!("{}_{}", &ip_address, &params.user_agent);
     } else {
         eprintln!("No User-Agent found.");
         return Ok(HttpResponse::InternalServerError().finish());
