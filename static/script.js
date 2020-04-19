@@ -4,25 +4,27 @@
   // First, we want to execute our script only
   // when the initial document has been completely loaded
   // and parsed.
-  const trackerUrl = window.__bast__trackerUrl;
-  const website_id = window.__bast__website_id;
+  var trackerUrl = window.__bast__trackerUrl;
+  var website_id = window.__bast__website_id;
   // We're going to send only the location object and the referrer to
   // the server.
-  const {href = "", origin = "", pathname = ""} = window.location;
-  const {referrer = ""} = document;
+  var href = window.location.href || "";
+  var origin = window.location.origin || "";
+  var pathname = window.location.pathname || "";
+  var referrer = document.referrer || "";
 
   try {
     // We build the query.
-    const query = generateQueryFromObject({
+    var query = generateQueryFromObject({
       website_id,
       href,
       origin,
       pathname,
-      referrer
+      referrer,
     });
 
     // Create img tag with built query.
-    let ghost = document.createElement("img");
+    var ghost = document.createElement("img");
     ghost.setAttribute("alt", "analytics");
     // This will fetch the remote ressource and give us query values.
     ghost.src = `${trackerUrl}${query}`;
@@ -40,7 +42,6 @@
     console.error(e);
   }
 
-  // Stolen, in consequence we should highly change this.
   function generateQueryFromObject(obj) {
     let keys = Object.keys(obj);
 
