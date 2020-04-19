@@ -4,7 +4,7 @@ use crate::models::{
     User, Website,
 };
 use bcrypt::{hash, DEFAULT_COST};
-use chrono::NaiveDateTime;
+use chrono::{Datelike, NaiveDate, NaiveDateTime, Utc};
 use diesel::dsl::*;
 use diesel::prelude::*;
 
@@ -55,60 +55,119 @@ pub fn seed_database(conn: &Conn) {
                 websites::pageviews.eq(0),
                 websites::users.eq(0),
                 websites::sessions.eq(0),
+                websites::avg_time.eq(190.),
+                websites::bounce_rate.eq(77.),
             ),
             (
                 websites::id.eq(2),
                 websites::user_id.eq(users[0].id),
                 websites::domain.eq("protonmail.com"),
                 websites::pageviews.eq(20),
-                websites::users.eq(2),
-                websites::sessions.eq(4),
+                websites::users.eq(124),
+                websites::sessions.eq(170),
+                websites::avg_time.eq(190.),
+                websites::bounce_rate.eq(77.),
             ),
             (
                 websites::id.eq(3),
                 websites::user_id.eq(users[1].id),
                 websites::domain.eq("kooparse.com"),
                 websites::pageviews.eq(23),
-                websites::users.eq(3),
-                websites::sessions.eq(6),
+                websites::users.eq(125),
+                websites::sessions.eq(193),
+                websites::avg_time.eq(190.),
+                websites::bounce_rate.eq(77.),
             ),
         ])
         .get_results(conn)
         .expect("Error while seeding websites.");
 
-    let (old_dt, recent_dt) = {
-        (
-            NaiveDateTime::parse_from_str(
-                "2020-01-23 23:56:04",
-                "%Y-%m-%d %H:%M:%S",
-            )
-            .expect("Error when parsing date."),
-            NaiveDateTime::parse_from_str(
-                "2020-02-20 23:56:04",
-                "%Y-%m-%d %H:%M:%S",
-            )
-            .expect("Error when parsing date."),
-        )
-    };
+    let mut dates: Vec<NaiveDateTime> = vec![];
+    let mut current_date = Utc::now().naive_utc();
+    dates.push(current_date);
+
+    for _ in 1..11 {
+        let year = current_date.year();
+        let next_date = current_date.month() as i32 - 1;
+
+        if next_date.is_negative() || next_date == 0 {
+            current_date =
+                NaiveDate::from_ymd(year - 1, 12, 1).and_hms(12, 00, 00);
+        } else {
+            current_date = NaiveDate::from_ymd(year, next_date as u32, 1)
+                .and_hms(12, 00, 00);
+        }
+
+        dates.push(current_date);
+    }
+
     insert_into(stats::table)
         .values(&vec![
             (
                 stats::website_id.eq(sites[1].id),
-                stats::users.eq(20),
-                stats::sessions.eq(23),
-                stats::created_at.eq(&old_dt),
+                stats::users.eq(23),
+                stats::sessions.eq(12),
+                stats::created_at.eq(&dates[0]),
             ),
             (
                 stats::website_id.eq(sites[1].id),
-                stats::users.eq(2),
-                stats::sessions.eq(3),
-                stats::created_at.eq(&recent_dt),
+                stats::users.eq(8),
+                stats::sessions.eq(23),
+                stats::created_at.eq(&dates[1]),
             ),
             (
                 stats::website_id.eq(sites[1].id),
                 stats::users.eq(10),
+                stats::sessions.eq(16),
+                stats::created_at.eq(&dates[2]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(20),
+                stats::sessions.eq(10),
+                stats::created_at.eq(&dates[3]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(10),
+                stats::sessions.eq(2),
+                stats::created_at.eq(&dates[4]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(8),
+                stats::sessions.eq(22),
+                stats::created_at.eq(&dates[5]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(9),
                 stats::sessions.eq(13),
-                stats::created_at.eq(&recent_dt),
+                stats::created_at.eq(&dates[6]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(6),
+                stats::sessions.eq(16),
+                stats::created_at.eq(&dates[7]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(32),
+                stats::sessions.eq(18),
+                stats::created_at.eq(&dates[8]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(27),
+                stats::sessions.eq(20),
+                stats::created_at.eq(&dates[9]),
+            ),
+            (
+                stats::website_id.eq(sites[1].id),
+                stats::users.eq(10),
+                stats::sessions.eq(9),
+                stats::created_at.eq(&dates[10]),
             ),
         ])
         .execute(conn)
@@ -126,7 +185,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::referrer.eq("https://duckduckgo.com/"),
                 pageviews::is_new_session.eq(true),
                 pageviews::is_new_user.eq(true),
-                pageviews::created_at.eq(&old_dt),
+                pageviews::created_at.eq(&dates[0]),
             ),
             (
                 pageviews::website_id.eq(sites[1].id),
@@ -138,7 +197,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::referrer.eq("https://duckduckgo.com/"),
                 pageviews::is_new_session.eq(true),
                 pageviews::is_new_user.eq(false),
-                pageviews::created_at.eq(&old_dt),
+                pageviews::created_at.eq(&dates[1]),
             ),
             (
                 pageviews::website_id.eq(sites[1].id),
@@ -150,7 +209,7 @@ pub fn seed_database(conn: &Conn) {
                 pageviews::referrer.eq("https://kooparse.com/"),
                 pageviews::is_new_session.eq(false),
                 pageviews::is_new_user.eq(false),
-                pageviews::created_at.eq(&recent_dt),
+                pageviews::created_at.eq(&dates[2]),
             ),
         ])
         .execute(conn)

@@ -353,8 +353,9 @@ mod tests {
         assert_eq!(website.users, 1);
         assert_eq!(website.sessions, 1);
         assert_eq!(website.pageviews, 2);
-        assert_eq!(website.time_counter, 1);
-        assert_ne!(website.avg_time, 0.);
+        // Because < 5 secs.
+        assert_eq!(website.time_counter, 0);
+        assert_eq!(website.avg_time, 190.);
 
         //
         // Check when same_user but >= 30min.
@@ -395,8 +396,8 @@ mod tests {
         assert_eq!(website.users, 1);
         assert_eq!(website.sessions, 2);
         assert_eq!(website.pageviews, 3);
-        assert_eq!(website.time_counter, 1);
-        assert_ne!(website.avg_time, 0.);
+        assert_eq!(website.time_counter, 0);
+        assert_eq!(website.avg_time, 190.);
 
         //
         // Check when different user.
@@ -415,7 +416,7 @@ mod tests {
         assert_eq!(website.users, 2);
         assert_eq!(website.sessions, 3);
         assert_eq!(website.pageviews, 4);
-        assert_eq!(website.time_counter, 1);
-        assert_ne!(website.avg_time, 0.);
+        assert_eq!(website.time_counter, 0);
+        assert_eq!(website.avg_time, 190.);
     }
 }
