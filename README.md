@@ -1,9 +1,14 @@
 ## Bast
 
-An open sourced website analytics.
+Bast is an open sourced web analytics, giving simple informations about your site traffics. This project has MIT license, won’t make any money, and try to be privacy focused.
 
-### Previews
-In light and dark:<br/>
+I did this project for myself. It is tested and currently used by a couple of friends so it might be useful for others (if you’re a small business, an indie, a blogger…).
+
+The backend is made in Rust using [actix-web](https://github.com/actix/actix-web) web framework and [diesel](https://github.com/diesel-rs/diesel) as PostgreSQL ORM. The frontend is (mostly) static and made in React with [Next](https://github.com/zeit/next.js).
+
+### UI previews
+
+On the bright and dark side of the force:<br/>
 <img src="https://i.imgur.com/7vDfHJfr.png" width=600 alt="dark mode" />
 <img src="https://i.imgur.com/K4Z5d5G.png" width=600 alt="light mode" />
 
@@ -15,13 +20,15 @@ In light and dark:<br/>
 
 - Fork or download this repository.
 - `cd` to the project's location.
-- `cargo install diesel_cli --no-default-features --features "postgres"`
-- `diesel setup`
+- `cargo install diesel_cli --no-default-features --features "postgres"`.
+- `diesel setup` (You'll need postgres up and running).
 
 ### For the front.
 
 - `cd` to website folder.
 - `npm install`
+
+<br/>
 
 ## Running the api in development
 
@@ -30,7 +37,7 @@ In light and dark:<br/>
 First create a new `.env` file at the root.
 You should use `.env.sample` to get all required values.
 
-If you want to watch the project while developping it, install cargo-watch first.
+If you want to watch the project while developping it, install `cargo-watch` first.
 
 - `cargo install cargo-watch`
 - run `cargo watch -i "website/**/*" -x run`
