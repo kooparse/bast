@@ -16,7 +16,7 @@ import {
   MenuList,
   MenuGroup,
   MenuDivider,
-  MenuButton
+  MenuButton,
 } from "@chakra-ui/core";
 
 const NavBar: React.FC = (): ReactElement => {
@@ -81,11 +81,6 @@ const NavBar: React.FC = (): ReactElement => {
                       Settings
                     </MenuItem>
                     <MenuItem onClick={logout}>Logout</MenuItem>
-                  </MenuGroup>
-                  <MenuDivider />
-                  <MenuGroup title="Help">
-                    <MenuItem>Docs</MenuItem>
-                    <MenuItem>FAQ</MenuItem>
                   </MenuGroup>
                 </MenuList>
               </Menu>
