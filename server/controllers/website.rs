@@ -17,7 +17,7 @@ pub async fn list(
     let user_id = auth_user.get_id()?;
 
     let list: Vec<Website> = web::block(move || -> Result<_, DbError> {
-        // Find is user exists.
+        // Find if user exists.
         let user: User = users::table.find(user_id).get_result(&conn)?;
 
         let list = websites::table
