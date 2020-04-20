@@ -57,6 +57,7 @@ const Register: React.FC = (): ReactElement => {
             id="email"
             aria-describedby="email-helper-text"
             value={formik.values.email}
+            placeholder="email@yours.com"
             onChange={formik.handleChange}
           />
           <FormHelperText id="email-helper-text">
@@ -73,6 +74,7 @@ const Register: React.FC = (): ReactElement => {
           <Input
             type="password"
             id="password"
+            placeholder="Secret password..."
             name="password"
             aria-describedby="password-helper-text"
             value={formik.values.password}

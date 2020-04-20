@@ -1,6 +1,6 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import format from "date-fns/format";
-import { Text, Flex, Box, Tooltip, PseudoBox, Skeleton } from "@chakra-ui/core";
+import { Text, Flex, Tooltip, PseudoBox, Skeleton } from "@chakra-ui/core";
 
 const Graph = ({
   data,
@@ -9,6 +9,7 @@ const Graph = ({
   data: GraphData;
   loading: boolean;
 }): ReactElement => {
+  const [isOnSmallDevice, setIsOnSmallDevice] = useState(false);
   let maxUsers = 0;
   let maxSessions = 0;
 
@@ -16,6 +17,33 @@ const Graph = ({
     maxUsers = Math.max(users, maxUsers);
     maxSessions = Math.max(sessions, maxSessions);
   });
+
+  useEffect(() => {
+    let timeoutId = null;
+
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+
+      timeoutId = setTimeout(() => {
+        let width =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.body.clientWidth;
+
+        setIsOnSmallDevice(width <= 767);
+      }, 50);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+
+  const entries = isOnSmallDevice
+    ? Object.entries(data).slice(6)
+    : Object.entries(data);
 
   return (
     <>
@@ -30,7 +58,7 @@ const Graph = ({
       >
         {loading ? (
           <>
-            {new Array(12).fill(null).map((_, i) => (
+            {new Array(isOnSmallDevice ? 5 : 11).fill(null).map((_, i) => (
               <Flex mr="5" alignItems="flex-end" key={i}>
                 <Skeleton w={13} h="80%" mx={1} />
                 <Skeleton w={13} h="70%" mx={1} />
@@ -38,7 +66,7 @@ const Graph = ({
             ))}
           </>
         ) : (
-          Object.entries(data).map(([date, datum], i) => {
+          entries.map(([date, datum], i) => {
             const [year, month] = date.split("-");
             const userRatio = (datum.users / maxUsers) * 100;
             const sessionRatio = (datum.sessions / maxSessions) * 100;
@@ -48,48 +76,51 @@ const Graph = ({
             );
 
             return (
-              <>
-                <Box mr="5" pb="5" key={i}>
-                  <Flex
-                    w="100%"
-                    h="100%"
-                    justifyContent="center"
-                    alignItems="flex-end"
+              <PseudoBox
+                mr={{ xsm: "2", md: "4" }}
+                _last={{ mr: "0" }}
+                pb="5"
+                key={i}
+              >
+                <Flex
+                  w="100%"
+                  h="100%"
+                  justifyContent="center"
+                  alignItems="flex-end"
+                >
+                  <Tooltip
+                    hasArrow
+                    label={`${datum.users} users`}
+                    aria-label="user-count"
                   >
-                    <Tooltip
-                      hasArrow
-                      label={`${datum.users} users`}
-                      aria-label="user-count"
-                    >
-                      <PseudoBox
-                        bg="teal.500"
-                        _hover={{ bg: "teal.600" }}
-                        minHeight={1}
-                        h={`${userRatio}%`}
-                        w="13px"
-                        mr="1"
-                      />
-                    </Tooltip>
-                    <Tooltip
-                      hasArrow
-                      label={`${datum.sessions} sessions`}
-                      aria-label="session-count"
-                    >
-                      <PseudoBox
-                        bg="teal.300"
-                        _hover={{ bg: "teal.400" }}
-                        minHeight={1}
-                        h={`${sessionRatio}%`}
-                        w="13px"
-                        mr="1"
-                      />
-                    </Tooltip>
-                  </Flex>
-                  <Text as="span" fontSize="sm">
-                    {label}
-                  </Text>
-                </Box>
-              </>
+                    <PseudoBox
+                      bg="teal.500"
+                      _hover={{ bg: "teal.600" }}
+                      minHeight={1}
+                      h={`${userRatio}%`}
+                      w="13px"
+                      mr="1"
+                    />
+                  </Tooltip>
+                  <Tooltip
+                    hasArrow
+                    label={`${datum.sessions} sessions`}
+                    aria-label="session-count"
+                  >
+                    <PseudoBox
+                      bg="teal.300"
+                      _hover={{ bg: "teal.400" }}
+                      minHeight={1}
+                      h={`${sessionRatio}%`}
+                      w="13px"
+                      mr="1"
+                    />
+                  </Tooltip>
+                </Flex>
+                <Text as="span" fontSize="sm">
+                  {label}
+                </Text>
+              </PseudoBox>
             );
           })
         )}

@@ -8,7 +8,7 @@ import {
   ColorModeProvider,
   Box,
   Flex,
-  theme
+  theme,
 } from "@chakra-ui/core";
 import api, { setAuthorization, isLogged } from "../utils/api";
 import { UserContext } from "../utils/context";
@@ -18,7 +18,7 @@ type InitialProps = AppInitialProps & { initialColorMode: "light" | "dark" };
 export default class Website extends App<InitialProps, { user: User }> {
   static async getInitialProps({
     Component,
-    ctx
+    ctx,
   }: AppContext): Promise<InitialProps> {
     let pageProps = {};
 
@@ -31,7 +31,7 @@ export default class Website extends App<InitialProps, { user: User }> {
     const { isDarkMode = "false" } = cookies(ctx);
     return {
       pageProps,
-      initialColorMode: isDarkMode === "true" ? "dark" : "light"
+      initialColorMode: isDarkMode === "true" ? "dark" : "light",
     };
   }
 
@@ -68,7 +68,7 @@ export default class Website extends App<InitialProps, { user: User }> {
           <ColorModeProvider value={initialColorMode}>
             <CSSReset />
             <NavBar />
-            <Flex width={800} mt="40px" mb="40px" mr="auto" ml="auto">
+            <Flex maxWidth={800} mt="40px" mb="40px" mx="auto" px={5}>
               <Box width="100%">
                 <Component {...pageProps} />
               </Box>

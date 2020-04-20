@@ -6,7 +6,7 @@ import {
   StatLabel,
   StatHelpText,
   StatNumber,
-  StatGroup
+  StatGroup,
 } from "@chakra-ui/core";
 
 const toReadableTimeFormat = (secondes: number): string => {
@@ -17,7 +17,7 @@ const toReadableTimeFormat = (secondes: number): string => {
 
 const GlobalStat = ({
   website,
-  loading
+  loading,
 }: {
   website: Website;
   loading: boolean;
@@ -30,10 +30,15 @@ const GlobalStat = ({
           <StatBox label="Users" value={website.users} />
           <StatBox label="Sessions" value={website.sessions} />
           <StatBox
+            couldHide
             label="Average Time"
             value={toReadableTimeFormat(website.avgTime)}
           />
-          <StatBox label="Bounce Rate" value={`${website.bounceRate}%`} />
+          <StatBox
+            couldHide
+            label="Bounce Rate"
+            value={`${website.bounceRate}%`}
+          />
         </Flex>
       </Skeleton>
     </StatGroup>
@@ -43,15 +48,17 @@ const GlobalStat = ({
 const StatBox = ({
   label,
   value,
-  helper
+  helper,
+  couldHide,
 }: {
   label: string;
   value: number | string;
   helper?: string;
+  couldHide?: boolean;
 }): ReactElement => (
-  <Stat>
+  <Stat display={{ xsm: couldHide ? "none" : "initial", md: "initial" }}>
     <StatLabel>{label}</StatLabel>
-    <StatNumber fontSize="3xl">{value}</StatNumber>
+    <StatNumber fontSize={{ xsm: "xl", md: "3xl" }}>{value}</StatNumber>
     {!!helper && <StatHelpText>{helper}</StatHelpText>}
   </Stat>
 );

@@ -186,13 +186,19 @@ const Home: React.FC = (): ReactElement => {
   }
 
   return (
-    <Box>
-      <Flex justifyContent="space-between" alignContent="center">
-        <Heading as="h1">Dashboard</Heading>
+    <>
+      <Flex
+        flexDirection={{ xsm: "column", md: "row" }}
+        justifyContent="space-between"
+        alignContent="center"
+      >
+        <Heading as="h1" mb={{ xsm: 5, md: 0 }}>
+          Dashboard
+        </Heading>
 
         {!!websites.length && (
           <Select
-            width="300px"
+            width={{ xsm: "100%", md: 300 }}
             value={websites.find((w) => w.id === selectedWebsiteId)?.id}
             onChange={(event): void => {
               const { value: id } = event.target;
@@ -212,11 +218,11 @@ const Home: React.FC = (): ReactElement => {
       <GlobalStat website={website} loading={loading} />
       <Graph data={stats.stats} loading={loading} />
 
-      <SimpleGrid columns={2} spacing={20}>
+      <SimpleGrid columns={{ xsm: 1, md: 2 }} spacing={{ xsm: 10, md: 20 }}>
         <PageTable loading={loading} pages={stats.pages} />
         <ReferrerTable loading={loading} referrers={stats.referrers} />
       </SimpleGrid>
-    </Box>
+    </>
   );
 };
 

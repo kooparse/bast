@@ -15,14 +15,12 @@ import {
   Menu,
   MenuList,
   MenuGroup,
-  MenuDivider,
   MenuButton,
 } from "@chakra-ui/core";
 
 const NavBar: React.FC = (): ReactElement => {
   const ctx = useContext(UserContext);
   const { colorMode, toggleColorMode } = useColorMode();
-  const [showBurger] = useState(false);
   const isConnected = !!ctx.user?.id;
 
   const bg = { light: "white", dark: "gray.800" };
@@ -51,10 +49,7 @@ const NavBar: React.FC = (): ReactElement => {
           </Heading>
         </Flex>
 
-        <Flex
-          display={{ sm: showBurger ? "block" : "none", md: "flex" }}
-          mt={{ base: 4, md: 0 }}
-        >
+        <Flex>
           <IconButton
             variant="ghost"
             aria-label="dark-mode"

@@ -4,7 +4,7 @@ import Table from "../Table";
 
 const ReferrerTable = ({
   referrers,
-  loading
+  loading,
 }: {
   loading: boolean;
   referrers: Referrer[];
@@ -13,13 +13,13 @@ const ReferrerTable = ({
   referrers.forEach(({ count }) => (maxCount = Math.max(count, maxCount)));
 
   return (
-    <Box rounded="md" borderWidth="1px" p="5" mt="8">
+    <Box rounded="md" borderWidth="1px" p="5" mt={{ xsm: 0, md: 8 }}>
       <Table
         title="Referrers"
         rows={referrers.map(({ name, count }) => ({
           label: name,
           tooltipLabel: `Count ${count}`,
-          percent: (count / maxCount) * 100
+          percent: (count / maxCount) * 100,
         }))}
         loading={loading}
       />
