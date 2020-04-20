@@ -56,6 +56,7 @@ pub async fn create(
     let website: Website = web::block(move || -> Result<_, DbError> {
         let user: User = users::table.find(&user_id).get_result(&conn)?;
         form.user_id = user.id;
+        form.domain = form.domain.to_ascii_lowercase();
 
         let website = diesel::insert_into(websites::table)
             .values(form.into_inner())

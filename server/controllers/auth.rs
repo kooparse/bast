@@ -30,7 +30,7 @@ pub async fn login(
 
     let form = form.into_inner();
     // Value moved after...
-    let password = form.password.clone();
+    let password = form.password.clone().to_ascii_lowercase();
 
     let user: User = web::block(move || {
         users::table
@@ -80,6 +80,8 @@ pub async fn register(
     data: web::Data<Db>,
 ) -> Result<HttpResponse, ActixError> {
     let conn = data.conn_pool()?;
+    // Store only lowercase version of email address.
+    form.email = form.email.to_ascii_lowercase();
     form.password = hash(&form.password, DEFAULT_COST)
         .map_err(|_| HttpResponse::InternalServerError())?;
 
