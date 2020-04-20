@@ -6,6 +6,8 @@ import {
   useColorMode,
   Heading,
   Box,
+  Flex,
+  Button,
   Skeleton,
   Alert,
   AlertTitle,
@@ -15,11 +17,12 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Button,
 } from "@chakra-ui/core";
 import CodeSnippet from "../components/CodeSnippet";
 import { UserContext } from "../utils/context";
 import {
+  errorDeleteWebsite,
+  successDeleteWebsite,
   errorCreateWebsite,
   errorFetchWebsites,
   successCreateWebsite,
@@ -33,8 +36,23 @@ const Settings: React.FC = (): ReactElement => {
 
   const [loading, setLoading] = useState(true);
   const [websites, setWebsites] = useState([]);
+  // Not very "clean".
+  const [isDeletedChanged, setIsDeletedChanged] = useState(false);
   const [selectedWebsite, setSelected] = useState(null);
   const current = websites.find((w) => `${w.id}` === `${selectedWebsite}`);
+
+  const handleDelete = async () => {
+    try {
+      if (confirm("Are you really sure?")) {
+        await api.delete(`websites/${selectedWebsite}`);
+        setIsDeletedChanged(!isDeletedChanged);
+        toast(successDeleteWebsite);
+      }
+    } catch (err) {
+      toast(errorDeleteWebsite);
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetch = async (): Promise<void> => {
@@ -45,8 +63,8 @@ const Settings: React.FC = (): ReactElement => {
           setSelected(data[0].id);
         }
       } catch (err) {
-        toast(errorFetchWebsites);
         console.error(err);
+        toast(errorFetchWebsites);
       }
       setLoading(false);
     };
@@ -57,7 +75,7 @@ const Settings: React.FC = (): ReactElement => {
     } else {
       Router.push("/login");
     }
-  }, []);
+  }, [isDeletedChanged]);
 
   const formik = useFormik({
     initialValues: { domain: "" },
@@ -68,7 +86,8 @@ const Settings: React.FC = (): ReactElement => {
         setSelected(data.id);
         actions.resetForm();
         toast(successCreateWebsite);
-      } catch (e) {
+      } catch (err) {
+        console.error(err);
         toast(errorCreateWebsite);
         actions.setSubmitting(false);
       }
@@ -80,17 +99,22 @@ const Settings: React.FC = (): ReactElement => {
 
   const SelectContent = websites.length ? (
     <>
-      <Select
-        width="300px"
-        value={current?.id}
-        onChange={(event): void => setSelected(event.target.value)}
-      >
-        {websites.map((w, i) => (
-          <option key={i} style={{ color: "initial" }} value={w.id}>
-            {w.domain}
-          </option>
-        ))}
-      </Select>
+      <Flex justifyContent="space-between">
+        <Select
+          width="300px"
+          value={current?.id}
+          onChange={(event): void => setSelected(event.target.value)}
+        >
+          {websites.map((w, i) => (
+            <option key={i} style={{ color: "initial" }} value={w.id}>
+              {w.domain}
+            </option>
+          ))}
+        </Select>
+        <Button display={{ xsm: "none", md: "initial" }} onClick={handleDelete}>
+          Delete &#128128;
+        </Button>
+      </Flex>
       {current && !!user?.id && (
         <Box my="2">
           <CodeSnippet website={current} />
@@ -144,6 +168,7 @@ const Settings: React.FC = (): ReactElement => {
           <FormControl isRequired py={4}>
             <FormLabel htmlFor="domain">Domain name</FormLabel>
             <Input
+              isRequired
               type="domain"
               id="domain"
               placeholder="mydomain.com"

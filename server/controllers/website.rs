@@ -1,9 +1,9 @@
 use crate::models::{
-    schema::{users, websites},
+    schema::{pageviews, stats, users, websites},
     AuthUser, User, Website,
 };
 use crate::Db;
-use actix_web::{error::Error as ActixError, web, HttpResponse};
+use actix_web::{error::Error as ActixError, web, HttpRequest, HttpResponse};
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
 use serde::Deserialize;
@@ -34,6 +34,53 @@ pub async fn list(
     })?;
 
     Ok(HttpResponse::Ok().json(list))
+}
+
+// Delete all pageviews, stats and finally websites
+// related to given website_id.
+pub async fn delete(
+    req: HttpRequest,
+    data: web::Data<Db>,
+    auth_user: AuthUser,
+) -> Result<HttpResponse, ActixError> {
+    let user_id = auth_user.get_id()?;
+    let conn = data.conn_pool()?;
+    let path = req
+        .match_info()
+        .get("website_id")
+        .ok_or_else(|| HttpResponse::Forbidden())?;
+
+    let website_id: i32 = path.parse().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::Forbidden()
+    })?;
+
+    web::block(move || -> Result<(), DbError> {
+        diesel::delete(stats::table)
+            .filter(stats::id.eq(website_id))
+            .execute(&conn)?;
+
+        diesel::delete(pageviews::table)
+            .filter(pageviews::website_id.eq(website_id))
+            .execute(&conn)?;
+
+        diesel::delete(websites::table)
+            .filter(
+                websites::id
+                    .eq(website_id)
+                    .and(websites::user_id.eq(user_id)),
+            )
+            .execute(&conn)?;
+
+        Ok(())
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError()
+    })?;
+
+    Ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Deserialize, Insertable)]

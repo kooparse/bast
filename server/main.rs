@@ -53,6 +53,10 @@ async fn main() -> std::io::Result<()> {
                     .route("/user", web::get().to(user))
                     .route("/stats", web::get().to(get_stat))
                     .route("/websites", web::get().to(website::list))
+                    .route(
+                        "/websites/{website_id}",
+                        web::delete().to(website::delete),
+                    )
                     .route("/websites", web::post().to(website::create)),
             )
             // Serving the script file.
