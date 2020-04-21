@@ -11,6 +11,13 @@ const getSnippet = (websiteId: string | number): string => {
     window.__bast__website_id = ${websiteId};
     window.__bast__trackerUrl = "${origin}${API_ENDPOINT}/ghost.png";
 
+    var doNotTrack = navigator.doNotTrack 
+      && navigator.doNotTrack === "1" || navigator.doNotTrack === "yes"
+
+    if (doNotTrack) {
+      return;
+    }
+
     var script = document.createElement('script');
     script.src = "${origin}${SCRIPT_ENDPOINT}";
     script.async = false;
