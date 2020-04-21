@@ -30,6 +30,7 @@ const CodeSnippet = ({ website }: { website: Website }): ReactElement => {
       borderRadius="md"
       p="4"
       position="relative"
+      width="100%"
       style={{ whiteSpace: "pre-wrap" }}
     >
       <Button
