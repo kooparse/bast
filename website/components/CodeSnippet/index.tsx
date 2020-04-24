@@ -2,14 +2,14 @@ import React, { ReactElement } from "react";
 import config from "next/config";
 import { useClipboard, Code, Button } from "@chakra-ui/core";
 
-const { API_ENDPOINT, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
+const { COLLECT_GHOST_PICTURE, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
 
 const getSnippet = (websiteId: string | number): string => {
   const { origin } = window.location;
   return `<script>
   (function() {
     window.__bast__website_id = ${websiteId};
-    window.__bast__trackerUrl = "${origin}${API_ENDPOINT}/ghost.png";
+    window.__bast__trackerUrl = "${origin}${COLLECT_GHOST_PICTURE}";
 
     var doNotTrack = navigator.doNotTrack 
       && navigator.doNotTrack === "1" || navigator.doNotTrack === "yes"
