@@ -9,6 +9,7 @@ import {
   Flex,
   Button,
   Skeleton,
+  Link,
   Alert,
   AlertTitle,
   Text,
@@ -148,7 +149,11 @@ const Settings: React.FC = (): ReactElement => {
           <Code>{"<head>"}</Code> tag and before any other script or css tags.
           <br />
           This code create a <Code>{"<script>"}</Code> element that starts
-          asynchronously downloading the analytic file.
+          asynchronously downloading the external analytic file. It will falled
+          back on <Code>defer</Code> methods if browser does not support{" "}
+          <Code>async</Code>. However, if your target audience are using mostly
+          very old browsers, you should put this script at the bottom of your{" "}
+          <Code>{"<body>"}</Code>.
         </Text>
         <Box my="8">
           {!loading && !userIsLoading ? (

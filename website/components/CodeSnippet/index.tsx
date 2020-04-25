@@ -6,10 +6,11 @@ const { COLLECT_GHOST_PICTURE, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
 
 const getSnippet = (websiteId: string | number): string => {
   const { origin } = window.location;
-  return `<script>
+  return `<script type="text/javascript">
   (function() {
     window.__bast__website_id = ${websiteId};
-    window.__bast__trackerUrl = "${origin}${COLLECT_GHOST_PICTURE}";
+    window.__bast__trackerUrl = 
+      "${origin}${COLLECT_GHOST_PICTURE}";
 
     var doNotTrack = navigator.doNotTrack 
       && navigator.doNotTrack === "1" || navigator.doNotTrack === "yes"
@@ -18,9 +19,11 @@ const getSnippet = (websiteId: string | number): string => {
       return;
     }
 
-    var script = document.createElement('script');
+    var script = document.createElement("script");
     script.src = "${origin}${SCRIPT_ENDPOINT}";
-    script.async = false;
+    script.async = true;
+    script.defer = true;
+    script.type = "text/javascript";
     document.head.appendChild(script);
   })();
 </script>
