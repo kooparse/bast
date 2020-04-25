@@ -61,17 +61,14 @@ async fn main() -> std::io::Result<()> {
                     )
                     .route("/websites", web::post().to(website::create)),
             )
-            .service(
-                web::scope("/")
-                    // Serving the script file.
-                    .route("/script.js", web::get().to(file::script))
-                    // Collect data from client websites.
-                    .route("/ghost.png", web::get().to(collect))
-                    // Serving the front static app.
-                    .route("/register", web::get().to(file::front_register))
-                    .route("/login", web::get().to(file::front_login))
-                    .route("/settings", web::get().to(file::front_settings)),
-            )
+            // Serving the script file.
+            .route("/script.js", web::get().to(file::script))
+            // Collect data from client websites.
+            .route("/ghost.png", web::get().to(collect))
+            // Serving the front static app.
+            .route("/register", web::get().to(file::front_register))
+            .route("/login", web::get().to(file::front_login))
+            .route("/settings", web::get().to(file::front_settings))
             .service(
                 fs::Files::new("/", "./static/front")
                     .show_files_listing()
