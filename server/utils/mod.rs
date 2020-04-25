@@ -29,7 +29,7 @@ pub fn is_belongs_to_domain(
 ) -> Result<bool, RegexError> {
     let regex = Regex::new(&format!(
         "{}{}{}{}",
-        "^(https?://)?", "(?:[^/:]+.)?", domain, "(?=[/:]|$)"
+        "^(https?://)?", "(?:[^/:]+.)?", domain, "(/.*$)?$"
     ))?;
 
     Ok(regex.is_match(path))
