@@ -1,7 +1,7 @@
 # -----------------
 # Front build stage
 # -----------------
-FROM node:13 as website
+FROM node:13.13.0 as website
 
 COPY ./website ./website
 WORKDIR /website
@@ -10,7 +10,7 @@ RUN npm ci && npm run export
 # -----------------
 # Cargo build stage
 # -----------------
-FROM rust:1.42 as cargo-build
+FROM rust:1.42.0 as cargo-build
 RUN USER=root cargo new --bin bast
 WORKDIR /bast
 
