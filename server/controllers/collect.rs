@@ -2,7 +2,7 @@ use crate::models::{
     schema::{pageviews, stats, websites},
     CmpStat, Pageview, Stat, Website,
 };
-use crate::utils::Db;
+use crate::utils::{is_belongs_to_domain, is_from_localhost, Db};
 use actix_web::{
     error::BlockingError, error::Error as ActixError, web, HttpRequest,
     HttpResponse,
@@ -69,9 +69,28 @@ pub async fn collect(
     let mut params = params.into_inner();
     let req_info = req.connection_info();
 
-    // Do not track if DNT is here.
+    // Do not collect if DNT is here.
     if req.headers().contains_key("DNT") {
         return Ok(HttpResponse::Ok().finish());
+    }
+
+    // Do not collect if it comes from localhost.
+    if is_from_localhost(&params.hostname) {
+        return Ok(HttpResponse::Ok().finish());
+    }
+
+    // Do not collect if it comes from prefetch/preview.
+    if let Some(h) = req.headers().get("X-Moz") {
+        if h == "prefetch" {
+            return Ok(HttpResponse::Ok().finish());
+        }
+    }
+
+    // Same (for safari).
+    if let Some(h) = req.headers().get("X-Purpose") {
+        if h == "preview" {
+            return Ok(HttpResponse::Ok().finish());
+        }
     }
 
     // Construct user id from ip address and user agent.
@@ -112,6 +131,18 @@ pub async fn collect(
                 eprintln!("{}", e);
                 HttpResponse::NotFound().body("Website does not exists.")
             })?;
+
+        let is_belongs = is_belongs_to_domain(&website.domain, &params.href)
+            .map_err(|e| {
+                eprintln!("{}", e);
+                HttpResponse::InternalServerError().finish()
+            })?;
+
+        if !is_belongs {
+            return Err(SendError::from(HttpResponse::Forbidden().body(
+                "Current request doesn't belongs to associated website.",
+            )));
+        }
 
         let last_pageview = pageviews::table
             .filter(

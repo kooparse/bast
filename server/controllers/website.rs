@@ -2,7 +2,7 @@ use crate::models::{
     schema::{pageviews, stats, users, websites},
     AuthUser, User, Website,
 };
-use crate::Db;
+use crate::utils::{is_valid_domain, Db};
 use actix_web::{error::Error as ActixError, web, HttpRequest, HttpResponse};
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
@@ -99,6 +99,10 @@ pub async fn create(
 ) -> Result<HttpResponse, ActixError> {
     let conn = data.conn_pool()?;
     let user_id = auth_user.get_id()?;
+
+    if !is_valid_domain(&form.domain) {
+        return Ok(HttpResponse::Forbidden().body("Invalid domain name."));
+    }
 
     let website: Website = web::block(move || -> Result<_, DbError> {
         let user: User = users::table.find(&user_id).get_result(&conn)?;

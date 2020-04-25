@@ -79,6 +79,20 @@ const Settings: React.FC = (): ReactElement => {
 
   const formik = useFormik({
     initialValues: { domain: "" },
+    validate: (values) => {
+      const errors: { domain?: string } = {};
+
+      if (
+        !/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/i.test(
+          values.domain
+        )
+      ) {
+        errors.domain = "Wrong domain name";
+      }
+
+      return errors;
+    },
+
     onSubmit: async (values, actions) => {
       try {
         const { data } = await api.post("/websites", values);
@@ -93,6 +107,9 @@ const Settings: React.FC = (): ReactElement => {
       }
     },
   });
+
+  const hasError =
+    formik.errors.domain && formik.touched.domain && !!formik.submitCount;
 
   const bg = { light: "gray.50", dark: "gray.900" };
   const color = { light: "grey.900", dark: "gray.50" };
@@ -173,6 +190,8 @@ const Settings: React.FC = (): ReactElement => {
             <FormLabel htmlFor="domain">Domain name</FormLabel>
             <Input
               isRequired
+              isInvalid={hasError}
+              errorBorderColor="red.300"
               type="domain"
               id="domain"
               placeholder="mydomain.com"
@@ -180,6 +199,11 @@ const Settings: React.FC = (): ReactElement => {
               value={formik.values.domain}
               onChange={formik.handleChange}
             />
+            {hasError && (
+              <Text fontSize="sm" color="tomato" mt={1}>
+                {formik.errors.domain} &#128577;
+              </Text>
+            )}
           </FormControl>
 
           <Button
