@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "start": "next start",
-    "export": "npm run build && next export"
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start",
+    "export": "npm run build && NEXT_TELEMETRY_DISABLED=1 next export"
   },
   "dependencies": {
     "@chakra-ui/core": "^0.7.0",
