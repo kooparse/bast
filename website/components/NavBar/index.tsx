@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from "react";
+import React, { ReactElement, useContext, useEffect } from "react";
 import Router from "next/router";
 import Link from "next/link";
 import { UserContext } from "../../utils/context";
@@ -32,6 +32,20 @@ const NavBar: React.FC = (): ReactElement => {
     Router.push("/");
   };
 
+  useEffect(() => {
+    const storageColor = JSON.parse(localStorage.getItem("darkMode"))
+      ? "dark"
+      : "light";
+
+    if (colorMode !== storageColor) {
+      toggleColorMode();
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("darkMode", `${colorMode === "dark"}`);
+  }, [colorMode]);
+
   return (
     <Box
       as="nav"
@@ -56,7 +70,6 @@ const NavBar: React.FC = (): ReactElement => {
             icon={colorMode === "light" ? "moon" : "sun"}
             onClick={(): void => {
               toggleColorMode();
-              document.cookie = `isDarkMode=${colorMode === "light"}`;
             }}
           />
 

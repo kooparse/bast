@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
-import App, { AppContext, AppInitialProps } from "next/app";
-import cookies from "next-cookies";
+import App, { AppInitialProps } from "next/app";
 import NavBar from "../components/NavBar";
 import {
   ThemeProvider,
@@ -15,29 +14,18 @@ import { UserContext } from "../utils/context";
 
 type InitialProps = AppInitialProps & { initialColorMode: "light" | "dark" };
 
+type State = {
+  user?: User;
+  loading: boolean;
+};
+
 export default class Website extends App<InitialProps, { user: User }> {
-  static async getInitialProps({
-    Component,
-    ctx,
-  }: AppContext): Promise<InitialProps> {
-    let pageProps = {};
+  state: State = {
+    user: null,
+    loading: true,
+  };
 
-    if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx);
-    }
-
-    // TODO: Remove this when issue on chakra-ui is fixed.
-    // See https://github.com/chakra-ui/chakra-ui/issues/349.
-    const { isDarkMode = "false" } = cookies(ctx);
-    return {
-      pageProps,
-      initialColorMode: isDarkMode === "true" ? "dark" : "light",
-    };
-  }
-
-  state = { user: null, loading: true };
-
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     setAuthorization();
   }
@@ -60,12 +48,12 @@ export default class Website extends App<InitialProps, { user: User }> {
 
   render(): ReactElement {
     const { user, loading } = this.state;
-    const { Component, pageProps, initialColorMode } = this.props;
+    const { Component, pageProps } = this.props;
 
     return (
       <UserContext.Provider value={{ user, setUser: this.setUser, loading }}>
         <ThemeProvider theme={theme}>
-          <ColorModeProvider value={initialColorMode}>
+          <ColorModeProvider value="light">
             <CSSReset />
             <NavBar />
             <Flex maxWidth={800} mt="40px" mb="40px" mx="auto" px={5}>

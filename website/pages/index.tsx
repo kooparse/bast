@@ -72,8 +72,6 @@ const Home: React.FC = (): ReactElement => {
       try {
         const { start, end } = range;
 
-        console.log(start, end);
-
         const { data } = await api.get(
           `/stats?website_id=${selectedWebsiteId}&start=${getUnixTime(
             start
