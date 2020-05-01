@@ -1,14 +1,13 @@
 use crate::models::{
     schema::{pageviews, stats, websites},
-    AuthUser, Page, Pageview, Referrer, SlimStat, Stat, Stats, Website,
+    AuthUser, Page, Pageview, Referrer, Stat, Stats, Website,
 };
-use crate::utils::Db;
+use crate::utils::{get_days, get_months, Db, DAILY_FORMAT, MONTHLY_FORMAT};
 use actix_web::{error::Error as ActixError, web, HttpResponse};
-use chrono::{Datelike, NaiveDate, NaiveDateTime};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
 use serde::Deserialize;
-use std::collections::BTreeMap;
 
 #[derive(Deserialize)]
 pub struct Query {
@@ -33,6 +32,7 @@ pub async fn get_stat(
 
     let start = NaiveDateTime::from_timestamp(params.start, 0);
     let end = NaiveDateTime::from_timestamp(params.end, 0);
+    let is_monthly = params.by == "month";
 
     let (website, days, pageviews): (Website, Vec<Stat>, Vec<Pageview>) =
         web::block(move || -> Result<_, DbError> {
@@ -55,12 +55,7 @@ pub async fn get_stat(
 
             // Retrieving all pages and referrers.
             let pageviews = pageviews::table
-                .filter(
-                    pageviews::website_id
-                        .eq(website.id)
-                        .and(pageviews::created_at.gt(start))
-                        .and(pageviews::created_at.lt(end)),
-                )
+                .filter(pageviews::website_id.eq(website.id))
                 .get_results(&conn)?;
 
             Ok((website, days, pageviews))
@@ -73,47 +68,28 @@ pub async fn get_stat(
 
     let mut referrers: Vec<Referrer> = vec![];
     let mut pages: Vec<Page> = vec![];
-    let format_str = "%Y-%m";
 
-    let mut current_month =
-        NaiveDate::from_ymd(end.year(), end.month(), 1).and_hms(12, 00, 00);
-
-    let mut months: BTreeMap<String, SlimStat> = vec![(
-        current_month.format(format_str).to_string(),
-        SlimStat::default(),
-    )]
-    .into_iter()
-    .collect();
-
-    for _ in 1..11 {
-        let year = current_month.year();
-        let next_month = current_month.month() as i32 - 1;
-
-        if next_month.is_negative() || next_month == 0 {
-            current_month =
-                NaiveDate::from_ymd(year - 1, 12, 1).and_hms(12, 00, 00);
-        } else {
-            current_month = NaiveDate::from_ymd(year, next_month as u32, 1)
-                .and_hms(12, 00, 00);
-        }
-
-        months.insert(
-            current_month.format(format_str).to_string(),
-            SlimStat::default(),
-        );
-    }
+    let mut results = if is_monthly {
+        get_months(start, end)
+    } else {
+        get_days(start, end)
+    };
 
     days.iter().for_each(|d| {
-        let date = d.created_at.format(format_str).to_string();
+        let date = if is_monthly {
+            d.created_at.format(MONTHLY_FORMAT).to_string()
+        } else {
+            d.created_at.format(DAILY_FORMAT).to_string()
+        };
 
-        if let Some(m) = months.get_mut(&date) {
-            m.users += d.users;
-            m.sessions += d.sessions;
-            m.pageviews += d.pageviews;
-            m.time_counter += d.time_counter;
-            m.bounce_counter += d.bounce_counter;
-            m.avg_time += d.avg_time;
-            m.bounce_rate += d.bounce_rate;
+        if let Some(r) = results.get_mut(&date) {
+            r.users += d.users;
+            r.sessions += d.sessions;
+            r.pageviews += d.pageviews;
+            r.time_counter += d.time_counter;
+            r.bounce_counter += d.bounce_counter;
+            r.avg_time += d.avg_time;
+            r.bounce_rate += d.bounce_rate;
         }
     });
 
@@ -146,7 +122,7 @@ pub async fn get_stat(
 
     Ok(HttpResponse::Ok().json(Stats {
         website,
-        stats: months,
+        stats: results,
         pages,
         referrers,
     }))

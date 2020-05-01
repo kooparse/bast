@@ -6,10 +6,12 @@ use std::task::{Context, Poll};
 mod db;
 mod seed;
 mod token;
+mod views;
 
 pub use db::*;
 pub use seed::*;
 pub use token::*;
+pub use views::*;
 
 pub struct Ready<T>(pub Option<T>);
 

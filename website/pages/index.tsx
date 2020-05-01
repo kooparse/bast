@@ -1,6 +1,13 @@
 import React, { useState, useEffect, ReactElement, useContext } from "react";
 import getUnixTime from "date-fns/getUnixTime";
 import endOfMonth from "date-fns/endOfMonth";
+import startOfMonth from "date-fns/startOfMonth";
+import subDays from "date-fns/subDays";
+import subMonths from "date-fns/subMonths";
+import addDays from "date-fns/addDays";
+import startOfDay from "date-fns/startOfDay";
+import endOfDay from "date-fns/endOfDay";
+import addMonths from "date-fns/addMonths";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -10,7 +17,6 @@ import {
   AlertDescription,
   AlertTitle,
   Flex,
-  Box,
   Heading,
   SimpleGrid,
   Select,
@@ -47,10 +53,14 @@ const Home: React.FC = (): ReactElement => {
   const color = { light: "grey.900", dark: "gray.50" };
 
   const [loading, setLoading] = useState(userIsLoading);
-  const [from] = useState(endOfMonth(new Date()));
+  const [statLoading, setStatLoading] = useState(true);
   const [websites, setWebsites] = useState([]);
   const [selectedWebsiteId, setSelected] = useState("");
   const [stats, setStats] = useState(defaultStats);
+  const [view, setView] = useState("month");
+  const [range, changeFrom] = useState(
+    computeRange(endOfMonth(new Date()), view, -1)
+  );
 
   const { website } = stats;
 
@@ -60,14 +70,14 @@ const Home: React.FC = (): ReactElement => {
   useEffect(() => {
     const fetchStat = async (): Promise<void> => {
       try {
-        let start: Date | number = new Date();
-        const end = getUnixTime(from);
+        const { start, end } = range;
 
-        start.setFullYear(start.getFullYear() - 1);
-        start = getUnixTime(start);
+        console.log(start, end);
 
         const { data } = await api.get(
-          `/stats?website_id=${selectedWebsiteId}&start=${start}&end=${end}&by=month`
+          `/stats?website_id=${selectedWebsiteId}&start=${getUnixTime(
+            start
+          )}&end=${getUnixTime(end)}&by=${view}`
         );
         setStats(data);
       } catch (err) {
@@ -75,14 +85,14 @@ const Home: React.FC = (): ReactElement => {
         toast(errorFetchStats);
       }
 
-      setLoading(false);
+      setStatLoading(false);
     };
 
     if (selectedWebsiteId) {
-      setLoading(true);
+      setStatLoading(true);
       fetchStat();
     }
-  }, [selectedWebsiteId, from]);
+  }, [selectedWebsiteId, range, view]);
 
   // Effect used as ComponentDidMount, retrieves websites from the current user.
   useEffect(() => {
@@ -216,7 +226,25 @@ const Home: React.FC = (): ReactElement => {
       </Flex>
 
       <GlobalStat website={website} loading={loading} />
-      <Graph data={stats.stats} loading={loading} />
+      <Graph
+        data={stats.stats}
+        loading={statLoading}
+        view={view}
+        onChangeRange={(direction: number) => {
+          const range = Object.keys(stats.stats);
+
+          direction === -1
+            ? changeFrom(computeRange(new Date(range.shift()), view, -1))
+            : changeFrom(computeRange(new Date(range.pop()), view, 1));
+        }}
+        onChangeView={(v: string) => {
+          v === "month"
+            ? changeFrom(computeRange(endOfMonth(new Date()), v, -1))
+            : changeFrom(computeRange(endOfDay(new Date()), v, -1));
+
+          setView(v);
+        }}
+      />
 
       <SimpleGrid columns={{ xsm: 1, md: 2 }} spacing={{ xsm: 10, md: 20 }}>
         <PageTable loading={loading} pages={stats.pages} />
@@ -225,5 +253,25 @@ const Home: React.FC = (): ReactElement => {
     </>
   );
 };
+
+function computeRange(from: Date, view: string, direction: number) {
+  const isMonth = view === "month";
+
+  const range = {
+    start: isMonth
+      ? startOfMonth(subMonths(from, 10))
+      : startOfDay(subDays(from, 6)),
+    end: isMonth ? endOfMonth(from) : endOfDay(from),
+  };
+
+  if (direction === 1) {
+    range.end = isMonth
+      ? endOfMonth(addMonths(from, 10))
+      : endOfDay(addDays(from, 6));
+    range.start = isMonth ? startOfMonth(from) : startOfDay(from);
+  }
+
+  return range;
+}
 
 export default Home;

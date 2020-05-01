@@ -1,14 +1,32 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import format from "date-fns/format";
-import { Text, Flex, Tooltip, PseudoBox, Skeleton } from "@chakra-ui/core";
+import {
+  Text,
+  Flex,
+  Tooltip,
+  PseudoBox,
+  Skeleton,
+  Box,
+  RadioGroup,
+  ButtonGroup,
+  Button,
+  Radio,
+} from "@chakra-ui/core";
 
 const Graph = ({
   data,
   loading,
+  view,
+  onChangeView,
+  onChangeRange,
 }: {
   data: GraphData;
   loading: boolean;
+  view: string;
+  onChangeView: Function;
+  onChangeRange: Function;
 }): ReactElement => {
+  const isMonth = view == "month";
   const [isOnSmallDevice, setIsOnSmallDevice] = useState(false);
   let maxUsers = 0;
   let maxSessions = 0;
@@ -25,7 +43,7 @@ const Graph = ({
       clearTimeout(timeoutId);
 
       timeoutId = setTimeout(() => {
-        let width =
+        const width =
           window.innerWidth ||
           document.documentElement.clientWidth ||
           document.body.clientWidth;
@@ -34,28 +52,53 @@ const Graph = ({
       }, 50);
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  });
+  }, []);
 
   const entries = isOnSmallDevice
-    ? Object.entries(data).slice(6)
+    ? Object.entries(data).slice(isMonth ? 6 : 3)
     : Object.entries(data);
 
   return (
-    <>
-      <Flex
-        justifyContent="center"
-        rounded="md"
-        borderWidth="1px"
-        p="5"
-        h="300px"
-        mt="10"
-        mb="10"
-      >
+    <Box rounded="md" borderWidth="1px" p="5" mt="10" mb="10">
+      <Flex justifyContent="space-between" mb="8">
+        <ButtonGroup spacing={4}>
+          <Button
+            onClick={() => onChangeRange(-1)}
+            leftIcon="arrow-back"
+            variantColor="teal"
+            variant="outline"
+            size="xs"
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={() => onChangeRange(1)}
+            rightIcon="arrow-forward"
+            variantColor="teal"
+            variant="outline"
+            size="xs"
+          >
+            Next
+          </Button>
+        </ButtonGroup>
+        <RadioGroup
+          isInline
+          spacing={4}
+          defaultValue={view}
+          onChange={(_, view) => onChangeView(view)}
+        >
+          <Radio value="month">Monthly</Radio>
+          <Radio value="day">Daily</Radio>
+        </RadioGroup>
+      </Flex>
+
+      <Flex justifyContent="center" height="300px">
         {loading ? (
           <>
             {new Array(isOnSmallDevice ? 5 : 11).fill(null).map((_, i) => (
@@ -67,13 +110,14 @@ const Graph = ({
           </>
         ) : (
           entries.map(([date, datum], i) => {
+            const width = isMonth ? 13 : 30;
             const [year, month] = date.split("-");
+
             const userRatio = (datum.users / maxUsers) * 100;
             const sessionRatio = (datum.sessions / maxSessions) * 100;
-            const label = format(
-              new Date(Number(year), Number(month), 0),
-              "MMM, yy"
-            );
+            const label = isMonth
+              ? format(new Date(Number(year), Number(month), 0), "MMM, yy")
+              : format(new Date(date), "d MMM yy");
 
             return (
               <PseudoBox
@@ -98,7 +142,7 @@ const Graph = ({
                       _hover={{ bg: "teal.600" }}
                       minHeight={1}
                       h={`${userRatio}%`}
-                      w="13px"
+                      w={width}
                       mr="1"
                     />
                   </Tooltip>
@@ -112,7 +156,7 @@ const Graph = ({
                       _hover={{ bg: "teal.400" }}
                       minHeight={1}
                       h={`${sessionRatio}%`}
-                      w="13px"
+                      w={width}
                       mr="1"
                     />
                   </Tooltip>
@@ -125,7 +169,7 @@ const Graph = ({
           })
         )}
       </Flex>
-    </>
+    </Box>
   );
 };
 
