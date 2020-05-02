@@ -10,7 +10,6 @@ pub trait CmpStat {
         &mut self,
         is_new_user: bool,
         is_new_session: bool,
-        is_bounce: bool,
         duration: f32,
     );
 }
@@ -26,9 +25,7 @@ pub struct Stat {
     pub users: i32,
     pub sessions: i32,
     pub avg_time: f32,
-    pub bounce_rate: f32,
     pub time_counter: i32,
-    pub bounce_counter: i32,
     pub created_at: NaiveDateTime,
 }
 
@@ -37,7 +34,6 @@ impl CmpStat for Stat {
         &mut self,
         is_new_user: bool,
         is_new_session: bool,
-        is_bounce: bool,
         duration: f32,
     ) {
         self.pageviews += 1;
@@ -55,11 +51,6 @@ impl CmpStat for Stat {
             self.avg_time =
                 (self.avg_time + duration) / self.time_counter as f32;
         }
-
-        if is_bounce {
-            self.bounce_counter += 1;
-            self.bounce_rate = (self.bounce_counter / self.pageviews) as f32;
-        }
     }
 }
 
@@ -70,9 +61,7 @@ pub struct SlimStat {
     pub users: i32,
     pub sessions: i32,
     pub avg_time: f32,
-    pub bounce_rate: f32,
     pub time_counter: i32,
-    pub bounce_counter: i32,
 }
 
 #[derive(Serialize)]

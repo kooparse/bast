@@ -34,11 +34,6 @@ const GlobalStat = ({
             label="Average Time"
             value={toReadableTimeFormat(website.avgTime)}
           />
-          <StatBox
-            couldHide
-            label="Bounce Rate"
-            value={`${website.bounceRate}%`}
-          />
         </Flex>
       </Skeleton>
     </StatGroup>

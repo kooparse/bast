@@ -87,9 +87,7 @@ pub async fn get_stat(
             r.sessions += d.sessions;
             r.pageviews += d.pageviews;
             r.time_counter += d.time_counter;
-            r.bounce_counter += d.bounce_counter;
             r.avg_time += d.avg_time;
-            r.bounce_rate += d.bounce_rate;
         }
     });
 

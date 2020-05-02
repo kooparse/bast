@@ -56,7 +56,6 @@ pub fn seed_database(conn: &Conn) {
                 websites::users.eq(0),
                 websites::sessions.eq(0),
                 websites::avg_time.eq(190.),
-                websites::bounce_rate.eq(77.),
             ),
             (
                 websites::id.eq(2),
@@ -66,7 +65,6 @@ pub fn seed_database(conn: &Conn) {
                 websites::users.eq(124),
                 websites::sessions.eq(170),
                 websites::avg_time.eq(190.),
-                websites::bounce_rate.eq(77.),
             ),
             (
                 websites::id.eq(3),
@@ -76,7 +74,6 @@ pub fn seed_database(conn: &Conn) {
                 websites::users.eq(125),
                 websites::sessions.eq(193),
                 websites::avg_time.eq(190.),
-                websites::bounce_rate.eq(77.),
             ),
         ])
         .get_results(conn)

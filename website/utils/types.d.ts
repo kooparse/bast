@@ -10,7 +10,6 @@ type Website = {
   users: number;
   sessions: number;
   avgTime: number;
-  bounceRate: number;
 };
 
 type Pageview = {
@@ -59,6 +58,5 @@ type Stat = {
   users: number;
   sessions: number;
   avgTime: number;
-  bounceRate: number;
   createdAt: Date;
 };

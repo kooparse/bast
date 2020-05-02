@@ -38,7 +38,6 @@ const defaultStats: Stats = {
     pageviews: 0,
     users: 0,
     sessions: 0,
-    bounceRate: 0,
     avgTime: 0,
     id: null,
   },

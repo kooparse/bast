@@ -25,7 +25,6 @@ pub struct Pageview {
     pub is_new_session: bool,
     pub is_new_user: bool,
     pub duration: f32,
-    pub is_bounce: bool,
     pub is_done: bool,
     pub created_at: NaiveDateTime,
 }

@@ -55,8 +55,6 @@ pub struct Data {
     #[serde(skip)]
     is_new_user: bool,
     #[serde(skip)]
-    is_bounce: bool,
-    #[serde(skip)]
     u_id: String,
 }
 
@@ -120,7 +118,6 @@ pub async fn collect(
 
     let mut is_new_user = false;
     let mut is_new_session = false;
-    let mut is_bounce = true;
     let mut duration = 0.;
 
     web::block(move || -> Result<_, SendError> {
@@ -164,13 +161,11 @@ pub async fn collect(
                     .expect("Error whild converting chrono time to std.");
                 // 1800 secs means 30 minutes.
                 is_new_session = elapsed.as_secs() >= 1800;
-                is_bounce = is_new_session;
                 is_new_user = false;
 
                 if !is_new_session {
                     duration = elapsed.as_secs_f32();
                     pageview.duration = duration;
-                    pageview.is_bounce = false;
                 }
 
                 pageview.is_done = true;
@@ -184,7 +179,6 @@ pub async fn collect(
                     })?;
 
                 params.is_new_session = is_new_session;
-                params.is_bounce = is_new_session;
                 params.is_new_user = is_new_user;
 
                 insert_into(pageviews::table)
@@ -200,12 +194,10 @@ pub async fn collect(
             // default values.
             Err(DbError::NotFound) => {
                 is_new_session = true;
-                is_bounce = true;
                 is_new_user = true;
 
                 params.is_new_user = is_new_user;
                 params.is_new_session = is_new_session;
-                params.is_bounce = is_bounce;
 
                 insert_into(pageviews::table)
                     .values(&params)
@@ -230,7 +222,7 @@ pub async fn collect(
         // Website and Stat implements all the CmpStat trait.
         //
         // TODO: We should parallelize database calls.
-        website.cmp(is_new_user, is_new_session, is_bounce, duration);
+        website.cmp(is_new_user, is_new_session, duration);
         update(websites::table)
             .filter(websites::id.eq(website.id))
             .set(&website)
@@ -254,7 +246,7 @@ pub async fn collect(
                     && day.created_at.day() == new_date.day()
             })
             .map(|mut day| {
-                day.cmp(is_new_user, is_new_session, is_bounce, duration);
+                day.cmp(is_new_user, is_new_session, duration);
                 day
             });
 
@@ -365,7 +357,6 @@ mod tests {
         assert_eq!(website.sessions, 1);
         assert_eq!(website.pageviews, 1);
         assert_eq!(website.time_counter, 0);
-        assert_eq!(website.bounce_counter, 1);
 
         //
         // Check when same_user but <= 30min.

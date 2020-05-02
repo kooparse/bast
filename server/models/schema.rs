@@ -12,7 +12,6 @@ table! {
         is_new_session -> Bool,
         is_new_user -> Bool,
         duration -> Float4,
-        is_bounce -> Bool,
         is_done -> Bool,
         created_at -> Timestamp,
     }
@@ -26,9 +25,7 @@ table! {
         users -> Int4,
         sessions -> Int4,
         avg_time -> Float4,
-        bounce_rate -> Float4,
         time_counter -> Int4,
-        bounce_counter -> Int4,
         created_at -> Timestamp,
     }
 }
@@ -51,9 +48,7 @@ table! {
         users -> Int4,
         sessions -> Int4,
         avg_time -> Float4,
-        bounce_rate -> Float4,
         time_counter -> Int4,
-        bounce_counter -> Int4,
         created_at -> Timestamp,
     }
 }

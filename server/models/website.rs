@@ -16,12 +16,8 @@ pub struct Website {
     pub sessions: i32,
     #[serde(rename(serialize = "avgTime"))]
     pub avg_time: f32,
-    #[serde(rename(serialize = "bounceRate"))]
-    pub bounce_rate: f32,
     #[serde(skip)]
     pub time_counter: i32,
-    #[serde(skip)]
-    pub bounce_counter: i32,
     #[serde(skip_serializing)]
     pub created_at: NaiveDateTime,
 }
@@ -31,7 +27,6 @@ impl CmpStat for Website {
         &mut self,
         is_new_user: bool,
         is_new_session: bool,
-        is_bounce: bool,
         duration: f32,
     ) {
         self.pageviews += 1;
@@ -48,11 +43,6 @@ impl CmpStat for Website {
             self.time_counter += 1;
             self.avg_time =
                 (self.avg_time + duration) / self.time_counter as f32;
-        }
-
-        if is_bounce {
-            self.bounce_counter += 1;
-            self.bounce_rate = (self.bounce_counter / self.pageviews) as f32;
         }
     }
 }
