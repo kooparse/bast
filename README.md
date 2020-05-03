@@ -12,12 +12,14 @@ The backend is made in Rust using [actix-web](https://github.com/actix/actix-web
 ### UI
 
 <img src="https://i.imgur.com/uA3b099.png" alt="preview" />
+<br/>
 
 ## Contribution
 
 Don’t be shy about shooting any questions you may have. If you are a beginner/junior, don’t hesitate, I will always encourage you. It’s a safe place here. Also, I would be very happy to receive any kind of pull requests, you will have (at least) some feedback/guidance rapidly.
 
 Behind screens, there are human beings, living any sort of story. So be always kind and respectful, because we all sheer to learn new things.
+<br/><br/>
 
 ## Install
 
@@ -57,6 +59,8 @@ Otherwise simply run `cargo run`.
 - `cd` to website folder.
 - `npm run dev`
 - Live at `http://localhost/3000`.
+
+<br/>
 
 ## Thanks
 
