@@ -20,7 +20,7 @@ Don’t be shy about shooting any questions you may have. If you are a beginner/
 
 Behind screens, there are human beings, living any sort of story. So be always kind and respectful, because we all sheer to learn new things. See [contributing](https://github.com/kooparse/bast/blob/master/CONTRIBUTING.md) file for more exhaustive details.
 
-<br/><br/>
+<br/>
 
 ## Install
 
