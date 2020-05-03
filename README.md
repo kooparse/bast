@@ -14,11 +14,12 @@ The backend is made in Rust using [actix-web](https://github.com/actix/actix-web
 <img src="https://i.imgur.com/uA3b099.png" alt="preview" />
 <br/>
 
-## Contribution
+## Contributing to the project
 
 Don’t be shy about shooting any questions you may have. If you are a beginner/junior, don’t hesitate, I will always encourage you. It’s a safe place here. Also, I would be very happy to receive any kind of pull requests, you will have (at least) some feedback/guidance rapidly.
 
-Behind screens, there are human beings, living any sort of story. So be always kind and respectful, because we all sheer to learn new things.
+Behind screens, there are human beings, living any sort of story. So be always kind and respectful, because we all sheer to learn new things. See [contributing](https://github.com/kooparse/bast/blob/master/CONTRIBUTING.md) file for more exhaustive details.
+
 <br/><br/>
 
 ## Install
