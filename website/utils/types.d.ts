@@ -45,11 +45,31 @@ type GraphData = {
   string?: MonthStat;
 };
 
+type OS = {
+  name: string;
+  counter: number;
+};
+
+type Browser = {
+  name: string;
+  counter: number;
+};
+
+type Category = {
+  name: string;
+  counter: number;
+};
+
 type Stats = {
   website: Website;
   stats: GraphData;
   referrers: Referrer[];
   pages: Page[];
+  systems: {
+    operatingSystems: OS[];
+    browsers: Browser[];
+    categories: Category[];
+  };
 };
 
 type Stat = {

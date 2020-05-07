@@ -1,6 +1,7 @@
 use crate::models::{
     schema::{pageviews, stats, websites},
-    AuthUser, Page, Pageview, Referrer, Stat, Stats, Website,
+    AuthUser, Browser, DeviceCategory, OperatingSystem, Page, Pageview,
+    Referrer, Stat, Stats, SystemStats, Website,
 };
 use crate::utils::{get_days, get_months, Db, DAILY_FORMAT, MONTHLY_FORMAT};
 use actix_web::{error::Error as ActixError, web, HttpResponse};
@@ -8,6 +9,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
 use serde::Deserialize;
+use woothee::parser::Parser as UaParser;
 
 #[derive(Deserialize)]
 pub struct Query {
@@ -24,6 +26,7 @@ pub async fn get_stat(
 ) -> Result<HttpResponse, ActixError> {
     let conn = data.conn_pool()?;
     let user_id = auth_user.get_id()?;
+    let ua_parser = UaParser::new();
 
     if !["month", "day"].contains(&params.by.as_str()) {
         return Ok(HttpResponse::BadRequest()
@@ -91,10 +94,53 @@ pub async fn get_stat(
         }
     });
 
+    let mut systems = SystemStats::default();
+
     // Iterate over all pageviews in the given range.
     pageviews.iter().for_each(|pv: &Pageview| {
         let users = if pv.is_new_user { 1 } else { 0 };
         let sessions = if pv.is_new_session { 1 } else { 0 };
+
+        if let Some(r) = ua_parser.parse(&pv.user_agent) {
+            if let Some(operating_system) = systems
+                .operating_systems
+                .iter_mut()
+                .find(|os| os.name == r.os)
+            {
+                operating_system.counter += 1;
+            } else {
+                systems.operating_systems.push(OperatingSystem {
+                    name: r.os.into(),
+                    counter: 1,
+                });
+            }
+
+            if let Some(browser) = systems
+                .browsers
+                .iter_mut()
+                .find(|browser| browser.name == r.name)
+            {
+                browser.counter += 1;
+            } else {
+                systems.browsers.push(Browser {
+                    name: r.name.into(),
+                    counter: 1,
+                });
+            }
+
+            if let Some(category) = systems
+                .categories
+                .iter_mut()
+                .find(|category| category.name == r.category)
+            {
+                category.counter += 1;
+            } else {
+                systems.categories.push(DeviceCategory {
+                    name: r.category.into(),
+                    counter: 1,
+                });
+            }
+        }
 
         if !pv.referrer.is_empty() {
             if let Some(mut r) =
@@ -117,11 +163,16 @@ pub async fn get_stat(
 
     pages.sort_by(|a, b| b.pageviews.cmp(&a.pageviews));
     referrers.sort_by(|a, b| b.count.cmp(&a.count));
+    systems
+        .operating_systems
+        .sort_by(|a, b| b.counter.cmp(&a.counter));
+    systems.browsers.sort_by(|a, b| b.counter.cmp(&a.counter));
 
     Ok(HttpResponse::Ok().json(Stats {
         website,
         stats: results,
         pages,
         referrers,
+        systems,
     }))
 }

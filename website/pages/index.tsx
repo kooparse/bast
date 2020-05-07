@@ -24,6 +24,7 @@ import {
 import Graph from "../components/Graph";
 import ReferrerTable from "../components/ReferrerTable";
 import PageTable from "../components/PageTable";
+import System from "../components/SystemTable";
 import GlobalStat from "../components/GlobalStat";
 import api, { isLogged } from "../utils/api";
 import { errorFetchStats, errorFetchWebsites } from "../utils/messages";
@@ -33,6 +34,11 @@ const defaultStats: Stats = {
   pages: [],
   referrers: [],
   stats: {},
+  systems: {
+    operatingSystems: [],
+    browsers: [],
+    categories: [],
+  },
   website: {
     domain: "",
     pageviews: 0,
@@ -243,9 +249,33 @@ const Home: React.FC = (): ReactElement => {
         }}
       />
 
-      <SimpleGrid columns={{ xsm: 1, md: 2 }} spacing={{ xsm: 10, md: 20 }}>
+      <SimpleGrid columns={{ xsm: 1, md: 2 }} spacing={{ xsm: 10, md: 5 }}>
         <PageTable loading={loading} pages={stats.pages} />
         <ReferrerTable loading={loading} referrers={stats.referrers} />
+      </SimpleGrid>
+
+      <SimpleGrid columns={{ xsm: 1, md: 3 }} spacing={{ xsm: 10, md: 5 }}>
+        <System
+          loading={loading}
+          systems={stats.systems.operatingSystems}
+          title="Operating Systems"
+        />
+        <System
+          loading={loading}
+          systems={stats.systems.browsers}
+          title="Browsers"
+        />
+        <System
+          loading={loading}
+          systems={stats.systems.categories.map((c) => ({
+            ...c,
+            name:
+              c.name === "pc"
+                ? "Desktop"
+                : c.name.charAt(0).toUpperCase() + c.name.slice(1),
+          }))}
+          title="Categories"
+        />
       </SimpleGrid>
     </>
   );

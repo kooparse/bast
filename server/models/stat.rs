@@ -6,12 +6,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 pub trait CmpStat {
-    fn cmp(
-        &mut self,
-        is_new_user: bool,
-        is_new_session: bool,
-        duration: f32,
-    );
+    fn cmp(&mut self, is_new_user: bool, is_new_session: bool, duration: f32);
 }
 
 #[derive(
@@ -30,12 +25,7 @@ pub struct Stat {
 }
 
 impl CmpStat for Stat {
-    fn cmp(
-        &mut self,
-        is_new_user: bool,
-        is_new_session: bool,
-        duration: f32,
-    ) {
+    fn cmp(&mut self, is_new_user: bool, is_new_session: bool, duration: f32) {
         self.pageviews += 1;
 
         if is_new_user {
@@ -70,6 +60,7 @@ pub struct Stats {
     pub stats: BTreeMap<String, SlimStat>,
     pub pages: Vec<Page>,
     pub referrers: Vec<Referrer>,
+    pub systems: SystemStats,
 }
 
 #[derive(Debug, Serialize)]
@@ -104,4 +95,30 @@ impl Page {
             users,
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct OperatingSystem {
+    pub name: String,
+    pub counter: i32,
+}
+
+#[derive(Serialize)]
+pub struct Browser {
+    pub name: String,
+    pub counter: i32,
+}
+
+#[derive(Serialize)]
+pub struct DeviceCategory {
+    pub name: String,
+    pub counter: i32,
+}
+
+#[derive(Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SystemStats {
+    pub operating_systems: Vec<OperatingSystem>,
+    pub browsers: Vec<Browser>,
+    pub categories: Vec<DeviceCategory>,
 }
