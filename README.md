@@ -11,7 +11,7 @@ The backend is made in Rust using [actix-web](https://github.com/actix/actix-web
 
 ### UI
 
-<img src="https://i.imgur.com/uA3b099.png" alt="preview" />
+<img src="https://i.imgur.com/DsE3xcM.png" alt="preview" />
 <br/>
 
 ## Contributing to the project
