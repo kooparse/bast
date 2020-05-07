@@ -9,8 +9,9 @@ const PageTable = ({
   pages: Page[];
   loading: boolean;
 }): ReactElement => {
-  let maxUsers = 0;
-  pages.forEach(({ users }) => (maxUsers = Math.max(users, maxUsers)));
+  let totalPageviews = 0;
+
+  pages.forEach(({ pageviews }) => (totalPageviews += pageviews));
 
   return (
     <Box rounded="md" borderWidth="1px" p="5" mt="8">
@@ -20,7 +21,7 @@ const PageTable = ({
         rows={pages.map(({ name, pageviews, users, sessions }) => ({
           label: name,
           tooltipLabel: `${pageviews} pageviews / ${users} users / ${sessions} sessions`,
-          percent: (users / maxUsers) * 100,
+          percent: Math.round((pageviews / totalPageviews) * 100),
         }))}
       />
     </Box>

@@ -9,18 +9,24 @@ const ReferrerTable = ({
   loading: boolean;
   referrers: Referrer[];
 }): ReactElement => {
-  let maxCount = 0;
-  referrers.forEach(({ count }) => (maxCount = Math.max(count, maxCount)));
+  let totalCounter = 0;
+
+  referrers.forEach(({ count }) => (totalCounter += count));
 
   return (
     <Box rounded="md" borderWidth="1px" p="5" mt={{ xsm: 0, md: 8 }}>
       <Table
         title="Referrers"
-        rows={referrers.map(({ name, count }) => ({
-          label: name,
-          tooltipLabel: `Count ${count}`,
-          percent: (count / maxCount) * 100,
-        }))}
+        rows={referrers.map(({ name, count }) => {
+          const percent = Math.round((count / totalCounter) * 100);
+          return {
+            label: name,
+            tooltipLabel: `${percent}% / ${count} time${
+              count === 1 ? "" : "s"
+            }`,
+            percent,
+          };
+        })}
         loading={loading}
       />
     </Box>
