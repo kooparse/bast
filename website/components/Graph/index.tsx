@@ -65,7 +65,7 @@ const Graph = ({
     : Object.entries(data);
 
   return (
-    <Box rounded="md" borderWidth="1px" p="5" mt="10" mb="10">
+    <Box rounded="md" borderWidth="1px" p="5">
       <Flex justifyContent="space-between" mb="8">
         <ButtonGroup spacing={4}>
           <Button

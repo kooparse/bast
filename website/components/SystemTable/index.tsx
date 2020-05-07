@@ -22,7 +22,6 @@ const OperatingSystemTable = ({
         title={title}
         rows={systems.map(({ name, counter }) => {
           const percent = Math.round((counter / totalCounter) * 100);
-          console.log(counter, totalCounter);
 
           return {
             label: name,

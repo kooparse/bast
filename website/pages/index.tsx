@@ -20,6 +20,7 @@ import {
   Heading,
   SimpleGrid,
   Select,
+  Box,
 } from "@chakra-ui/core";
 import Graph from "../components/Graph";
 import ReferrerTable from "../components/ReferrerTable";
@@ -229,27 +230,34 @@ const Home: React.FC = (): ReactElement => {
       </Flex>
 
       <GlobalStat website={website} loading={loading} />
-      <Graph
-        data={stats.stats}
-        loading={statLoading}
-        view={view}
-        onChangeRange={(direction: number) => {
-          const range = Object.keys(stats.stats);
 
-          direction === -1
-            ? changeFrom(computeRange(new Date(range.shift()), view, -1))
-            : changeFrom(computeRange(new Date(range.pop()), view, 1));
-        }}
-        onChangeView={(v: string) => {
-          v === "month"
-            ? changeFrom(computeRange(endOfMonth(new Date()), v, -1))
-            : changeFrom(computeRange(endOfDay(new Date()), v, -1));
+      <Box my={10}>
+        <Graph
+          data={stats.stats}
+          loading={statLoading}
+          view={view}
+          onChangeRange={(direction: number) => {
+            const range = Object.keys(stats.stats);
 
-          setView(v);
-        }}
-      />
+            direction === -1
+              ? changeFrom(computeRange(new Date(range.shift()), view, -1))
+              : changeFrom(computeRange(new Date(range.pop()), view, 1));
+          }}
+          onChangeView={(v: string) => {
+            v === "month"
+              ? changeFrom(computeRange(endOfMonth(new Date()), v, -1))
+              : changeFrom(computeRange(endOfDay(new Date()), v, -1));
 
-      <SimpleGrid columns={{ xsm: 1, md: 2 }} spacing={{ xsm: 10, md: 5 }}>
+            setView(v);
+          }}
+        />
+      </Box>
+
+      <SimpleGrid
+        alignItems="start"
+        columns={{ xsm: 1, md: 2 }}
+        spacing={{ xsm: 10, md: 5 }}
+      >
         <PageTable loading={loading} pages={stats.pages} />
         <ReferrerTable loading={loading} referrers={stats.referrers} />
       </SimpleGrid>

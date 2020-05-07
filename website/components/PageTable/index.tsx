@@ -10,7 +10,6 @@ const PageTable = ({
   loading: boolean;
 }): ReactElement => {
   let totalPageviews = 0;
-
   pages.forEach(({ pageviews }) => (totalPageviews += pageviews));
 
   return (
