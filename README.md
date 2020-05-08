@@ -15,8 +15,9 @@ The backend is made in Rust using [actix-web](https://github.com/actix/actix-web
 <br/>
 
 ## Tracking
+We track all metrics over time, days as our atomic scale.
 
-**Pageviews** are an anonymous or identified visitors, so 3 visitors equals 3 pageviews. 
+**Pageviews** are anonymous or identified visitors, so 3 visitors equals 3 pageviews. On each pageview we store the referrer, the current page, etc... 
 
 **Users** is the number of unique visitors to your website. We don’t rely on cookies to identify any particular user. We construct an identifier from his IP address and his user-agent (hashed and stored in the database), It’s really inspired by what [Ackee](https://github.com/electerious/Ackee) does. So if a user visits two pages, you will see 2 pageviews but only 1 user. 
 
@@ -24,7 +25,7 @@ A new **session** starts after 30 minutes of inactivity. So if a user opens your
 
 The **average time** is stored only if it’s between 5 secondes and 30 minutes on each sessions. 
 
-We use the [woothee](https://github.com/woothee/woothee-rust) to parse and get information from user-agents; we get the **browser name**, **operating system** and other useful data.  
+We use the [woothee](https://github.com/woothee/woothee-rust) to parse and get information from user-agents; we get the **browser name**, **operating system** and other useful data.
 
 And that’s it! Also, I would love to have the geolocation but not for now.
 
