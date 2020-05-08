@@ -5,7 +5,7 @@
 <br/>
 Bast is an open sourced web analytics, giving simple informations about your site traffics. 
 
-I did this project for myself. It is currently used by a couple of friends so it might be useful for others (if you’re a small business, an indie, a blogger…). This project is **free** and you can do whatever you want with it.
+I did this project for myself. It is currently used by a couple of friends so it might be useful for others (if you’re a small business, an indie, a blogger…). This project is free and you can do whatever you want with it.
 
 The backend is made in Rust using [actix-web](https://github.com/actix/actix-web) web framework and [diesel](https://github.com/diesel-rs/diesel) as PostgreSQL ORM. The frontend is (mostly) static and made in React with [Next](https://github.com/zeit/next.js). I used [chakra-ui](https://chakra-ui.com/) for the interface (but the graph is custom).
 
@@ -81,6 +81,6 @@ Otherwise simply run `cargo run`.
 
 ## Thanks
 
-I read the [Fathom](https://github.com/usefathom/fathom) codebase, it’s a pretty cool project made in Golang, also their codebase is clean. If you don’t want to spend time on hosting your own web analytics, you should definitely check their [plans](https://usefathom.com/pricing).
+I read the [Fathom](https://github.com/usefathom/fathom) codebase, it’s a pretty cool project made in Golang. If you don’t want to spend time on hosting your own web analytics and pay for services, you should definitely check their [plans](https://usefathom.com/pricing).
 
-To identified users without using a cookie, I was inspired by [Ackee](https://github.com/electerious/Ackee). So don't hesitate to go see this cool project; it's fully made in javascript. 
+To identify users without using cookies, I was inspired by [Ackee](https://github.com/electerious/Ackee). So don't hesitate to check this cool project; it's fully made in javascript. 
