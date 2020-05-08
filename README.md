@@ -17,7 +17,7 @@ The backend is made in Rust using [actix-web](https://github.com/actix/actix-web
 ## Tracking
 We track all metrics over time, days as our atomic scale.
 
-**Pageviews** are anonymous or identified visitors, so 3 visitors equals 3 pageviews. On each pageview we store the referrer, the current page, etc... 
+**Pageviews** are anonymous or identified visitors, so 3 visitors equals 3 pageviews. On each pageview we store the **referrer**, the current **url**, etc... 
 
 **Users** is the number of unique visitors to your website. We don’t rely on cookies to identify any particular user. We construct an identifier from his IP address and his user-agent (hashed and stored in the database), It’s really inspired by what [Ackee](https://github.com/electerious/Ackee) does. So if a user visits two pages, you will see 2 pageviews but only 1 user. 
 
