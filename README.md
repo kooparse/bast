@@ -81,6 +81,6 @@ Otherwise simply run `cargo run`.
 
 ## Thanks
 
-I read the [Fathom](https://github.com/usefathom/fathom) codebase, it’s a pretty cool project made in Golang. If you don’t want to spend time on hosting your own web analytics and pay for services, you should definitely check their [plans](https://usefathom.com/pricing).
+I read the [Fathom](https://github.com/usefathom/fathom) codebase, it’s a pretty cool project made in Golang. If you don’t want to spend time on hosting your own web analytics and you would like to pay for a service, you should definitely check their [plans](https://usefathom.com/pricing).
 
 To identify users without using cookies, I was inspired by [Ackee](https://github.com/electerious/Ackee). So don't hesitate to check this cool project; it's fully made in javascript. 
