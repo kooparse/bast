@@ -1,4 +1,4 @@
-## Bast
+# Bast
 
 ![CI](https://github.com/kooparse/bast/workflows/CI/badge.svg)
 <br/>
@@ -9,12 +9,12 @@ I did this project for myself. It is currently used by a couple of friends so it
 
 The backend is made in Rust using [actix-web](https://github.com/actix/actix-web) web framework and [diesel](https://github.com/diesel-rs/diesel) as PostgreSQL ORM. The frontend is (mostly) static and made in React with [Next](https://github.com/zeit/next.js). I used [chakra-ui](https://chakra-ui.com/) for the interface (but the graph is custom).
 
-### Interface
+## Interface
 
 <img src="https://i.imgur.com/DsE3xcM.png" alt="preview" />
 <br/>
 
-### Tracking
+## Tracking
 
 **Pageviews** are an anonymous or identified visitors, so 3 visitors equals 3 pageviews. 
 
@@ -28,7 +28,9 @@ We use the [woothee](https://github.com/woothee/woothee-rust) to parse and get i
 
 And that’s it! Also, I would love to have the geolocation but not for now.
 
-### Contributing to the project
+<br/>
+
+## Contributing to the project
 
 Don’t be shy about shooting any questions you may have. If you are a beginner/junior, don’t hesitate, I will always encourage you. It’s a safe place here. Also, I would be very happy to receive any kind of pull requests, you will have (at least) some feedback/guidance rapidly.
 
