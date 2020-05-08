@@ -37,7 +37,7 @@ async fn main() -> std::io::Result<()> {
     let bind_address = {
         format!(
             "{}:{}",
-            var("SERVER_URL").unwrap_or("0.0.0.0".into()),
+            var("HOSTNAME").unwrap_or("0.0.0.0".into()),
             var("PORT").unwrap_or("3333".into())
         )
     };
