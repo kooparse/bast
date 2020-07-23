@@ -1,0 +1,45 @@
+name: Rust
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: cargo test --all
+      - name: fmt
+        run: cargo fmt --all -- --check
+      - name: clippy
+        run: cargo clippy
+      - name: Check crate package size (feat. 'cargo diet')
+        run: |
+          curl -LSfs https://raw.githubusercontent.com/the-lean-crate/cargo-diet/master/ci/install.sh | \
+           sh -s -- --git the-lean-crate/cargo-diet --target x86_64-unknown-linux-musl
+          cargo diet -n --package-size-limit 30KB
+  # Currently having issue with openssl
+  # build-and-test-on-windows:
+  #   name: Windows
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: default
+  #         toolchain: nightly
+  #         override: true
+  #     - name: "Check (crossterm)"
+  #       uses: actions-rs/cargo@v1
+  #       with:
+  #         command: check
+  #         args: --all --bins --tests --examples
+  #     - name: "Test (crossterm)"
+  #       uses: actions-rs/cargo@v1
+  #       with:
+  #         command: test
+  #         args: --all
