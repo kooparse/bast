@@ -27,3 +27,8 @@ woothee = "0.11.0"
 [[bin]]
 name = "bast"
 path = "server/main.rs"
+
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
