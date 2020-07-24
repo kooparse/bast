@@ -57,9 +57,4 @@ joinable!(pageviews -> websites (website_id));
 joinable!(stats -> websites (website_id));
 joinable!(websites -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(
-    pageviews,
-    stats,
-    users,
-    websites,
-);
+allow_tables_to_appear_in_same_query!(pageviews, stats, users, websites,);

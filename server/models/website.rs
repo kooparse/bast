@@ -23,12 +23,7 @@ pub struct Website {
 }
 
 impl CmpStat for Website {
-    fn cmp(
-        &mut self,
-        is_new_user: bool,
-        is_new_session: bool,
-        duration: f32,
-    ) {
+    fn cmp(&mut self, is_new_user: bool, is_new_session: bool, duration: f32) {
         self.pageviews += 1;
 
         if is_new_user {
