@@ -3,14 +3,26 @@
   "description": "Open sourced web analytics, giving informations about your site traffics.",
   "repository": "https://github.com/kooparse/bast",
   "keywords": ["rust", "analytics"],
+  "stack": "container",
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "options": {
+        "version": "9.5"
+      }
+    }
+  ],
   "env": {
     "DATABASE_URL": {
+      "required": false,
       "description": "Address to the postgres database"
     },
     "HOSTNAME": {
+      "required": false,
       "description": "Hostname of the server"
     },
-    "POST": {
+    "PORT": {
+      "required": false,
       "description": "Port of the server"
     },
     "JWT_SECRET": {
