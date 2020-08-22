@@ -1,5 +1,4 @@
 # Bast
-
 ![CI](https://github.com/kooparse/bast/workflows/CI/badge.svg)
 <br/>
 <br/>
@@ -39,7 +38,14 @@ Behind screens, there are human beings, living any sort of story. So be always k
 
 <br/>
 
-## Install
+## Deploy Bast with Heroku
+Easiest way to deploy the project!<br/>
+<br/>
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+<br/>
+<br/>
+
+## Install on your machine
 
 ### Unix and OS/X
 
@@ -58,7 +64,7 @@ Behind screens, there are human beings, living any sort of story. So be always k
 <br/>
 
 
-## Running Bast with Docker
+## Running Bast with Docker on your machine
 
 Once docker is installed on your machine, you just need to do: 
 - `docker-compose up`
