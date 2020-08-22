@@ -1,0 +1,25 @@
+{
+  "name": "Bast",
+  "description": "Open sourced web analytics, giving informations about your site traffics.",
+  "repository": "https://github.com/kooparse/bast",
+  "keywords": ["rust", "analytics"],
+  "env": {
+    "DATABASE_URL": {
+      "description": "Address to the postgres database"
+    },
+    "HOSTNAME": {
+      "description": "Hostname of the server"
+    },
+    "POST": {
+      "description": "Port of the server"
+    },
+    "JWT_SECRET": {
+      "description": "Jwt secret to encrypt passwords",
+      "generator": "secret"
+    },
+    "RUST_LOG": {
+      "description": "Information to print from the server",
+      "value": "actix_web=info"
+    }
+  }
+}
