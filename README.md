@@ -57,6 +57,17 @@ Behind screens, there are human beings, living any sort of story. So be always k
 
 <br/>
 
+
+## Running Bast with Docker
+
+Once docker is installed on your machine, you just need to do: 
+- `docker-compose up`
+- Live at `http://localhost/3333`
+
+Also you could customize all environment variables from `docker-compose.yml`
+
+<br/>
+
 ## Running the api in development
 
 ### For the api.
@@ -79,6 +90,7 @@ Otherwise simply run `cargo run`.
 - Live at `http://localhost/3000`.
 
 <br/>
+
 
 ## Thanks
 
