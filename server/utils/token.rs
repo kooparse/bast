@@ -1,12 +1,11 @@
 use actix_web::{error::Error as ActixError, HttpRequest, HttpResponse};
-use dotenv;
 use jsonwebtoken::{decode, Validation};
 use serde::{Deserialize, Serialize};
 
 pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
     req.headers()
         .get("Authorization")
-        .ok_or_else(|| HttpResponse::Unauthorized())
+        .ok_or_else(HttpResponse::Unauthorized)
         .and_then(|bearer| {
             let token = bearer
                 .to_str()
@@ -33,7 +32,7 @@ pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
 
             return Ok(Some(decoded.claims.id));
         })
-        .map_err(|e| ActixError::from(e))
+        .map_err(ActixError::from)
 }
 #[derive(Deserialize, Serialize, Debug)]
 pub struct JWTPayload {

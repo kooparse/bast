@@ -14,7 +14,6 @@ use actix_files as fs;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use controllers::{collect, file, get_stat, login, register, user, website};
 use dotenv::{dotenv, var};
-use env_logger;
 use utils::Db;
 
 embed_migrations!();
@@ -37,8 +36,8 @@ async fn main() -> std::io::Result<()> {
     let bind_address = {
         format!(
             "{}:{}",
-            var("HOSTNAME").unwrap_or("0.0.0.0".into()),
-            var("PORT").unwrap_or("3333".into())
+            var("HOSTNAME").unwrap_or_else(|_| "0.0.0.0".into()),
+            var("PORT").unwrap_or_else(|_| "3333".into())
         )
     };
 

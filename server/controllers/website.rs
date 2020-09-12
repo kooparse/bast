@@ -48,7 +48,7 @@ pub async fn delete(
     let path = req
         .match_info()
         .get("website_id")
-        .ok_or_else(|| HttpResponse::Forbidden())?;
+        .ok_or_else(HttpResponse::Forbidden)?;
 
     let website_id: i32 = path.parse().map_err(|e| {
         eprintln!("{}", e);

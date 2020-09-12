@@ -11,7 +11,6 @@ use chrono::{Datelike, Utc};
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::result::Error as DbError;
-use hex;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
@@ -184,7 +183,7 @@ pub async fn collect(
                 insert_into(pageviews::table)
                     .values(&params)
                     .get_result(&conn)
-                    .and_then(|pv: Pageview| Ok(pv.created_at))
+                    .map(|pv: Pageview| pv.created_at)
                     .map_err(|e| {
                         eprintln!("{}", e);
                         HttpResponse::InternalServerError().finish()
@@ -202,7 +201,7 @@ pub async fn collect(
                 insert_into(pageviews::table)
                     .values(&params)
                     .get_result(&conn)
-                    .and_then(|pv: Pageview| Ok(pv.created_at))
+                    .map(|pv: Pageview| pv.created_at)
                     .map_err(|e| {
                         eprintln!("{}", e);
                         HttpResponse::InternalServerError().finish()
@@ -211,7 +210,7 @@ pub async fn collect(
 
             _ => Err(HttpResponse::InternalServerError().finish()),
         }
-        .map_err(|e| SendError::from(e))?;
+        .map_err(SendError::from)?;
 
         // Now we want to compute analytics over time.
         //
