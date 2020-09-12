@@ -4,8 +4,7 @@ use crate::Db;
 use actix_web::{error::Error as ActixError, web, HttpResponse};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
-use dotenv;
-use jsonwebtoken::{encode, Header};
+use jsonwebtoken::{encode, Header, EncodingKey};
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
@@ -53,7 +52,7 @@ pub async fn login(
     }
 
     let payload = JWTPayload::new(user.id, jwt_timeout);
-    let token = encode(&Header::default(), &payload, jwt_secret.as_ref())
+    let token = encode(&Header::default(), &payload, &EncodingKey::from_secret(jwt_secret.as_ref()))
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError()

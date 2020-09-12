@@ -1,5 +1,5 @@
 use actix_web::{error::Error as ActixError, HttpRequest, HttpResponse};
-use jsonwebtoken::{decode, Validation};
+use jsonwebtoken::{decode, Validation, DecodingKey};
 use serde::{Deserialize, Serialize};
 
 pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
@@ -22,7 +22,7 @@ pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
 
             let decoded = decode::<JWTPayload>(
                 &token,
-                jwt_secret.as_ref(),
+                &DecodingKey::from_secret(jwt_secret.as_ref()),
                 &Validation::default(),
             )
             .map_err(|e| {
@@ -30,7 +30,7 @@ pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
                 HttpResponse::InternalServerError()
             })?;
 
-            return Ok(Some(decoded.claims.id));
+            Ok(Some(decoded.claims.id))
         })
         .map_err(ActixError::from)
 }

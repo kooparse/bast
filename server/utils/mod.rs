@@ -46,7 +46,7 @@ pub fn is_valid_domain(domain: &str) -> bool {
         .unwrap();
     }
 
-    return DOMAIN_REGEX.is_match(domain);
+    DOMAIN_REGEX.is_match(domain)
 }
 
 // Check if hostname is localhost.
@@ -58,7 +58,7 @@ pub fn is_from_localhost(hostname: &str) -> bool {
         .unwrap();
     }
 
-    return hostname == "localhost"
+    hostname == "localhost"
         || hostname == "[::1]"
-        || LOCALHOST_REGEX.is_match(hostname);
+        || LOCALHOST_REGEX.is_match(hostname)
 }
