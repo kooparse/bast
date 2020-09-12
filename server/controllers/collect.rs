@@ -317,7 +317,7 @@ mod tests {
         cfg.route("/collect", web::get().to(collect));
     }
 
-    #[actix_rt::test]
+    #[actix_web::test]
     async fn check_collect() {
         let db = Db::new();
         let conn = db.conn_pool().expect("Failed to connect to database.");

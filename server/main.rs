@@ -19,7 +19,7 @@ use utils::Db;
 
 embed_migrations!();
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Load all environement's variables.
     dotenv().ok();
