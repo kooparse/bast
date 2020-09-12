@@ -1,5 +1,5 @@
 use actix_web::{error::Error as ActixError, HttpRequest, HttpResponse};
-use jsonwebtoken::{decode, Validation, DecodingKey};
+use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 
 pub fn check_auth(req: &HttpRequest) -> Result<Option<i32>, ActixError> {
