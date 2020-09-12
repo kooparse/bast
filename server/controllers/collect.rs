@@ -106,7 +106,7 @@ pub async fn collect(
             .chain(req_info.host().as_bytes())
             // Hash user agent.
             .chain(&params.user_agent)
-            .result();
+            .finalize();
 
         // Encode 16 first characters.
         params.u_id = hex::encode(&hash)[..16].to_owned();
