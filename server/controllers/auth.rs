@@ -29,7 +29,7 @@ pub async fn login(
 
     let form = form.into_inner();
     // Value moved after...
-    let password = form.password.clone().to_ascii_lowercase();
+    let password = form.password.clone();
 
     let user: User = web::block(move || {
         users::table
