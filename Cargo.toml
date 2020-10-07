@@ -5,7 +5,7 @@ authors = ["Alexandre Chêne <kooparse@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-actix-files = "0.3"
+actix-files = "0.4"
 actix-web = { version="3", features = ["openssl"] }
 actix-cors = "0.4"
 diesel = { version="1.4.4", features = ["chrono", "postgres", "r2d2", "uuidv07", "serde_json"] }
