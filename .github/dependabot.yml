@@ -3,11 +3,11 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "npm"
     directory: "/website"
     schedule:
-      interval: "daily"
+      interval: "monthly"
     ignore:
       - dependency-name: "@types/node"
         versions: ["14.x"]

@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .data(db.clone())
             .wrap(Logger::default())
-            .wrap(Cors::permissive().send_wildcard())
+            .wrap(Cors::new().send_wildcard().finish())
             .service(
                 web::scope("/api")
                     .route("/register", web::post().to(register))
