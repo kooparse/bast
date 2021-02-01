@@ -23,7 +23,7 @@
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@types/node": "^13.13.34",
+    "@types/node": "^13.13.40",
     "@types/react": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
