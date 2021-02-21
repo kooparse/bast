@@ -10,7 +10,7 @@ RUN npm ci && npm run export
 # -----------------
 # Cargo build stage
 # -----------------
-FROM rust:1.47.0 as cargo-build
+FROM rust:1.50.0 as cargo-build
 RUN USER=root cargo new --bin bast
 WORKDIR /bast
 
