@@ -15,7 +15,7 @@ uuid = { version = "0.8", features = ["serde"] }
 dotenv = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 bcrypt = "0.9"
-sha2 = "0.9.2"
+sha2 = "0.9.3"
 hex = "0.4.2"
 regex = "1.4.2"
 jsonwebtoken = "7.2"
