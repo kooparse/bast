@@ -1,7 +1,8 @@
-import React, { ReactElement, useContext, useEffect } from "react";
+import React, { ReactElement, useContext } from "react";
 import Router from "next/router";
 import Link from "next/link";
 import { UserContext } from "../../utils/context";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import {
   Flex,
   Heading,
@@ -16,7 +17,7 @@ import {
   MenuList,
   MenuGroup,
   MenuButton,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 const NavBar: React.FC = (): ReactElement => {
   const ctx = useContext(UserContext);
@@ -31,20 +32,6 @@ const NavBar: React.FC = (): ReactElement => {
     ctx.setUser(null);
     Router.push("/");
   };
-
-  useEffect(() => {
-    const storageColor = JSON.parse(localStorage.getItem("darkMode"))
-      ? "dark"
-      : "light";
-
-    if (colorMode !== storageColor) {
-      toggleColorMode();
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem("darkMode", `${colorMode === "dark"}`);
-  }, [colorMode]);
 
   return (
     <Box
@@ -67,10 +54,8 @@ const NavBar: React.FC = (): ReactElement => {
           <IconButton
             variant="ghost"
             aria-label="dark-mode"
-            icon={colorMode === "light" ? "moon" : "sun"}
-            onClick={(): void => {
-              toggleColorMode();
-            }}
+            icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+            onClick={(): void => toggleColorMode()}
           />
 
           <Divider orientation="vertical" />

@@ -17,7 +17,7 @@ import {
   FormControl,
   FormLabel,
   Input,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import CodeSnippet from "../components/CodeSnippet";
 import { UserContext } from "../utils/context";
 import {
@@ -128,7 +128,7 @@ const Settings: React.FC = (): ReactElement => {
             </option>
           ))}
         </Select>
-        <Button display={{ xsm: "none", md: "initial" }} onClick={handleDelete}>
+        <Button display={{ sm: "none", md: "initial" }} onClick={handleDelete}>
           Delete &#128128;
         </Button>
       </Flex>
@@ -208,7 +208,7 @@ const Settings: React.FC = (): ReactElement => {
 
           <Button
             mt={2}
-            variantColor="teal"
+            colorScheme="teal"
             isLoading={formik.isSubmitting}
             type="submit"
           >

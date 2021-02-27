@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { Box } from "@chakra-ui/core";
+import { Box } from "@chakra-ui/react";
 import Table from "../Table";
 
 const ReferrerTable = ({
@@ -14,7 +14,7 @@ const ReferrerTable = ({
   referrers.forEach(({ count }) => (totalCounter += count));
 
   return (
-    <Box rounded="md" borderWidth="1px" p="5" mt={{ xsm: 0, md: 8 }}>
+    <Box rounded="md" borderWidth="1px" p="5" mt={{ sm: 0, md: 8 }}>
       <Table
         title="Referrers"
         rows={referrers.map(({ name, count }) => {

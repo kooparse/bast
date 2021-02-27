@@ -7,7 +7,7 @@ import {
   FormLabel,
   Input,
   Button
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import api, { setToken, setAuthorization } from "../utils/api";
 import { UserContext } from "../utils/context";
 import { errorLogin } from "../utils/messages";
@@ -70,7 +70,7 @@ const Login: React.FC = (): ReactElement => {
         <Button
           ml={4}
           mt={4}
-          variantColor="teal"
+          colorScheme="teal"
           isLoading={formik.isSubmitting}
           type="submit"
         >

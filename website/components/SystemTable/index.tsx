@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { Box } from "@chakra-ui/core";
+import { Box } from "@chakra-ui/react";
 import Table from "../Table";
 
 const OperatingSystemTable = ({

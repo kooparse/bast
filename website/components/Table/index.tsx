@@ -1,16 +1,16 @@
 import React, { ReactElement, useState } from "react";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Flex,
   Heading,
   Alert,
   Text,
+  Box,
   useColorMode,
   Tooltip,
   Skeleton,
-  PseudoBox,
   IconButton,
-  ButtonGroup,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 const Table = ({
   title,
@@ -68,14 +68,14 @@ const Table = ({
                       h="8"
                       bg={colorMode === "light" ? "gray.100" : "gray.900"}
                     >
-                      <PseudoBox
+                      <Box
                         display="flex"
                         alignItems="center"
                         bg="teal.500"
                         minWidth={2}
                         _hover={{ bg: "teal.600" }}
                         width={`${percent}%`}
-                      ></PseudoBox>
+                      ></Box>
                       <Text
                         p={2}
                         position="absolute"
@@ -115,8 +115,8 @@ const Table = ({
                   setCurrentPage(currentPage + 1);
                 }
               }}
-              icon="arrow-back"
-              variantColor="teal"
+              icon={<ArrowBackIcon />}
+              colorScheme="teal"
               variant="outline"
               size="xs"
             />
@@ -131,8 +131,8 @@ const Table = ({
                   setCurrentPage(currentPage - 1);
                 }
               }}
-              icon="arrow-forward"
-              variantColor="teal"
+              icon={<ArrowForwardIcon />}
+              colorScheme="teal"
               variant="outline"
               size="xs"
             />

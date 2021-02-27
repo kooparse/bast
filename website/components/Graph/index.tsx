@@ -1,17 +1,18 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import format from "date-fns/format";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Text,
   Flex,
+  Stack,
   Tooltip,
-  PseudoBox,
   Skeleton,
   Box,
   RadioGroup,
   ButtonGroup,
   Button,
   Radio,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 const Graph = ({
   data,
@@ -70,8 +71,8 @@ const Graph = ({
         <ButtonGroup spacing={4}>
           <Button
             onClick={() => onChangeRange(-1)}
-            leftIcon="arrow-back"
-            variantColor="teal"
+            leftIcon={<ArrowBackIcon />}
+            colorScheme="teal"
             variant="outline"
             size="xs"
           >
@@ -79,8 +80,8 @@ const Graph = ({
           </Button>
           <Button
             onClick={() => onChangeRange(1)}
-            rightIcon="arrow-forward"
-            variantColor="teal"
+            rightIcon={<ArrowForwardIcon />}
+            colorScheme="teal"
             variant="outline"
             size="xs"
           >
@@ -88,13 +89,14 @@ const Graph = ({
           </Button>
         </ButtonGroup>
         <RadioGroup
-          isInline
           spacing={4}
           defaultValue={view}
-          onChange={(_, view) => onChangeView(view)}
+          onChange={(view: string) => onChangeView(view)}
         >
-          <Radio value="month">Monthly</Radio>
-          <Radio value="day">Daily</Radio>
+          <Stack direction="row">
+            <Radio value="month">Monthly</Radio>
+            <Radio value="day">Daily</Radio>
+          </Stack>
         </RadioGroup>
       </Flex>
 
@@ -120,12 +122,7 @@ const Graph = ({
               : format(new Date(date), "d MMM yy");
 
             return (
-              <PseudoBox
-                mr={{ xsm: "2", md: "4" }}
-                _last={{ mr: "0" }}
-                pb="5"
-                key={i}
-              >
+              <Box mr={{ sm: "2", md: "4" }} _last={{ mr: "0" }} pb="5" key={i}>
                 <Flex
                   w="100%"
                   h="100%"
@@ -137,7 +134,7 @@ const Graph = ({
                     label={`${datum.users} users`}
                     aria-label="user-count"
                   >
-                    <PseudoBox
+                    <Box
                       bg="teal.500"
                       _hover={{ bg: "teal.600" }}
                       minHeight={1}
@@ -151,7 +148,7 @@ const Graph = ({
                     label={`${datum.sessions} sessions`}
                     aria-label="session-count"
                   >
-                    <PseudoBox
+                    <Box
                       bg="teal.300"
                       _hover={{ bg: "teal.400" }}
                       minHeight={1}
@@ -164,7 +161,7 @@ const Graph = ({
                 <Text as="span" fontSize="sm">
                   {label}
                 </Text>
-              </PseudoBox>
+              </Box>
             );
           })
         )}

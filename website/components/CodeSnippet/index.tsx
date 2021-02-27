@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import config from "next/config";
-import { useClipboard, Code, Button } from "@chakra-ui/core";
+import { useClipboard, Code, Button } from "@chakra-ui/react";
 
 const { COLLECT_GHOST_PICTURE, SCRIPT_ENDPOINT } = config().publicRuntimeConfig;
 
@@ -46,7 +46,7 @@ const CodeSnippet = ({ website }: { website: Website }): ReactElement => {
       <Button
         onClick={onCopy}
         size="sm"
-        variantColor="teal"
+        colorScheme="teal"
         position="absolute"
         right="5"
       >

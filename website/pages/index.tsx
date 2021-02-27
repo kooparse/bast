@@ -21,7 +21,7 @@ import {
   SimpleGrid,
   Select,
   Box,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import Graph from "../components/Graph";
 import ReferrerTable from "../components/ReferrerTable";
 import PageTable from "../components/PageTable";
@@ -49,6 +49,26 @@ const defaultStats: Stats = {
     id: null,
   },
 };
+
+function computeRange(from: Date, view: string, direction: number) {
+  const isMonth = view === "month";
+
+  const range = {
+    start: isMonth
+      ? startOfMonth(subMonths(from, 10))
+      : startOfDay(subDays(from, 6)),
+    end: isMonth ? endOfMonth(from) : endOfDay(from),
+  };
+
+  if (direction === 1) {
+    range.end = isMonth
+      ? endOfMonth(addMonths(from, 10))
+      : endOfDay(addDays(from, 6));
+    range.start = isMonth ? startOfMonth(from) : startOfDay(from);
+  }
+
+  return range;
+}
 
 const Home: React.FC = (): ReactElement => {
   const { user, loading: userIsLoading } = useContext(UserContext);
@@ -202,17 +222,17 @@ const Home: React.FC = (): ReactElement => {
   return (
     <>
       <Flex
-        flexDirection={{ xsm: "column", md: "row" }}
+        flexDirection={{ sm: "column", md: "row" }}
         justifyContent="space-between"
         alignContent="center"
       >
-        <Heading as="h1" mb={{ xsm: 5, md: 0 }}>
+        <Heading as="h1" mb={{ sm: 5, md: 0 }}>
           Dashboard
         </Heading>
 
         {!!websites.length && (
           <Select
-            width={{ xsm: "100%", md: 300 }}
+            width={{ sm: "100%", md: 300 }}
             value={websites.find((w) => w.id === selectedWebsiteId)?.id}
             onChange={(event): void => {
               const { value: id } = event.target;
@@ -255,14 +275,14 @@ const Home: React.FC = (): ReactElement => {
 
       <SimpleGrid
         alignItems="start"
-        columns={{ xsm: 1, md: 2 }}
-        spacing={{ xsm: 10, md: 5 }}
+        columns={{ sm: 1, md: 2 }}
+        spacing={{ sm: 10, md: 5 }}
       >
         <PageTable loading={loading} pages={stats.pages} />
         <ReferrerTable loading={loading} referrers={stats.referrers} />
       </SimpleGrid>
 
-      <SimpleGrid columns={{ xsm: 1, md: 3 }} spacing={{ xsm: 10, md: 5 }}>
+      <SimpleGrid columns={{ sm: 1, md: 3 }} spacing={{ sm: 10, md: 5 }}>
         <System
           loading={loading}
           systems={stats.systems.operatingSystems}
@@ -288,25 +308,5 @@ const Home: React.FC = (): ReactElement => {
     </>
   );
 };
-
-function computeRange(from: Date, view: string, direction: number) {
-  const isMonth = view === "month";
-
-  const range = {
-    start: isMonth
-      ? startOfMonth(subMonths(from, 10))
-      : startOfDay(subDays(from, 6)),
-    end: isMonth ? endOfMonth(from) : endOfDay(from),
-  };
-
-  if (direction === 1) {
-    range.end = isMonth
-      ? endOfMonth(addMonths(from, 10))
-      : endOfDay(addDays(from, 6));
-    range.start = isMonth ? startOfMonth(from) : startOfDay(from);
-  }
-
-  return range;
-}
 
 export default Home;

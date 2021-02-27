@@ -7,7 +7,7 @@ import {
   StatHelpText,
   StatNumber,
   StatGroup,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 const toReadableTimeFormat = (secondes: number): string => {
   return secondes >= 60
@@ -51,9 +51,9 @@ const StatBox = ({
   helper?: string;
   couldHide?: boolean;
 }): ReactElement => (
-  <Stat display={{ xsm: couldHide ? "none" : "initial", md: "initial" }}>
+  <Stat display={{ sm: couldHide ? "none" : "initial", md: "initial" }}>
     <StatLabel>{label}</StatLabel>
-    <StatNumber fontSize={{ xsm: "xl", md: "3xl" }}>{value}</StatNumber>
+    <StatNumber fontSize={{ sm: "xl", md: "3xl" }}>{value}</StatNumber>
     {!!helper && <StatHelpText>{helper}</StatHelpText>}
   </Stat>
 );
