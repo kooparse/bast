@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.1.5",
     "axios": "^0.21.1",
     "date-fns": "^2.16.1",
-    "emotion-theming": "^10.0.27",
+    "emotion-theming": "^11.0.0",
     "formik": "^2.2.6",
     "framer-motion": "^3.6.7",
     "next": "^10.0.7",
