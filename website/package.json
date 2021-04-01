@@ -15,7 +15,7 @@
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
     "axios": "^0.21.1",
-    "date-fns": "^2.18.0",
+    "date-fns": "^2.19.0",
     "emotion-theming": "^11.0.0",
     "formik": "^2.2.6",
     "framer-motion": "^3.9.0",
