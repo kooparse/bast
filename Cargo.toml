@@ -8,7 +8,7 @@ edition = "2018"
 actix-files = "0.5"
 actix-web = { version="3.3", features = ["openssl"] }
 actix-cors = "0.4.1"
-diesel = { version="1.4.4", features = ["chrono", "postgres", "r2d2", "uuidv07", "serde_json"] }
+diesel = { version="1.4.6", features = ["chrono", "postgres", "r2d2", "uuidv07", "serde_json"] }
 diesel_migrations = "1.4"
 chrono = { version = "0.4.19", features = ["time", "serde"] }
 uuid = { version = "0.8", features = ["serde"] }
