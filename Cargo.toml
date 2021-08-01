@@ -20,7 +20,7 @@ hex = "0.4.3"
 regex = "1.5.4"
 jsonwebtoken = "7.2"
 lazy_static = "1.4.0"
-env_logger = "0.8"
+env_logger = "0.9"
 woothee = "0.11.0"
 
 [[bin]]
