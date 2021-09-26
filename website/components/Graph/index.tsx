@@ -24,8 +24,8 @@ const Graph = ({
   data: GraphData;
   loading: boolean;
   view: string;
-  onChangeView: Function;
-  onChangeRange: Function;
+  onChangeView: (_: string) => void;
+  onChangeRange: (_: number) => void;
 }): ReactElement => {
   const isMonth = view == "month";
   const [isOnSmallDevice, setIsOnSmallDevice] = useState(false);
@@ -40,7 +40,7 @@ const Graph = ({
   useEffect(() => {
     let timeoutId = null;
 
-    const handleResize = () => {
+    const handleResize = (): void => {
       clearTimeout(timeoutId);
 
       timeoutId = setTimeout(() => {
@@ -56,7 +56,7 @@ const Graph = ({
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    return () => {
+    return (): void => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
@@ -70,7 +70,7 @@ const Graph = ({
       <Flex justifyContent="space-between" mb="8">
         <ButtonGroup spacing={4}>
           <Button
-            onClick={() => onChangeRange(-1)}
+            onClick={(): void => onChangeRange(-1)}
             leftIcon={<ArrowBackIcon />}
             colorScheme="teal"
             variant="outline"
@@ -79,7 +79,7 @@ const Graph = ({
             Previous
           </Button>
           <Button
-            onClick={() => onChangeRange(1)}
+            onClick={(): void => onChangeRange(1)}
             rightIcon={<ArrowForwardIcon />}
             colorScheme="teal"
             variant="outline"
@@ -91,7 +91,7 @@ const Graph = ({
         <RadioGroup
           spacing={4}
           defaultValue={view}
-          onChange={(view: string) => onChangeView(view)}
+          onChange={(view: string): void => onChangeView(view)}
         >
           <Stack direction="row">
             <Radio value="month">Monthly</Radio>

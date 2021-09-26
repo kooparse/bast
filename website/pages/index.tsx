@@ -50,7 +50,12 @@ const defaultStats: Stats = {
   },
 };
 
-function computeRange(from: Date, view: string, direction: number) {
+type Range = {
+  start: Date;
+  end: Date;
+};
+
+function computeRange(from: Date, view: string, direction: number): Range {
   const isMonth = view === "month";
 
   const range = {
@@ -256,14 +261,14 @@ const Home: React.FC = (): ReactElement => {
           data={stats.stats}
           loading={statLoading}
           view={view}
-          onChangeRange={(direction: number) => {
+          onChangeRange={(direction: number): void => {
             const range = Object.keys(stats.stats);
 
             direction === -1
               ? changeFrom(computeRange(new Date(range.shift()), view, -1))
               : changeFrom(computeRange(new Date(range.pop()), view, 1));
           }}
-          onChangeView={(v: string) => {
+          onChangeView={(v: string): void => {
             v === "month"
               ? changeFrom(computeRange(endOfMonth(new Date()), v, -1))
               : changeFrom(computeRange(endOfDay(new Date()), v, -1));

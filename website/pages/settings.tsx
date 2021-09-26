@@ -41,7 +41,7 @@ const Settings: React.FC = (): ReactElement => {
   const [selectedWebsite, setSelected] = useState(null);
   const current = websites.find((w) => `${w.id}` === `${selectedWebsite}`);
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     try {
       if (confirm("Are you really sure?")) {
         await api.delete(`websites/${selectedWebsite}`);

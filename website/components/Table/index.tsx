@@ -110,7 +110,7 @@ const Table = ({
           {currentPage < totalPageNumber && (
             <IconButton
               aria-label="previous"
-              onClick={() => {
+              onClick={(): void => {
                 if (currentPage < totalPageNumber) {
                   setCurrentPage(currentPage + 1);
                 }
@@ -126,7 +126,7 @@ const Table = ({
           {currentPage > 1 && (
             <IconButton
               aria-label="next"
-              onClick={() => {
+              onClick={(): void => {
                 if (currentPage > 1) {
                   setCurrentPage(currentPage - 1);
                 }
