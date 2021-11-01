@@ -21,7 +21,7 @@ regex = "1.5.4"
 jsonwebtoken = "7.2"
 lazy_static = "1.4.0"
 env_logger = "0.9"
-woothee = "0.11.0"
+woothee = "0.13.0"
 
 [[bin]]
 name = "bast"
