@@ -10,7 +10,7 @@
     "export": "npm run build && NEXT_TELEMETRY_DISABLED=1 next export"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.0.14",
+    "@chakra-ui/icons": "^1.0.17",
     "@chakra-ui/react": "^1.6.10",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
