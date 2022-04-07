@@ -3,7 +3,7 @@
 <br/>
 <br/>
 
-# ⚠️ This project is not maintained anymore, so careful there.
+# ⚠️ This project is not maintained anymore.
 <br/>
 <br/>
 
