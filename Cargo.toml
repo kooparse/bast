@@ -14,7 +14,7 @@ chrono = { version = "0.4.19", features = ["time", "serde"] }
 uuid = { version = "0.8", features = ["serde"] }
 dotenv = "0.15"
 serde = { version = "1.0", features = ["derive"] }
-bcrypt = "0.10"
+bcrypt = "0.14"
 sha2 = "0.9.8"
 hex = "0.4.3"
 regex = "1.5.4"
